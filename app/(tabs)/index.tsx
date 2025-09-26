@@ -1,4 +1,5 @@
 import { Image, StyleSheet, View } from 'react-native';
+import { Colors } from '../theme';
 
 const PlaceholderImage = require('@/assets/images/background-image.jpg');
 
@@ -13,7 +14,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#25292e',
+    backgroundColor: Colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
   },
