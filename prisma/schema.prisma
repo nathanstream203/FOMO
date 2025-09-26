@@ -13,3 +13,16 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+model Roles {
+  id Int @id @default(autoincrement())
+  name String @unique
+  description String?
+  users Users[]
+}
+
+model Users {
+  id Int @id @default(autoincrement())
+  role_id Int
+  role Roles @relation(fields: [role_id], references: [id])
+}
