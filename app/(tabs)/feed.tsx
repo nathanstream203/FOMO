@@ -9,6 +9,8 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import { Colors } from '../theme';
+
 
 export default function FeedScreen() {
   const [comments, setComments] = useState<string[]>([]);
@@ -48,7 +50,7 @@ export default function FeedScreen() {
           value={input}
           onChangeText={setInput}
           placeholder="Type a comment..."
-          placeholderTextColor="#999"
+          placeholderTextColor={Colors.text}
         />
         <TouchableOpacity style={styles.postButton} onPress={handlePost}>
           <Text style={styles.postText}>Post</Text>
@@ -61,45 +63,45 @@ export default function FeedScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#25292e',
+    backgroundColor: Colors.primary,
   },
   comment: {
     padding: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#444',
+    borderBottomColor: Colors.text,
   },
   commentText: {
-    color: '#fff',
+    color: Colors.white,
   },
   emptyText: {
-    color: '#888',
+    color: Colors.text,
     textAlign: 'center',
     marginTop: 20,
   },
   inputRow: {
     flexDirection: 'row',
     borderTopWidth: 1,
-    borderTopColor: '#444',
+    borderTopColor: Colors.text,
     padding: 8,
-    backgroundColor: '#1c1c1c',
+    backgroundColor: Colors.primary,
   },
   input: {
     flex: 1,
-    color: '#fff',
+    color: Colors.white,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 8,
-    backgroundColor: '#333',
+    backgroundColor: Colors.grey,
   },
   postButton: {
     marginLeft: 8,
-    backgroundColor: '#5568fe',
+    backgroundColor: Colors.button,
     borderRadius: 8,
     paddingHorizontal: 16,
     justifyContent: 'center',
   },
   postText: {
-    color: '#fff',
+    color: Colors.white,
     fontWeight: 'bold',
   },
 });

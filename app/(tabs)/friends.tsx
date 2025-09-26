@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { Colors } from '../theme';
 
 export default function FriendsScreen() {
   const [friendCode, setFriendCode] = useState('');
@@ -44,7 +45,7 @@ export default function FriendsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#25292e',
+    backgroundColor: Colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
@@ -52,7 +53,7 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#fff',
+    color: Colors.white,
     marginBottom: 20,
   },
   section: {
@@ -60,7 +61,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   label: {
-    color: '#aaa',
+    color: Colors.text,
     fontSize: 14,
   },
   code: {
@@ -70,7 +71,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   friend: {
-    color: '#fff',
+    color: Colors.white,
     fontSize: 18,
     marginTop: 4,
   },
