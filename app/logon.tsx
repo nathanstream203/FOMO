@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { Text, View, StyleSheet, TextInput, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useState } from 'react';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Colors } from '../app/theme';
 
 export default function LogonScreen() {
   const [email, setEmail] = useState('');
@@ -63,7 +64,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   button: {
-    backgroundColor: '#5568fe',
+    backgroundColor: Colors.button,
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,
