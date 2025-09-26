@@ -1,13 +1,25 @@
-import { Image, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import MapView, {Marker} from 'react-native-maps';
 import { Colors } from '../theme';
+import {Stack} from 'expo-router';
 
-const PlaceholderImage = require('@/assets/images/background-image.jpg');
 
 export default function HomeScreen() {
   return (
-    <View style={styles.container}>
-      <Image source={PlaceholderImage} style={styles.image} resizeMode="contain" />
-    </View>
+      <View style={styles.container}>
+          <Stack.Screen options={{headerShown: false}} />
+          <MapView
+              style={styles.map}
+              initialRegion={{
+                  latitude: 44.872394,
+                  longitude: -91.925203,
+                  latitudeDelta: 0.0922,
+                  longitudeDelta: 0.0421,
+              }}
+          >
+              <Marker coordinate={{latitude: 44.872394, longitude: -91.925203}}/>
+          </MapView>
+      </View>
   );
 }
 
@@ -18,9 +30,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  image: {
-    width: 300,
-    height: 300,
-    borderRadius: 12,
-  },
+    map: {
+      width: '100%', height: '100%',
+    }
 });
