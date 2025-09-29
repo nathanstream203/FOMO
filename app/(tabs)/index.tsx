@@ -6,13 +6,6 @@ import { Colors } from '../theme';
 
 export default function HomeScreen() {
 const circleRadius = 5000;
-const WORLD_COORDS = [
-  { latitude: 90, longitude: -180 },
-  { latitude: 90, longitude: 180 },
-  { latitude: -90, longitude: 180 },
-  { latitude: -90, longitude: -180 },
-  { latitude: 90, longitude: -180 },
-];
 
   return (
       <View style={styles.container}>
@@ -27,7 +20,6 @@ const WORLD_COORDS = [
                   longitudeDelta: 0.0421,
               }}
           >
-
             <Circle
             center={{
               latitude: 44.872394,
