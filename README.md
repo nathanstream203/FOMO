@@ -59,3 +59,9 @@ npx prisma migrate dev
 ```bash
 npx prisma generate
 ```
+
+FOR DEVELOPING SCHEMA CMD
+
+```bash
+npx prisma migrate dev --name version-name-example
+```
