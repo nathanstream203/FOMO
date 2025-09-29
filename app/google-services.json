@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "268519497605",
+    "project_id": "fomo-6f2ee",
+    "storage_bucket": "fomo-6f2ee.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:268519497605:android:fd1200697b48ad5cff2eec",
+        "android_client_info": {
+          "package_name": "com.capstoneFA2025.FOMO"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCjPsDU2ASCFAELoBYwYKZXPnJmmZPo9qc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

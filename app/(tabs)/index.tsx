@@ -1,7 +1,7 @@
+import { Stack } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
-import MapView, {Marker} from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 import { Colors } from '../theme';
-import {Stack} from 'expo-router';
 
 
 export default function HomeScreen() {

@@ -1,42 +1,57 @@
+/*
+
+How this works
+
+Unauthenticated users who try to hit / (tabs) → redirected back to /logon.
+After Google Sign-In → we store the user in AuthContext and route to / (tabs).
+Tabs are only visible if user is set.
+
+
+*/
+
+
+import * as Google from 'expo-auth-session/providers/google';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import * as WebBrowser from 'expo-web-browser';
+import { useEffect } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useAuth } from '../app/AuthContext';
 import { Colors } from '../app/theme';
 
+WebBrowser.maybeCompleteAuthSession();
+
 export default function LogonScreen() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const { setUser } = useAuth();
   const router = useRouter();
 
-  const handleLogin = () => {
-    // TODO: real auth check
-    router.replace('/(tabs)'); // redirect to home
-  };
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    iosClientId: '228207100442-iq8unmtrb33mqqcjsih768682c3j44sj.apps.googleusercontent.com',
+    androidClientId: '228207100442-vqk0anq8rjgmmvmc3576lp21l8g7fm6j.apps.googleusercontent.com',
+    webClientId: '228207100442-89qtcm3iakek0ju9eitr60ta2d4n9sbf.apps.googleusercontent.com', // for Expo Go
+  });
+
+  useEffect(() => {
+    if (response?.type === 'success') {
+      const { authentication } = response;
+      console.log('Google token:', authentication?.accessToken);
+
+      // Here you could fetch Google profile info
+      setUser(authentication?.accessToken ?? 'google-user');
+
+      router.replace('/(tabs)'); // go to tabs after sign-in
+    }
+  }, [response]);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Login Screen</Text>
+      <Text style={styles.title}>Sign in to continue</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Email or Username"
-        placeholderTextColor="#aaa"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-      />
-
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        placeholderTextColor="#aaa"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-
-      <Pressable style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Login</Text>
+      <Pressable
+        style={[styles.button, { backgroundColor: '#4285F4' }]}
+        disabled={!request}
+        onPress={() => promptAsync()}
+      >
+        <Text style={styles.buttonText}>Sign in with Google</Text>
       </Pressable>
     </View>
   );
@@ -54,14 +69,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 24,
     marginBottom: 24,
-  },
-  input: {
-    width: '100%',
-    backgroundColor: '#333842',
-    color: '#fff',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 16,
   },
   button: {
     backgroundColor: Colors.button,

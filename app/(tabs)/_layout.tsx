@@ -1,9 +1,19 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Tabs } from 'expo-router';
+import { Redirect, Tabs } from 'expo-router';
+import { useAuth } from '../AuthContext';
 import { Colors } from '../theme';
 
 export default function TabLayout() {
+
+    const { user } = useAuth();
+
+  if (!user) {
+    // 🚨 not signed in, kick back to logon
+    return <Redirect href="/logon" />;
+  }
+  
   return (
+    
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors.white,
