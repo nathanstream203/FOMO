@@ -1,7 +1,7 @@
+import { Stack } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
-import MapView, {Marker} from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 import { Colors } from '../theme';
-import {Stack} from 'expo-router';
 
 
 export default function HomeScreen() {
@@ -10,6 +10,7 @@ export default function HomeScreen() {
           <Stack.Screen options={{headerShown: false}} />
           <MapView
               style={styles.map}
+              customMapStyle={mapStyle}
               initialRegion={{
                   latitude: 44.872394,
                   longitude: -91.925203,
@@ -17,7 +18,15 @@ export default function HomeScreen() {
                   longitudeDelta: 0.0421,
               }}
           >
-              <Marker coordinate={{latitude: 44.872394, longitude: -91.925203}}/>
+              <Marker coordinate={{latitude: 44.878091740523985, longitude: -91.92843302663482}}/>
+              <Marker coordinate={{latitude: 44.87805290393327, longitude: -91.92962985786905}}/>
+              <Marker coordinate={{latitude: 44.87720510396106, longitude: -91.92994142428837}}/>
+              <Marker coordinate={{latitude: 44.87705427213555, longitude: -91.92993748257626}}/>
+              <Marker coordinate={{latitude:44.87639168428689, longitude: -91.92544797922613}}/>
+              <Marker coordinate={{latitude: 44.87663124956, longitude: -91.92667921682191}}/>
+              
+
+
           </MapView>
       </View>
   );
@@ -34,3 +43,10 @@ const styles = StyleSheet.create({
       width: '100%', height: '100%',
     }
 });
+
+const mapStyle = [
+  {
+    featureType: "poi",
+    stylers: [{ visibility: "off" }],
+  },
+];
