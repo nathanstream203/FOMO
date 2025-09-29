@@ -1,4 +1,5 @@
 import { Text, View, StyleSheet } from 'react-native';
+import { Colors } from '../theme';
 
 export default function AccountScreen() {
   return (
@@ -11,7 +12,7 @@ export default function AccountScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#25292e',
+    backgroundColor: Colors.grey,
     justifyContent: 'center',
     alignItems: 'center',
   },

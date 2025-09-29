@@ -29,7 +29,7 @@ const circleRadius = 5000;
             }}
             radius={5000}
             strokeWidth={2}
-            strokeColor={'#1a66ff'}
+            strokeColor={Colors.primary}
 
             />
 
