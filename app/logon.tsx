@@ -1,15 +1,5 @@
-/*
 
-How this works
-
-Unauthenticated users who try to hit / (tabs) → redirected back to /logon.
-After Google Sign-In → we store the user in AuthContext and route to / (tabs).
-Tabs are only visible if user is set.
-
-
-*/
-
-
+import * as AuthSession from 'expo-auth-session';
 import * as Google from 'expo-auth-session/providers/google';
 import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
@@ -17,6 +7,9 @@ import { useEffect } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useAuth } from '../app/AuthContext';
 import { Colors } from '../app/theme';
+
+console.log(AuthSession.makeRedirectUri());
+
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -28,6 +21,7 @@ export default function LogonScreen() {
     iosClientId: '228207100442-iq8unmtrb33mqqcjsih768682c3j44sj.apps.googleusercontent.com',
     androidClientId: '228207100442-vqk0anq8rjgmmvmc3576lp21l8g7fm6j.apps.googleusercontent.com',
     webClientId: '228207100442-89qtcm3iakek0ju9eitr60ta2d4n9sbf.apps.googleusercontent.com', // for Expo Go
+      redirectUri: AuthSession.makeRedirectUri(),  // ✅ Ensure this matches your Google Cloud redirect URIs
   });
 
   useEffect(() => {
