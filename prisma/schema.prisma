@@ -25,4 +25,23 @@ model Users {
   id Int @id @default(autoincrement())
   role_id Int
   role Roles @relation(fields: [role_id], references: [id])
+  post Posts[]
+  party Party[]
 }
+
+model Posts {
+  id Int @id @default(autoincrement())
+  user_id Int
+  user Users @relation(fields: [user_id], references: [id])
+}
+
+model Party {
+  id Int @id @default(autoincrement())
+  name String
+  description String?
+  start_time DateTime @default(now())
+  end_time DateTime
+  user_id Int
+  user Users @relation(fields: [user_id], references: [id])
+}
+
