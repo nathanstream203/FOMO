@@ -1,4 +1,5 @@
 import { Stack } from 'expo-router';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { StyleSheet, View } from 'react-native';
 import MapView, { Circle, Marker } from 'react-native-maps';
 import { Colors } from '../theme';
@@ -31,7 +32,24 @@ const circleRadius = 5000;
 
             />
 
-              <Marker coordinate={{latitude: 44.878091740523985, longitude: -91.92843302663482}}/>
+              <Marker coordinate={{latitude: 44.878091740523985, longitude: -91.92843302663482}}>
+                  <View
+                  style={{
+                  backgroundColor: Colors.primary,
+                  borderRadius: 20,
+                  padding: 8,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  }}
+                  >
+                  <Ionicons
+                  name="home-outline"
+                  size={20}   // smaller than circle
+                  color="white"
+                  style={{ marginTop: 1, marginLeft: 1 }} // adjust if needed
+                          />
+                  </View>
+              </Marker>
               <Marker coordinate={{latitude: 44.87805290393327, longitude: -91.92962985786905}}/>
               <Marker coordinate={{latitude: 44.87720510396106, longitude: -91.92994142428837}}/>
               <Marker coordinate={{latitude: 44.87705427213555, longitude: -91.92993748257626}}/>
