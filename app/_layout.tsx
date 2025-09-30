@@ -24,9 +24,9 @@ export default function Layout() {
   const [loading, setLoading] = React.useState(true); // start as loading
 
   const [request, response, promptAsync] = Google.useAuthRequest({
-    iosClientId: 'your-ios-client-id.apps.googleusercontent.com',
-    androidClientId: 'your-android-client-id.apps.googleusercontent.com',
-    // expoClientId: 'your-expo-client-id.apps.googleusercontent.com',
+    iosClientId: "228207100442-iq8unmtrb33mqqcjsih768682c3j44sj.apps.googleusercontent.com",
+    androidClientId: "228207100442-vqk0anq8rjgmmvmc3576lp21l8g7fm6j.apps.googleusercontent.com",
+    webClientId: "228207100442-89qtcm3iakek0ju9eitr60ta2d4n9sbf.apps.googleusercontent.com",
   });
 
   // Handle auth response
@@ -74,24 +74,3 @@ export default function Layout() {
     </Stack>
   );
 }
-
-
-
-
-/*
-import { Stack } from 'expo-router';
-
-export default function RootLayout() {
-  return (
-    
-      <Stack screenOptions={{ headerShown: false }}>
-        
-        <Stack.Screen name="SignInScreen" />
-
-        
-        <Stack.Screen name="(tabs)" />
-      </Stack>
-    
-  );
-}
-*/
