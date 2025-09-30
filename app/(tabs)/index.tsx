@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
-//import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 import { Colors } from '../theme';
 
 
@@ -8,7 +8,7 @@ export default function HomeScreen() {
   return (
       <View style={styles.container}>
           <Stack.Screen options={{headerShown: false}} />
-          {/*
+          {
           <MapView
               style={styles.map}
               initialRegion={{
@@ -20,7 +20,7 @@ export default function HomeScreen() {
           >
               <Marker coordinate={{latitude: 44.872394, longitude: -91.925203}}/>
           </MapView>
-          */}
+          }
       </View>
   );
 }
