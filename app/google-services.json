@@ -12,7 +12,20 @@
           "package_name": "com.capstoneFA2025.FOMO"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "268519497605-262v6kns4p3ksd6tg1h8t02s00ghnf7e.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.capstoneFA2025.FOMO",
+            "certificate_hash": "50046e1f878d52cf02d3fe697a580aefb5d10c2e"
+          }
+        },
+        {
+          "client_id": "268519497605-p1kkj38go38uig2flnrcr1e6lrga6mia.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCjPsDU2ASCFAELoBYwYKZXPnJmmZPo9qc"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "268519497605-p1kkj38go38uig2flnrcr1e6lrga6mia.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

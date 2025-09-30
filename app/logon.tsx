@@ -1,38 +1,37 @@
+import * as AuthSession from "expo-auth-session";
+import * as Google from "expo-auth-session/providers/google";
+import { useRouter } from "expo-router";
+import * as WebBrowser from "expo-web-browser";
+import { useEffect } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useAuth } from "../app/AuthContext";
+import { Colors } from "../app/theme";
 
-import * as AuthSession from 'expo-auth-session';
-import * as Google from 'expo-auth-session/providers/google';
-import { useRouter } from 'expo-router';
-import * as WebBrowser from 'expo-web-browser';
-import { useEffect } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { useAuth } from '../app/AuthContext';
-import { Colors } from '../app/theme';
-
-console.log(AuthSession.makeRedirectUri());
-
-
+// ✅ Complete any pending browser auth
 WebBrowser.maybeCompleteAuthSession();
 
 export default function LogonScreen() {
   const { setUser } = useAuth();
   const router = useRouter();
 
+  const redirectUri = AuthSession.makeRedirectUri(); // ✅ simplified
+  console.log("Redirect URI:", redirectUri);
+
   const [request, response, promptAsync] = Google.useAuthRequest({
-    iosClientId: '228207100442-iq8unmtrb33mqqcjsih768682c3j44sj.apps.googleusercontent.com',
-    androidClientId: '228207100442-vqk0anq8rjgmmvmc3576lp21l8g7fm6j.apps.googleusercontent.com',
-    webClientId: '228207100442-89qtcm3iakek0ju9eitr60ta2d4n9sbf.apps.googleusercontent.com', // for Expo Go
-      redirectUri: AuthSession.makeRedirectUri(),  // ✅ Ensure this matches your Google Cloud redirect URIs
+    iosClientId: "228207100442-iq8unmtrb33mqqcjsih768682c3j44sj.apps.googleusercontent.com",
+    androidClientId: "228207100442-vqk0anq8rjgmmvmc3576lp21l8g7fm6j.apps.googleusercontent.com",
+    webClientId: "228207100442-89qtcm3iakek0ju9eitr60ta2d4n9sbf.apps.googleusercontent.com",
+    redirectUri,
   });
 
+
   useEffect(() => {
-    if (response?.type === 'success') {
+    if (response?.type === "success") {
       const { authentication } = response;
-      console.log('Google token:', authentication?.accessToken);
+      console.log("Google token:", authentication?.accessToken);
 
-      // Here you could fetch Google profile info
-      setUser(authentication?.accessToken ?? 'google-user');
-
-      router.replace('/(tabs)'); // go to tabs after sign-in
+      setUser(authentication?.accessToken ?? "google-user");
+      router.replace("/(tabs)");
     }
   }, [response]);
 
@@ -41,7 +40,7 @@ export default function LogonScreen() {
       <Text style={styles.title}>Sign in to continue</Text>
 
       <Pressable
-        style={[styles.button, { backgroundColor: '#4285F4' }]}
+        style={[styles.button, { backgroundColor: "#4285F4" }]}
         disabled={!request}
         onPress={() => promptAsync()}
       >
@@ -54,13 +53,13 @@ export default function LogonScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#25292e',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#25292e",
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
   },
   title: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 24,
     marginBottom: 24,
   },
@@ -72,7 +71,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   buttonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
   },
 });
