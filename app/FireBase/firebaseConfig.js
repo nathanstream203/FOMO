@@ -1,4 +1,4 @@
-//28:35 Video
+//28:35 Video -> 59:15
 
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
