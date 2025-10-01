@@ -14,8 +14,8 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
 
+export const auth = getAuth(app);
 
 //IOS : 228207100442-iq8unmtrb33mqqcjsih768682c3j44sj.apps.googleusercontent.com
 //ANDROID: 228207100442-vqk0anq8rjgmmvmc3576lp21l8g7fm6j.apps.googleusercontent.com
