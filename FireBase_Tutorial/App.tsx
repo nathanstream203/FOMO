@@ -1,14 +1,14 @@
 // App.tsx
 
 import React from 'react';
-import { SafeAreaView, StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import AuthExample from './FIREBASE_TUTORIAL_AuthExample';
 
 const App: React.FC = () => {
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
             <AuthExample />
-        </SafeAreaView>
+        </View>
     );
 };
 
