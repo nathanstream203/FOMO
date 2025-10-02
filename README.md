@@ -42,9 +42,26 @@ To learn more about developing your project with Expo, look at the following res
 - [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
 - [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
 
-## Join the community
 
-Join our community of developers creating universal apps.
+## Set up Prisma
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Create a MySQL database on your local machine. Remember the username and password to your database.
+
+Copy the contents of .env.local into your .env file. Create a .env if needed.
+Change the user and password to your local db instance.
+
+Run the following prisma commands to push the schema to the database.
+
+```bash
+npx prisma migrate dev
+```
+
+```bash
+npx prisma generate
+```
+
+FOR DEVELOPING SCHEMA CMD
+
+```bash
+npx prisma migrate dev --name version-name-example
+```
