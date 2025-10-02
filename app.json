@@ -5,13 +5,15 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "fomo",
+    "scheme": "fomo", //search -> fomo://
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.yourname.fomo"
     },
     "android": {
+      "package": "com.yourname.fomo",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -38,11 +40,28 @@
             "backgroundColor": "#000000"
           }
         }
-      ]
+      ],
+      "expo-web-browser",
+      /*
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.228207100442-q2kbuh9bv1q2sjr3krlg27oqtp3tmdch"
+        }
+      ] */
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "googleClientId": "228207100442-89qtcm3iakek0ju9eitr60ta2d4n9sbf.apps.googleusercontent.com",
+      "googleAndroidClientId": "228207100442-vqk0anq8rjgmmvmc3576lp21l8g7fm6j.apps.googleusercontent.com",
+      "googleIosClientId": "228207100442-iq8unmtrb33mqqcjsih768682c3j44sj.apps.googleusercontent.com",
+      "router": {},
+      "eas": {
+        "projectId": "2758a67d-d9d5-4ed5-8507-56af31ede967"
+      }
     }
   }
 }
