@@ -1,8 +1,11 @@
 import * as React from 'react';
 // SignInScreen.tsx
+import { useRouter } from 'expo-router';
 import { useSignInWithEmailAndPassword } from 'react-firebase-hooks/auth';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { auth } from '../firebaseConfig';
+import { auth } from './firebaseConfig';
+
+
 
 export default function SignInScreen() {
   const [email, setEmail] = React.useState('');
@@ -10,9 +13,18 @@ export default function SignInScreen() {
   const [signInWithEmailAndPassword, user, _, error] = useSignInWithEmailAndPassword(auth);
   //const user = useAuthState(auth);
 
+  const router = useRouter();
+
   const signIn = async () => {
     await signInWithEmailAndPassword(email, password);
   }
+
+React.useEffect(() => {
+    if (user) {
+      console.log('User signed in:', user.user.email);
+      router.replace('/(tabs)');
+    }
+  }, [user]);
 
 
   return (

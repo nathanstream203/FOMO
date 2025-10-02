@@ -1,12 +1,25 @@
+import { useRouter } from 'expo-router';
 import { signOut } from 'firebase/auth';
 import { Button, StyleSheet, Text, View } from 'react-native';
 import { auth } from '../firebaseConfig';
 
 export default function AccountScreen() {
+
+  const router = useRouter();
+
+  const signOutUser = async () => {
+    try {
+      await signOut(auth);
+      router.replace('/signin');
+    } catch (error) {
+      console.error('Error signing out: ', error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Account screen</Text>
-      <Button title="Sign Out" onPress={async () => await signOut(auth)} />
+      <Button title="Sign Out" onPress={signOutUser} />
     </View>
   );
 }
