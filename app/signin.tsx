@@ -29,7 +29,7 @@ React.useEffect(() => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Sign In With Google</Text>
+      <Text style={styles.title}>Sign In</Text>
 
       <TextInput
         keyboard-type="email-address"
@@ -51,6 +51,9 @@ React.useEffect(() => {
 
       <Pressable style={styles.button} onPress={() => signIn()}>
         <Text  style={styles.buttonText}>Sign In</Text>
+      </Pressable>
+      <Pressable style={styles.button} onPress={() => router.replace('/signup')}>
+        <Text  style={styles.buttonText}>Create Account</Text>
       </Pressable>
     </View>
   );}
