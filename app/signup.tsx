@@ -1,7 +1,7 @@
 import * as React from 'react';
 // SignInScreen.tsx
 import { useRouter } from 'expo-router';
-import { useSignInWithEmailAndPassword } from 'react-firebase-hooks/auth';
+import { useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { auth } from './firebaseConfig';
 
@@ -10,29 +10,31 @@ import { auth } from './firebaseConfig';
 export default function SignInScreen() {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
-  const [signInWithEmailAndPassword, user, _, error] = useSignInWithEmailAndPassword(auth);
+  //const [signInWithEmailAndPassword, user, _, error] = useSignInWithEmailAndPassword(auth);
+  const [createUserWithEmailAndPassword, user, _, error] = useCreateUserWithEmailAndPassword(auth);
   //const user = useAuthState(auth);
 
   const router = useRouter();
 
-  const signIn = async () => {
-    await signInWithEmailAndPassword(email, password);
+  const signUp = async () => {
+    await createUserWithEmailAndPassword(email, password);
   }
 
 React.useEffect(() => {
     if (user) {
-      console.log('User signed in:', user.user.email);
-      router.replace('/(tabs)');
+        console.log('Account created for:', user.user.email);
+        auth.signOut();
+        router.replace('/signin');
     }
   }, [user]);
 
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Sign In</Text>
+      <Text style={styles.title}>Create New FOMO Account</Text>
 
       <TextInput
-        keyboard-type="email-address"
+        keyboardType="email-address"
         onChangeText={setEmail}
         placeholder="Email"
         autoCapitalize="none"
@@ -46,14 +48,13 @@ React.useEffect(() => {
         style={styles.input}
       />
 
-      <Text style={{ color: 'red' }}>{error?.message}</Text>
       <Text style={{ color: 'green' }}>{user?.user.email}</Text>
 
-      <Pressable style={styles.button} onPress={() => signIn()}>
-        <Text  style={styles.buttonText}>Sign In</Text>
+      <Pressable style={styles.button} onPress={() => signUp()}>
+        <Text  style={styles.buttonText}>Create</Text>
       </Pressable>
-      <Pressable style={styles.button} onPress={() => router.replace('/signup')}>
-        <Text  style={styles.buttonText}>Create Account</Text>
+      <Pressable style={styles.button} onPress={() => router.replace('/signin')}>
+        <Text  style={styles.buttonText}>Back to Sign In</Text>
       </Pressable>
     </View>
   );}
