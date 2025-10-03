@@ -1,0 +1,9 @@
+[
+  { "latitude": 44.878091740523985, "longitude": -91.92843302663482, "icon": "beer-outline", "title":  "Bar"},
+  { "latitude": 44.87805290393327, "longitude": -91.92962985786905, "icon": "beer-outline", "title":  "Bar"},
+  { "latitude": 44.87720510396106, "longitude": -91.92994142428837, "icon": "beer-outline", "title":  "Bar" },
+  { "latitude": 44.87705427213555, "longitude": -91.92993748257626, "icon": "beer-outline", "title":  "Bar" },
+  { "latitude": 44.87639168428689, "longitude": -91.92544797922613, "icon": "beer-outline", "title":  "Bar" },
+  { "latitude": 44.87663124956, "longitude": -91.92667921682191, "icon": "beer-outline", "title":  "Bar"},
+  { "latitude": 44.867232, "longitude": -91.921045, "icon": "home-outline", "title":  "House Party"}
+]
