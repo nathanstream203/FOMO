@@ -1,17 +1,20 @@
 {
   "expo": {
-    "name": "FOMO",
-    "slug": "FOMO",
+    "name": "fomo",
+    "slug": "fomo",
+    "originalFullName": "@fomo_25/fomo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "fomo",
+    "scheme": "https",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.fomo.app"
     },
     "android": {
+      "package": "com.fomo.app",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
