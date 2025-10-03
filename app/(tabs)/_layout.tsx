@@ -3,7 +3,9 @@ import { Tabs } from 'expo-router';
 import { Colors } from '../theme';
 
 export default function TabLayout() {
+  
   return (
+    
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors.white,
@@ -17,6 +19,7 @@ export default function TabLayout() {
         },
       }}
     >
+      
       <Tabs.Screen
         name="index" // Home page
         options={{

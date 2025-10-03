@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Text, View, StyleSheet, TextInput, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Colors } from './theme';
 
 export default function LogonScreen() {
   const [email, setEmail] = useState('');
@@ -45,7 +44,7 @@ export default function LogonScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.grey,
+    backgroundColor: '#25292e',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
@@ -64,7 +63,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   button: {
-    backgroundColor: Colors.secondary,
+    backgroundColor: '#5568fe',
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,
