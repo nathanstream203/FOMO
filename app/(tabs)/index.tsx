@@ -4,6 +4,8 @@ import { StyleSheet, View } from 'react-native';
 import MapView, { Circle, Marker } from 'react-native-maps';
 import { Colors } from '../theme';
 import markerData from '../markers.json';
+// import { Location, defaultLocation } from "../utils/location";
+
 
 
 export default function HomeScreen() {
@@ -21,13 +23,17 @@ const circleRadius = 5000;
                   latitudeDelta: 0.0922,
                   longitudeDelta: 0.0421,
               }}
+              minZoomLevel={14}
+              maxZoomLevel={18}
+
+
           >
             <Circle
             center={{
               latitude: 44.872394,
               longitude: -91.925203,
             }}
-            radius={5000}
+            radius={circleRadius}
             strokeWidth={2}
             strokeColor={Colors.primary}
 
@@ -42,7 +48,9 @@ const circleRadius = 5000;
                   <Marker
                       key={index}
                       coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
+                      title={marker.title}
                   >
+
                       {marker.icon && (
                           <View
                               style={{
@@ -52,6 +60,7 @@ const circleRadius = 5000;
                                   justifyContent: 'center',
                                   alignItems: 'center',
                               }}
+
                           >
                               <Ionicons
                                   name={marker.icon as any}
@@ -60,6 +69,7 @@ const circleRadius = 5000;
                               />
                           </View>
                       )}
+
                   </Marker>
                   );
               })}
