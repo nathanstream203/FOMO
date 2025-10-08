@@ -63,7 +63,7 @@ export default function FeedScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.grey,
   },
   comment: {
     padding: 12,
