@@ -1,10 +1,15 @@
-const express = require('express');
-const cors = require('cors');
+import cors from 'cors';
+import express from "express";
+
+import rolesRouter from './routes/roles.js';
+import usersRouter from './routes/users.js';
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use('/users', usersRouter);
+app.use('/roles', rolesRouter);
 
 // Default route
 app.get('/', (req,res) => {
