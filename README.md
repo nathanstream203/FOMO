@@ -65,3 +65,8 @@ FOR DEVELOPING SCHEMA CMD
 ```bash
 npx prisma migrate dev --name version-name-example
 ```
+
+Fill database with test data
+```bash
+npm run populate
+```
