@@ -1,8 +1,9 @@
+// /(tabs)/account.tsx
 import { useRouter } from 'expo-router';
 import { signOut } from 'firebase/auth';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { Button, StyleSheet, Text, View } from 'react-native';
-import { auth } from '../firebaseConfig';
+import { auth } from '../(logon)/firebaseConfig';
 
 export default function AccountScreen() {
   const [user, loading, error] = useAuthState(auth);

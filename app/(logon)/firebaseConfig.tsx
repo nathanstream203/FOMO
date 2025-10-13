@@ -1,8 +1,7 @@
-// myApplication/firebase.ts
-import firebase from '@react-native-firebase/app';
-import '@react-native-firebase/auth';
+
 
 import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDPfPw5qqQyKHCh8m4UoEKpOg3DTiu3_Qc",
@@ -14,11 +13,6 @@ const firebaseConfig = {
   measurementId: "G-LNVYRWY60B"
 };
 
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
-
-
 const app = initializeApp(firebaseConfig);
 
-export default firebase;
+export const auth = getAuth(app);
