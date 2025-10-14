@@ -1,10 +1,20 @@
+// app/(tabs)/friends.tsx
+
 import React, { useEffect, useState } from 'react';
+import { useAuthState } from 'react-firebase-hooks/auth';
 import { StyleSheet, Text, View } from 'react-native';
+import { auth } from '../(logon)/firebaseConfig';
+import NotVerified from '../notverified';
 import { Colors } from '../theme';
 
 export default function FriendsScreen() {
   const [friendCode, setFriendCode] = useState('');
-
+  const [user, loading, error] = useAuthState(auth);
+  
+    if (!user?.emailVerified) {
+      return <NotVerified />;
+    }
+    
   // Generate a random friend code
   useEffect(() => {
     const generateCode = () => {

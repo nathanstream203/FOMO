@@ -1,4 +1,7 @@
+// app/(tabs)/feed.tsx
+
 import React, { useState } from 'react';
+import { useAuthState } from 'react-firebase-hooks/auth';
 import {
   FlatList,
   KeyboardAvoidingView,
@@ -9,12 +12,19 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import { auth } from '../(logon)/firebaseConfig';
+import NotVerified from '../notverified';
 import { Colors } from '../theme';
 
 
 export default function FeedScreen() {
   const [comments, setComments] = useState<string[]>([]);
   const [input, setInput] = useState('');
+   const [user, loading, error] = useAuthState(auth);
+  
+    if (!user?.emailVerified) {
+      return <NotVerified />;
+    }
 
   const handlePost = () => {
     if (input.trim().length > 0) {

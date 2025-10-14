@@ -7,6 +7,7 @@ import { auth } from '../(logon)/firebaseConfig';
 
 
 
+
 export default function SignInScreen() {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
@@ -21,7 +22,17 @@ export default function SignInScreen() {
 React.useEffect(() => {
     if (user) {
         console.log('Account created for:', user.user.email);
-        router.replace('/(tabs)'); //sign in after create account
+        console.log('Firebase UID:', user.user.uid);
+        if(!user.user.emailVerified){
+          console.log('User '+ user.user.email + ' NOT verified.');
+          // sendEmailVerification(user.user) use this to send verification email
+        } else if(user.user.emailVerified){
+          console.log('User '+ user.user.email + ' IS verified.');
+        } else{
+          console.log('Unknown error or unknown verification status for user '+ user.user.email);
+        }
+
+        router.replace('/(tabs)');
     }
   }, [user]);
 
