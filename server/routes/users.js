@@ -10,7 +10,7 @@ router.get('/', async (req, res) => {
 
 router.post('/', async (req, res) => {
     const { role_id } = req.body;
-    const user = await prisma.user.create({ data: { user_id } });
+    const user = await prisma.user.create({ data: { role_id } });
     res.status(201).json(user);
 });
 

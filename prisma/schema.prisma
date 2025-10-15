@@ -39,6 +39,10 @@ Columns:
 */
 model Users {
   id Int @id @default(autoincrement())
+  firebase_id String
+  first_name String
+  last_name String
+  birth_date DateTime
   role_id Int
   role Roles @relation(fields: [role_id], references: [id])
   post Posts[]
@@ -76,6 +80,8 @@ model Party {
   start_time DateTime @default(now())
   end_time DateTime
   user_id Int
+  longitude Decimal
+  latitude Decimal
   user Users @relation(fields: [user_id], references: [id])
 }
 
@@ -91,6 +97,8 @@ model Bar {
   id Int @id @default(autoincrement())
   name String
   address String
+  longitude Decimal
+  latitude Decimal
   events Event[]
 }
 
