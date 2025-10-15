@@ -1,13 +1,9 @@
-import { Stack } from 'expo-router';
-import React, { useEffect, useState, useRef } from 'react';
-import { StyleSheet, View, PermissionsAndroid, Platform, Alert, Text, Image, ActivityIndicator, TouchableOpacity  } from 'react-native';
-import * as Location from 'expo-location';
-import MapView, { Circle, Marker, Region, Callout, PROVIDER_GOOGLE } from 'react-native-maps';
-
-
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Colors } from '../theme.js';
+import { Stack } from 'expo-router';
+import { StyleSheet, View } from 'react-native';
+import MapView, { Circle, Marker } from 'react-native-maps';
 import markerData from '../markers.json';
+import { Colors } from '../theme';
 // import { Location, defaultLocation } from "../utils/location";
 
 function getDistanceFromLatLonInMeters(lat1: number, lon1: number, lat2: number, lon2: number) {
@@ -25,96 +21,6 @@ function getDistanceFromLatLonInMeters(lat1: number, lon1: number, lat2: number,
 
 export default function HomeScreen() {
 const circleRadius = 5000;
-const [region, setRegion] = useState<any>(null);
-const [nearbyBar, setNearbyBar] = useState<any>(null);
-const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
-
-
-// Request location permission
-    useEffect(() => {
-        let subscription: Location.LocationSubscription;
-
-        const startTracking = async () => {
-            // Request permission
-            const { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== 'granted') {
-                Alert.alert('Permission denied', 'Cannot access location.');
-                return;
-            }
-
-            // Get initial location
-            const location = await Location.getCurrentPositionAsync({
-                accuracy: Location.Accuracy.Highest,
-            });
-
-            // Log initial coordinates here
-            console.log('Initial user location:', {
-                latitude: location.coords.latitude,
-                longitude: location.coords.longitude,
-            });
-
-            setRegion({
-                latitude: location.coords.latitude,
-                longitude: location.coords.longitude,
-                latitudeDelta: 0.01,
-                longitudeDelta: 0.01,
-            });
-
-            // Subscribe to location updates
-            subscription = await Location.watchPositionAsync(
-                {
-                    accuracy: Location.Accuracy.BestForNavigation,
-                    distanceInterval: 1, // update every 1 meters
-                    timeInterval: 1000, // update every 1 seconds
-                },
-                (newLocation) => {
-                    // Log each location update
-                    console.log('📍 Location updated:', {
-                        latitude: newLocation.coords.latitude,
-                        longitude: newLocation.coords.longitude,
-                        timestamp: new Date(newLocation.timestamp).toLocaleTimeString(),
-                    });
-
-                    setRegion({
-                        latitude: newLocation.coords.latitude,
-                        longitude: newLocation.coords.longitude,
-                        latitudeDelta: 0.01,
-                        longitudeDelta: 0.01,
-                    });
-
-                    setLocation({ latitude:newLocation.coords.latitude, longitude: newLocation.coords.longitude });
-
-                    // Check if user is near any bar (~6 meters = 20 feet)
-                    const closeBar = markerData.find((bar) => {
-                        const distance = getDistanceFromLatLonInMeters(
-                            newLocation.coords.latitude,
-                            newLocation.coords.longitude,
-                            bar.latitude,
-                            bar.longitude
-                        );
-                        return distance <= 10;
-                    });
-                    setNearbyBar(closeBar || null);
-
-                }
-            );
-        };
-
-        startTracking();
-
-        // Cleanup subscription when component unmounts
-        return () => {
-            if (subscription) subscription.remove();
-        };
-    }, []);
-
-    if (!region) {
-        return (
-            <View style={styles.loader}>
-                <ActivityIndicator size="large" />
-            </View>
-        );
-    }
 
   return (
       <View style={styles.container}>

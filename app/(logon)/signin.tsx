@@ -1,40 +1,47 @@
-import * as React from 'react';
-// SignInScreen.tsx
+// signin.tsx
 import { useRouter } from 'expo-router';
-import { useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth';
+import * as React from 'react';
+import { useSignInWithEmailAndPassword } from 'react-firebase-hooks/auth';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { auth } from './firebaseConfig';
+import { auth } from '../(logon)/firebaseConfig';
+
 
 
 
 export default function SignInScreen() {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
-  //const [signInWithEmailAndPassword, user, _, error] = useSignInWithEmailAndPassword(auth);
-  const [createUserWithEmailAndPassword, user, _, error] = useCreateUserWithEmailAndPassword(auth);
-  //const user = useAuthState(auth);
+  const [signInWithEmailAndPassword, user, _, error] = useSignInWithEmailAndPassword(auth);
 
   const router = useRouter();
 
-  const signUp = async () => {
-    await createUserWithEmailAndPassword(email, password);
+  const signIn = async () => {
+    await signInWithEmailAndPassword(email, password);
   }
 
 React.useEffect(() => {
     if (user) {
-        console.log('Account created for:', user.user.email);
-        auth.signOut();
-        router.replace('/signin');
+      console.log('User signed in:', user.user.email);
+      console.log('Firebase UID:', user.user.uid);
+      if(!user.user.emailVerified){
+          console.log('User '+ user.user.email + ' NOT verified.');
+          // sendEmailVerification(user.user) use this to send verification email
+        } else if(user.user.emailVerified){
+          console.log('User '+ user.user.email + ' IS verified.');
+        } else{
+          console.log('Unknown error or unknown verification status for user '+ user.user.email);
+        }
+      router.replace('/(tabs)');
     }
   }, [user]);
 
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Create New FOMO Account</Text>
+      <Text style={styles.title}>Sign In</Text>
 
       <TextInput
-        keyboardType="email-address"
+        keyboard-type="email-address"
         onChangeText={setEmail}
         placeholder="Email"
         autoCapitalize="none"
@@ -48,13 +55,14 @@ React.useEffect(() => {
         style={styles.input}
       />
 
+      <Text style={{ color: 'red' }}>{error?.message}</Text>
       <Text style={{ color: 'green' }}>{user?.user.email}</Text>
 
-      <Pressable style={styles.button} onPress={() => signUp()}>
-        <Text  style={styles.buttonText}>Create</Text>
+      <Pressable style={styles.button} onPress={() => signIn()}>
+        <Text  style={styles.buttonText}>Sign In</Text>
       </Pressable>
-      <Pressable style={styles.button} onPress={() => router.replace('/signin')}>
-        <Text  style={styles.buttonText}>Back to Sign In</Text>
+      <Pressable style={styles.button} onPress={() => router.replace('/signup')}>
+        <Text  style={styles.buttonText}>Create Account</Text>
       </Pressable>
     </View>
   );}
