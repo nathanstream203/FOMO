@@ -15,12 +15,11 @@ import { Colors } from '../theme';
 
 export default function HomeScreen() {
   const [user, loading, error] = useAuthState(auth);
-
+  const circleRadius = 5000;
+  
   if (!user?.emailVerified) {
     return <NotVerified />;
   }
-  
-const circleRadius = 5000;
 
   return (
       <View style={styles.container}>

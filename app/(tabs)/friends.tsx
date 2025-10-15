@@ -10,10 +10,7 @@ import { Colors } from '../theme';
 export default function FriendsScreen() {
   const [friendCode, setFriendCode] = useState('');
   const [user, loading, error] = useAuthState(auth);
-  
-    if (!user?.emailVerified) {
-      return <NotVerified />;
-    }
+
     
   // Generate a random friend code
   useEffect(() => {
@@ -33,6 +30,10 @@ export default function FriendsScreen() {
 
     setFriendCode(generateCode());
   }, []);
+    
+    if (!user?.emailVerified) {
+      return <NotVerified />;
+    }
 
   return (
     <View style={styles.container}>
