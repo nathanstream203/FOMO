@@ -46,3 +46,7 @@ app-example
 app.json
 
 /generated/prisma
+
+# Firebase admin keys
+fomo-6f2ee-*
+adminScript.js

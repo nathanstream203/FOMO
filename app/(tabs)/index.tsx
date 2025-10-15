@@ -1,15 +1,25 @@
-import { Stack } from 'expo-router';
+// app/(tabs)/index.tsx
+
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { Stack } from 'expo-router';
+import { useAuthState } from 'react-firebase-hooks/auth';
 import { StyleSheet, View } from 'react-native';
 import MapView, { Circle, Marker } from 'react-native-maps';
-import { Colors } from '../theme';
+import { auth } from '../(logon)/firebaseConfig';
 import markerData from '../markers.json';
+import NotVerified from '../notverified';
+import { Colors } from '../theme';
 // import { Location, defaultLocation } from "../utils/location";
 
 
 
 export default function HomeScreen() {
-const circleRadius = 5000;
+  const [user, loading, error] = useAuthState(auth);
+  const circleRadius = 5000;
+  
+  if (!user?.emailVerified) {
+    return <NotVerified />;
+  }
 
   return (
       <View style={styles.container}>
