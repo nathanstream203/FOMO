@@ -9,9 +9,17 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-    const { role_id } = req.body;
-    const user = await prisma.user.create({ data: { role_id } });
-    res.status(201).json(user);
+    try {
+         const { firebase_id, first_name, last_name, birth_date, role_id } = req.body;
+        if(!firebase_id || !first_name || !last_name || !birth_date || !role_id) {
+            res.json({'Error': 'Bad request'}).status(401);
+            return;
+        }
+        const user = await prisma.users.create({ data: { firebase_id, first_name, last_name, birth_date, role_id } });
+        res.json(user).status(201);
+    } catch (error) {
+        res.json({'Error': `${error}`});
+    }
 });
 
 export default router;
