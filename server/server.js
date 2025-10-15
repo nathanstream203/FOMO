@@ -1,6 +1,7 @@
 import cors from 'cors';
 import express from "express";
 
+import locationsRouter from './routes/locations.js';
 import rolesRouter from './routes/roles.js';
 import usersRouter from './routes/users.js';
 
@@ -10,6 +11,7 @@ app.use(cors());
 app.use(express.json());
 app.use('/users', usersRouter);
 app.use('/roles', rolesRouter);
+app.use('/locations', locationsRouter);
 
 // Default route
 app.get('/', (req,res) => {
