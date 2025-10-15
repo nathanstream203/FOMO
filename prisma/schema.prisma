@@ -39,7 +39,7 @@ Columns:
 */
 model Users {
   id Int @id @default(autoincrement())
-  firebase_id String
+  firebase_id String @unique
   first_name String
   last_name String
   birth_date DateTime
