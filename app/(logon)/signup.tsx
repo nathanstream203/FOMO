@@ -17,15 +17,15 @@ export default function SignInScreen() {
 
   const signUp = async () => {
     await createUserWithEmailAndPassword(email, password);
+
   }
 
 React.useEffect(() => {
     if (user) {
         console.log('Account created for:', user.user.email);
-        console.log('Firebase UID:', user.user.uid);
+        console.log('Firebase UID:', user.user.uid); // send POST to database
         if(!user.user.emailVerified){
           console.log('User '+ user.user.email + ' NOT verified.');
-          // sendEmailVerification(user.user) use this to send verification email
         } else if(user.user.emailVerified){
           console.log('User '+ user.user.email + ' IS verified.');
         } else{

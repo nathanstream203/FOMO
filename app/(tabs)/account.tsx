@@ -22,7 +22,7 @@ export default function AccountScreen() {
   const sendFirebaseEmailVerification = async () => {
     try {
       await sendEmailVerification(auth.currentUser!);
-      console.error('Verification email sent to : ', user?.email);
+      console.info('Verification email sent to : ', user?.email);
     } catch (error) {
       console.error('Error sending verification email : ', error);
     }
