@@ -1,3 +1,5 @@
+// app/(tabs)/_layout.tsx
+
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Tabs } from 'expo-router';
 import { Colors } from '../theme';

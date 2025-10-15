@@ -23,7 +23,6 @@ export default function SignInScreen() {
   React.useEffect(() => {
     if (user) {
       console.log("Account created for:", user.user.email);
-      //Todo: add user details to database
       router.replace("/(tabs)"); //sign in after create account
     }
   }, [user]);
