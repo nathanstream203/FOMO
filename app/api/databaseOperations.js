@@ -1,8 +1,8 @@
 // databasePostGet.js
 // Centralized API helper for your React Native frontend
 
-const BASE_URL = 'http://localhost:5000'; 
-// 🔸 Use your backend IP if running on a physical device, e.g. "http://192.168.1.10:5000"
+//const BASE_URL = 'http://localhost:5000'; 
+const BASE_URL = 'http://192.168.1.145:5000'; 
 
 /**
  * --------------------------

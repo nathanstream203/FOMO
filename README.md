@@ -73,3 +73,5 @@ npm run populate
 
 ## Start local server
 node ./server/server.js
+
+NOTE : when running local servers, I have found it works best to run expo server first then database server - Gabe.
