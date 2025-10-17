@@ -35,7 +35,8 @@ React.useEffect(() => {
         }
 
         //POST to database - TEST DATA - REPLACE LATER
-        postNewUser(firebaseUID, 'FirstTestFirstName', 'FirstTestLastName', '2000-01-01', 1)
+        // 2000-01-01T01:01:00.000Z
+        postNewUser(firebaseUID, 'FirstTestFirstName', 'FirstTestLastName', '2000-01-01T01:01:00.000Z', 1)
           .then((dbUser) => console.log('User stored in database:', dbUser))
           .catch((err) => console.error('DB Error:', err));
 

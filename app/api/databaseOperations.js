@@ -2,7 +2,9 @@
 // Centralized API helper for your React Native frontend
 
 //const BASE_URL = 'http://localhost:5000'; 
-const BASE_URL = 'http://192.168.1.145:5000'; 
+//const BASE_URL = 'http://192.168.1.145:5000'; 
+const BASE_URL = 'http://10.200.120.231:5000';
+
 
 /**
  * --------------------------
@@ -22,7 +24,7 @@ export const getAllUsers = async () => {
   }
 };
 
-// Get a single user by Firebase UID
+// Get a single user profile by Firebase UID
 export const getUserByFirebaseId = async (firebase_id) => {
   try {
     const response = await fetch(`${BASE_URL}/users`);
@@ -34,7 +36,7 @@ export const getUserByFirebaseId = async (firebase_id) => {
   }
 };
 
-// Create (POST) new user after Firebase signup
+// Create new user in 
 export const postNewUser = async (firebase_id, first_name, last_name, birth_date, role_id = 1) => {
   try {
     const response = await fetch(`${BASE_URL}/users`, {
