@@ -5,6 +5,20 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { Button, StyleSheet, Text, View } from 'react-native';
 import { auth } from '../(logon)/firebaseConfig';
 
+/*
+import { getUserByFirebaseId } from '../api/databaseOperations';
+
+
+React.useEffect(() => {
+  if (user) {
+    getUserByFirebaseId(user.uid).then((dbUser) => {
+      console.log('User in DB:', dbUser);
+    });
+  }
+}, [user]);
+*/
+
+
 export default function AccountScreen() {
   const [user, loading, error] = useAuthState(auth);
   const router = useRouter();
