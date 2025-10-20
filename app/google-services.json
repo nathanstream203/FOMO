@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "889701769189",
+    "project_id": "fomo-ecaf9",
+    "storage_bucket": "fomo-ecaf9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:889701769189:android:32c747bdab45c0dfe7990c",
+        "android_client_info": {
+          "package_name": "com.fomo.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "889701769189-fpsls4tujj9tpd5voo74j5d1bus70pn6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fomo.app",
+            "certificate_hash": "312ab09b1175bb2aef44fee38cff20014d5d6bdc"
+          }
+        },
+        {
+          "client_id": "889701769189-ksto741gijvukbhj79dvi8bsa20j3n9l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBYvIzD-AizGV0gfxvW_Ed6W_Iwtjv1iLU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "889701769189-ksto741gijvukbhj79dvi8bsa20j3n9l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
