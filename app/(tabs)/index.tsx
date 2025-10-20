@@ -28,8 +28,14 @@ const circleRadius = 5000;
 const [region, setRegion] = useState<any>(null);
 const [nearbyBar, setNearbyBar] = useState<any>(null);
 const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+const [barMarkers, setBarMarkers] = useState<any[]>([]);
 
+async function getBarNavMarkers() {
+    const res = await fetch('http:10.200.25.76:5000/locations/bars')
+    const data = await res.json();
 
+    return data;
+}
 // Request location permission
     useEffect(() => {
         let subscription: Location.LocationSubscription;
@@ -101,6 +107,13 @@ const [location, setLocation] = useState<{ latitude: number; longitude: number }
         };
 
         startTracking();
+
+        async function fetchBarMarkers() {
+            setBarMarkers(await getBarNavMarkers());
+            console.log('Bar markers fetched:', barMarkers);
+        }
+
+        fetchBarMarkers();
 
         // Cleanup subscription when component unmounts
         return () => {
