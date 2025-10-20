@@ -3,18 +3,17 @@ import { useRouter } from 'expo-router';
 import { reload, signOut } from 'firebase/auth';
 import React from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth } from '../(logon)/firebaseConfig';
-import { getUserByFirebaseId } from '../api/databaseOperations';
 import {
+  ActivityIndicator,
   Image,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
-  ActivityIndicator,
-  Button
+  View
 } from "react-native";
+import { auth } from '../(logon)/firebaseConfig';
+import { getUserByFirebaseId } from '../api/databaseOperations';
 
 interface DatabaseUser {
   firebase_id: string;
@@ -116,6 +115,7 @@ export default function AccountScreen() {
             {user?.emailVerified ? "✅ Yes" : "❌ No"}
           </Text>
         </View>
+      </View>
         
               {/* Display database user info */}
       <View style={styles.dbSection}>
@@ -133,7 +133,7 @@ export default function AccountScreen() {
         ) : (
           <Text style={[styles.text, { fontStyle: 'italic' }]}>
             No user data found in database.
-          </Text>
+          </Text> )}
 
 
         <TouchableOpacity
@@ -229,12 +229,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 5,
     elevation: 4,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    color: "#fff",
-    fontWeight: "600",
-    marginBottom: 15,
   },
   infoRow: {
     flexDirection: "row",

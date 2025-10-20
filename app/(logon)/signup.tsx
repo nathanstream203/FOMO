@@ -1,15 +1,12 @@
 //signup.tsx
-import { useRouter } from 'expo-router';
-import * as React from 'react';
-import { postNewUser } from '../api/databaseOperations';
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useRouter } from 'expo-router';
 import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
   signOut,
 } from "firebase/auth";
-import * as React from "react";
+import * as React from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -22,6 +19,7 @@ import {
   View,
 } from "react-native";
 import { auth } from "../(logon)/firebaseConfig";
+import { postNewUser } from '../api/databaseOperations';
 
 export default function signUpScreen() {
   const [firstName, setFirstName] = React.useState("");
@@ -43,21 +41,29 @@ export default function signUpScreen() {
         email,
         password
       );
+
       const user = userCredential?.user;
       console.log("Creating account for:", user?.email);
-      await sendEmailVerification(user); //send verification email after account created
-      console.log("Verification email sent to:", user.email);
+
+      if (user) {
         //POST to database - TEST DATA - REPLACE LATER
         // 2000-01-01T01:01:00.000Z
+        const firebaseUID = user?.uid;
         postNewUser(firebaseUID, 'FirstTestFirstName', 'FirstTestLastName', '2000-01-01T01:01:00.000Z', 1)
           .then((dbUser) => console.log('User stored in database:', dbUser))
           .catch((err) => console.error('DB Error:', err));
+      }
+
+      await sendEmailVerification(user); //send verification email after account created
+      console.log("Verification email sent to:", user.email);
       await signOut(auth); //sign user out after sending verfication email
       Alert.alert(
         "Please Verify Your Email",
         "A verification email has been sent to your email. Please verify your email"
       );
+
       router.replace("/signin");
+
     } catch (error: any) {
       console.error("Error signing up:", error.message);
       Alert.alert("Error", error.message);
