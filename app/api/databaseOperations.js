@@ -1,17 +1,6 @@
 // databasePostGet.js
 // Centralized API helper for your React Native frontend
-
-
-//const BASE_URL = 'http://localhost:5000'; 
-
-// --- Home ---
-//const BASE_URL = 'http://192.168.1.145:5000'; 
-
-// --- Jarvis SW (Classroom) ---
-//const BASE_URL = 'http://10.200.120.231:5000';
-
-// --- Sorenson (TechDesk) --- 
-const BASE_URL = 'http://10.200.121.114:5000';
+import { BASE_URL } from './localAddresses';
 
 /**
  * --------------------------
