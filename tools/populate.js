@@ -37,7 +37,7 @@ while(true){
     console.log('Invalid Choice');
 }
 if(choice == 1){
-    ppopulateRoles()
+    populateRoles()
         .catch(e => {
             console.error(e);
         });
@@ -47,7 +47,7 @@ if(choice == 1){
             console.error(e);
         });
 }else if(choice == 3){
-    ppopulateRoles()
+    populateRoles()
         .catch(e => {
             console.error(e);
         });
