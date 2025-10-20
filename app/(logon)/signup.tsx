@@ -4,8 +4,7 @@ import * as React from 'react';
 import { useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { auth } from '../(logon)/firebaseConfig';
-
-
+import { postNewUser } from '../api/databaseOperations';
 
 
 export default function SignInScreen() {
@@ -22,8 +21,11 @@ export default function SignInScreen() {
 
 React.useEffect(() => {
     if (user) {
-        console.log('Account created for:', user.user.email);
-        console.log('Firebase UID:', user.user.uid); // send POST to database
+        const firebaseUID = user.user.uid;
+        const firebaseEmail = user.user.email;
+
+        console.log('Account created for:', firebaseEmail);
+        console.log('Firebase UID:', firebaseUID);
         if(!user.user.emailVerified){
           console.log('User '+ user.user.email + ' NOT verified.');
         } else if(user.user.emailVerified){
@@ -31,6 +33,12 @@ React.useEffect(() => {
         } else{
           console.log('Unknown error or unknown verification status for user '+ user.user.email);
         }
+
+        //POST to database - TEST DATA - REPLACE LATER
+        // 2000-01-01T01:01:00.000Z
+        postNewUser(firebaseUID, 'FirstTestFirstName', 'FirstTestLastName', '2000-01-01T01:01:00.000Z', 1)
+          .then((dbUser) => console.log('User stored in database:', dbUser))
+          .catch((err) => console.error('DB Error:', err));
 
         router.replace('/(tabs)');
     }
