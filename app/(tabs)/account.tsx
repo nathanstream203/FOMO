@@ -7,10 +7,19 @@ import { ActivityIndicator, Button, StyleSheet, Text, View } from 'react-native'
 import { auth } from '../(logon)/firebaseConfig';
 import { getUserByFirebaseId } from '../api/databaseOperations';
 
+interface DatabaseUser {
+  firebase_id: string;
+  first_name: string;
+  last_name: string;
+  birth_date: string;
+  role_id: number | string;
+}
+
 
 export default function AccountScreen() {
   const [user, loading, error] = useAuthState(auth);
-  const [dbUser, setDbUser] = React.useState(null);
+  //const [dbUser, setDbUser] = React.useState(null);
+  const [dbUser, setDbUser] = React.useState<DatabaseUser | null>(null);
   const [dbLoading, setDbLoading] = React.useState(false);
   const router = useRouter();
 
