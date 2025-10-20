@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -39,6 +36,10 @@ Columns:
 */
 model Users {
   id Int @id @default(autoincrement())
+  firebase_id String @unique
+  first_name String
+  last_name String
+  birth_date DateTime
   role_id Int
   role Roles @relation(fields: [role_id], references: [id])
   post Posts[]
@@ -76,6 +77,8 @@ model Party {
   start_time DateTime @default(now())
   end_time DateTime
   user_id Int
+  longitude Decimal
+  latitude Decimal
   user Users @relation(fields: [user_id], references: [id])
 }
 
@@ -91,6 +94,8 @@ model Bar {
   id Int @id @default(autoincrement())
   name String
   address String
+  longitude Decimal
+  latitude Decimal
   events Event[]
 }
 
@@ -113,4 +118,17 @@ model Event {
   end_time DateTime
   bar_id Int
   bar Bar @relation(fields: [bar_id], references: [id])
+}
+
+/*
+Table: Permissions
+Columns:
+  id: PK, auto incremented integer, unique identifier for a permission
+  name: string, name of the permission
+  description: optional string, description for the permission
+*/
+model Permissions {
+  id Int @id @default(autoincrement())
+  name String
+  description String?
 }

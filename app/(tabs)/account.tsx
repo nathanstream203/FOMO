@@ -1,7 +1,10 @@
 // /(tabs)/account.tsx
-import { useRouter } from "expo-router";
-import { reload, signOut } from "firebase/auth";
-import { useAuthState } from "react-firebase-hooks/auth";
+import { useRouter } from 'expo-router';
+import { reload, signOut } from 'firebase/auth';
+import React from 'react';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth } from '../(logon)/firebaseConfig';
+import { getUserByFirebaseId } from '../api/databaseOperations';
 import {
   Image,
   ScrollView,
@@ -9,11 +12,22 @@ import {
   Text,
   TouchableOpacity,
   View,
+  ActivityIndicator,
+  Button
 } from "react-native";
-import { auth } from "../(logon)/firebaseConfig";
 
+interface DatabaseUser {
+  firebase_id: string;
+  first_name: string;
+  last_name: string;
+  birth_date: string;
+  role_id: number | string;
+}
 export default function AccountScreen() {
   const [user, loading, error] = useAuthState(auth);
+  //const [dbUser, setDbUser] = React.useState(null);
+  const [dbUser, setDbUser] = React.useState<DatabaseUser | null>(null);
+  const [dbLoading, setDbLoading] = React.useState(false);
   const router = useRouter();
 
   const signOutUser = async () => {
@@ -26,6 +40,25 @@ export default function AccountScreen() {
     }
   };
 
+  // Fetch user profile from database
+  React.useEffect(() => {
+    const fetchUserData = async () => {
+      if (user && user.uid) {
+        setDbLoading(true);
+        try {
+          const userData = await getUserByFirebaseId(user.uid);
+          setDbUser(userData);
+          console.log('Fetched user from DB: ', userData);
+        } catch (err) {
+          console.error('Error fetching user from DB: ', err);
+        } finally {
+          setDbLoading(false);
+        }
+      }
+    };
+    fetchUserData();
+  }, [user]);
+      
   const reloadUserData = async () => {
     if (auth.currentUser) {
       await reload(auth.currentUser);
@@ -83,6 +116,25 @@ export default function AccountScreen() {
             {user?.emailVerified ? "✅ Yes" : "❌ No"}
           </Text>
         </View>
+        
+              {/* Display database user info */}
+      <View style={styles.dbSection}>
+        <Text style={styles.sectionTitle}>Database User Info</Text>
+
+        {dbLoading ? (
+          <ActivityIndicator size="small" color="#fff" />
+        ) : dbUser ? (
+          <>
+            <Text style={styles.text}>First Name: {dbUser.first_name}</Text>
+            <Text style={styles.text}>Last Name: {dbUser.last_name}</Text>
+            <Text style={styles.text}>Birth Date: {dbUser.birth_date}</Text>
+            <Text style={styles.text}>Role ID: {dbUser.role_id}</Text>
+          </>
+        ) : (
+          <Text style={[styles.text, { fontStyle: 'italic' }]}>
+            No user data found in database.
+          </Text>
+
 
         <TouchableOpacity
           style={[styles.button, { backgroundColor: "#e63946" }]}
@@ -111,6 +163,34 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     flex: 1,
+    backgroundColor: '#25292e',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  header: {
+    color: '#fff',
+    fontSize: 22,
+    marginBottom: 16,
+  },
+  text: {
+    color: '#fff',
+    fontSize: 16,
+    marginVertical: 4,
+  },
+  dbSection: {
+    marginTop: 30,
+    padding: 15,
+    borderRadius: 8,
+    backgroundColor: '#333842',
+    width: '100%',
+  },
+  sectionTitle: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    textAlign: 'center',
     backgroundColor: "#1b1d1f",
     justifyContent: "center",
     alignItems: "center",

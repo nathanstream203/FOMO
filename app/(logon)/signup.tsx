@@ -1,4 +1,7 @@
 //signup.tsx
+import { useRouter } from 'expo-router';
+import * as React from 'react';
+import { postNewUser } from '../api/databaseOperations';
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import {
@@ -30,7 +33,7 @@ export default function signUpScreen() {
   const router = useRouter();
 
   const signUp = async () => {
-    if (!email || !password) {
+      if (!email || !password) {
       Alert.alert("Error", "Email and Password are required.");
       return;
     }
@@ -44,9 +47,14 @@ export default function signUpScreen() {
       console.log("Creating account for:", user?.email);
       await sendEmailVerification(user); //send verification email after account created
       console.log("Verification email sent to:", user.email);
+        //POST to database - TEST DATA - REPLACE LATER
+        // 2000-01-01T01:01:00.000Z
+        postNewUser(firebaseUID, 'FirstTestFirstName', 'FirstTestLastName', '2000-01-01T01:01:00.000Z', 1)
+          .then((dbUser) => console.log('User stored in database:', dbUser))
+          .catch((err) => console.error('DB Error:', err));
       await signOut(auth); //sign user out after sending verfication email
       Alert.alert(
-        " Please Verify Your Email",
+        "Please Verify Your Email",
         "A verification email has been sent to your email. Please verify your email"
       );
       router.replace("/signin");
@@ -81,7 +89,6 @@ export default function signUpScreen() {
               placeholderTextColor="#aaa"
             />
           </View>
-
           <View style={styles.inputContainer}>
             <Ionicons
               name="person-outline"
