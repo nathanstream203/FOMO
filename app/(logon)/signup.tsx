@@ -1,120 +1,234 @@
 //signup.tsx
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+  signOut,
+} from "firebase/auth";
 import * as React from "react";
-import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { auth } from "../(logon)/firebaseConfig";
 
-export default function SignInScreen() {
+export default function signUpScreen() {
   const [firstName, setFirstName] = React.useState("");
   const [lastName, setLastName] = React.useState("");
   const [dateOfBirth, setDateOfBirth] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const [createUserWithEmailAndPassword, user, _, error] =
-    useCreateUserWithEmailAndPassword(auth);
 
   const router = useRouter();
 
   const signUp = async () => {
-    await createUserWithEmailAndPassword(email, password);
+    if (!email || !password) {
+      Alert.alert("Error", "Email and Password are required.");
+      return;
+    }
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential?.user;
+      console.log("Creating account for:", user?.email);
+      await sendEmailVerification(user); //send verification email after account created
+      console.log("Verification email sent to:", user.email);
+      await signOut(auth); //sign user out after sending verfication email
+      Alert.alert(
+        " Please Verify Your Email",
+        "A verification email has been sent to your email. Please verify your email"
+      );
+      router.replace("/signin");
+    } catch (error: any) {
+      console.error("Error signing up:", error.message);
+      Alert.alert("Error", error.message);
+    }
   };
 
-  React.useEffect(() => {
-    if (user) {
-      console.log("Account created for:", user.user.email);
-      router.replace("/(tabs)"); //sign in after create account
-    }
-  }, [user]);
-
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Create New FOMO Account</Text>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <View style={styles.container}>
+          <Text style={styles.title}>Create Your FOMO Account</Text>
+          <Text style={styles.subtitle}>Join and never miss out again!</Text>
 
-      <TextInput
-        onChangeText={setFirstName}
-        placeholder="First Name"
-        autoCapitalize="none"
-        style={styles.input}
-        placeholderTextColor="#ccc"
-      />
-      <TextInput
-        onChangeText={setLastName}
-        placeholder="Last Name"
-        autoCapitalize="none"
-        style={styles.input}
-        placeholderTextColor="#ccc"
-      />
-      <TextInput
-        keyboardType="numbers-and-punctuation"
-        onChangeText={setDateOfBirth}
-        placeholder="Date of Birth (MM/DD/YYYY)"
-        autoCapitalize="none"
-        style={styles.input}
-        placeholderTextColor="#ccc"
-      />
-      <TextInput
-        keyboardType="email-address"
-        onChangeText={setEmail}
-        placeholder="Email"
-        autoCapitalize="none"
-        style={styles.input}
-        placeholderTextColor="#ccc"
-      />
-      <TextInput
-        secureTextEntry
-        onChangeText={setPassword}
-        placeholder="Password"
-        autoCapitalize="none"
-        style={styles.input}
-        placeholderTextColor="#ccc"
-      />
+          {/* Input Fields */}
+          <View style={styles.inputContainer}>
+            <Ionicons
+              name="person-outline"
+              size={20}
+              color="#aaa"
+              style={styles.icon}
+            />
+            <TextInput
+              onChangeText={setFirstName}
+              placeholder="First Name"
+              style={styles.input}
+              placeholderTextColor="#aaa"
+            />
+          </View>
 
-      <Text style={{ color: "green" }}>{user?.user.email}</Text>
+          <View style={styles.inputContainer}>
+            <Ionicons
+              name="person-outline"
+              size={20}
+              color="#aaa"
+              style={styles.icon}
+            />
+            <TextInput
+              onChangeText={setLastName}
+              placeholder="Last Name"
+              style={styles.input}
+              placeholderTextColor="#aaa"
+            />
+          </View>
 
-      <Pressable style={styles.button} onPress={() => signUp()}>
-        <Text style={styles.buttonText}>Create</Text>
-      </Pressable>
-      <Pressable
-        style={styles.button}
-        onPress={() => router.replace("/signin")}
-      >
-        <Text style={styles.buttonText}>Back to Sign In</Text>
-      </Pressable>
-    </View>
+          <View style={styles.inputContainer}>
+            <Ionicons
+              name="calendar-outline"
+              size={20}
+              color="#aaa"
+              style={styles.icon}
+            />
+            <TextInput
+              keyboardType="numbers-and-punctuation"
+              onChangeText={setDateOfBirth}
+              placeholder="Date of Birth (MM/DD/YYYY)"
+              style={styles.input}
+              placeholderTextColor="#aaa"
+            />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Ionicons
+              name="mail-outline"
+              size={20}
+              color="#aaa"
+              style={styles.icon}
+            />
+            <TextInput
+              keyboardType="email-address"
+              onChangeText={setEmail}
+              placeholder="Email"
+              style={styles.input}
+              placeholderTextColor="#aaa"
+            />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Ionicons
+              name="lock-closed-outline"
+              size={20}
+              color="#aaa"
+              style={styles.icon}
+            />
+            <TextInput
+              secureTextEntry
+              onChangeText={setPassword}
+              placeholder="Password"
+              style={styles.input}
+              placeholderTextColor="#aaa"
+            />
+          </View>
+
+          {/* Buttons */}
+          <Pressable style={styles.buttonPrimary} onPress={signUp}>
+            <Text style={styles.buttonText}>Create Account</Text>
+          </Pressable>
+
+          <Pressable
+            style={styles.buttonSecondary}
+            onPress={() => router.replace("/signin")}
+          >
+            <Text style={styles.buttonSecondaryText}>Back to Sign In</Text>
+          </Pressable>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#25292e",
+  scrollContainer: {
+    flexGrow: 1,
     justifyContent: "center",
+    backgroundColor: "#1b1f27",
+    paddingVertical: 40,
+  },
+  container: {
     alignItems: "center",
-    padding: 20,
+    paddingHorizontal: 24,
   },
   title: {
     color: "#fff",
-    fontSize: 24,
-    marginBottom: 24,
+    fontSize: 26,
+    fontWeight: "700",
+    marginBottom: 6,
+  },
+  subtitle: {
+    color: "#a0a0a0",
+    fontSize: 15,
+    marginBottom: 28,
+  },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: "100%",
+    backgroundColor: "#2b303a",
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  icon: {
+    marginRight: 8,
   },
   input: {
-    width: "100%",
-    backgroundColor: "#333842",
+    flex: 1,
     color: "#fff",
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 16,
-  },
-  button: {
-    backgroundColor: "#5568fe",
     paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    marginTop: 12,
+    fontSize: 15,
+  },
+  buttonPrimary: {
+    width: "100%",
+    backgroundColor: "#5669ff",
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: "center",
+    marginTop: 10,
+    shadowColor: "#5669ff",
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 6,
   },
   buttonText: {
     color: "#fff",
     fontSize: 16,
+    fontWeight: "600",
+  },
+  buttonSecondary: {
+    marginTop: 18,
+  },
+  buttonSecondaryText: {
+    color: "#8891f2",
+    fontSize: 15,
   },
 });
