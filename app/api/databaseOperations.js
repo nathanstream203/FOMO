@@ -11,7 +11,8 @@ import { BASE_URL } from './localAddresses';
 //Tests if the backend server is reachable. Returns true if connection succeeds, false otherwise.
 export const testConnection = async () => {
   try {
-    const response = await fetch(`${BASE_URL}`, { method: 'GET' });
+    //const response = await fetch(`${BASE_URL}`, { method: 'GET' });
+    const response = await fetch(`${BASE_URL}/users`);
 
     if (response.ok) {
       console.log('Connection successful:', BASE_URL);
