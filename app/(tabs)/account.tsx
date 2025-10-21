@@ -24,7 +24,6 @@ interface DatabaseUser {
 }
 export default function AccountScreen() {
   const [user, loading, error] = useAuthState(auth);
-  //const [dbUser, setDbUser] = React.useState(null);
   const [dbUser, setDbUser] = React.useState<DatabaseUser | null>(null);
   const [dbLoading, setDbLoading] = React.useState(false);
   const router = useRouter();
@@ -101,23 +100,23 @@ export default function AccountScreen() {
 
         <View style={styles.infoRow}>
           <Text style={styles.infoLabel}>First Name</Text>
-          <Text style={styles.infoValue}>{user?.displayName || "N/A"}</Text>
+          <Text style={styles.infoValue}>{dbUser?.first_name || "N/A"}</Text>
         </View>
 
         <View style={styles.infoRow}>
           <Text style={styles.infoLabel}>Last Name</Text>
-          <Text style={styles.infoValue}>{user?.displayName || "N/A"}</Text>
+          <Text style={styles.infoValue}>{dbUser?.last_name || "N/A"}</Text>
         </View>
 
         <View style={styles.infoRow}>
           <Text style={styles.infoLabel}>Date of Birth</Text>
-          <Text style={styles.infoValue}>N/A</Text>
+          <Text style={styles.infoValue}>{dbUser?.birth_date || "N/A"}</Text>
         </View>
 
         <View style={styles.infoRow}>
           <Text style={styles.infoLabel}>Email Verified</Text>
           <Text style={styles.infoValue}>
-            {user?.emailVerified ? "✅ Yes" : "❌ No"}
+            {user?.emailVerified ? "Yes" : "No"}
           </Text>
         </View>
 
