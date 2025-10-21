@@ -1,6 +1,30 @@
-// databasePostGet.js
+// databaseOperations.js
 // Centralized API helper for your React Native frontend
 import { BASE_URL } from './localAddresses';
+
+/**
+ * --------------------------
+ * CONNECTION TEST
+ * --------------------------
+ */
+
+//Tests if the backend server is reachable. Returns true if connection succeeds, false otherwise.
+export const testConnection = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}`, { method: 'GET' });
+
+    if (response.ok) {
+      console.log('Connection successful:', BASE_URL);
+      return true;
+    } else {
+      console.warn('Server responded but some problems were found:', response.status);
+      return false;
+    }
+  } catch (error) {
+    console.error('Cannot connect to server:', error.message);
+    return false;
+  }
+};
 
 /**
  * --------------------------

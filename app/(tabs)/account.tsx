@@ -100,7 +100,12 @@ export default function AccountScreen() {
         </View>
 
         <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}>Full Name</Text>
+          <Text style={styles.infoLabel}>First Name</Text>
+          <Text style={styles.infoValue}>{user?.displayName || "N/A"}</Text>
+        </View>
+
+        <View style={styles.infoRow}>
+          <Text style={styles.infoLabel}>Last Name</Text>
           <Text style={styles.infoValue}>{user?.displayName || "N/A"}</Text>
         </View>
 
@@ -115,32 +120,21 @@ export default function AccountScreen() {
             {user?.emailVerified ? "✅ Yes" : "❌ No"}
           </Text>
         </View>
+
+        <View style={styles.infoRow}>
+          <Text style={styles.infoLabel}>User in Database?</Text>
+          <Text style={styles.infoValue}>{dbLoading ? 
+            (<ActivityIndicator size="small" color="#fff"/>) : (dbUser ? "Yes" : "No user data found in database.")}   
+          </Text>
+        </View>
+
       </View>
-        
-              {/* Display database user info */}
-      <View style={styles.dbSection}>
-        <Text style={styles.sectionTitle}>Database User Info</Text>
-
-        {dbLoading ? (
-          <ActivityIndicator size="small" color="#fff" />
-        ) : dbUser ? (
-          <>
-            <Text style={styles.text}>First Name: {dbUser.first_name}</Text>
-            <Text style={styles.text}>Last Name: {dbUser.last_name}</Text>
-            <Text style={styles.text}>Birth Date: {dbUser.birth_date}</Text>
-            <Text style={styles.text}>Role ID: {dbUser.role_id}</Text>
-          </>
-        ) : (
-          <Text style={[styles.text, { fontStyle: 'italic' }]}>
-            No user data found in database.
-          </Text> )}
-
 
         <TouchableOpacity
-          style={[styles.button, { backgroundColor: "#e63946" }]}
-          onPress={signOutUser}
+          style={[styles.button, { backgroundColor: "#299c63ff" }]}
+          onPress={reloadUserData}
         >
-          <Text style={styles.buttonText}>Sign Out</Text>
+          <Text style={styles.buttonText}>Update User Info</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -149,7 +143,15 @@ export default function AccountScreen() {
         >
           <Text style={styles.buttonText}>Refresh</Text>
         </TouchableOpacity>
-      </View>
+
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: "#e63946" }]}
+          onPress={signOutUser}
+        >
+          <Text style={styles.buttonText}>Sign Out</Text>
+        </TouchableOpacity>
+
+        
     </ScrollView>
   );
 }
@@ -254,5 +256,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
     fontWeight: "600",
+    width: 200,
+    textAlign: "center"
   },
 });
