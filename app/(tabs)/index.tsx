@@ -1,5 +1,7 @@
 import * as Location from 'expo-location';
 import React, { useEffect, useState } from 'react';
+import { Platform, Stylesheet, ActivityIndicator, Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import MapView, { Circle, Marker } from 'react-native-maps';
 import { ActivityIndicator, Alert, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import MapView, { Circle, Marker } from 'react-native-maps';
 import { getBars } from '../api/databaseOperations';
@@ -30,6 +32,7 @@ function getDistanceFromLatLonInMeters(lat1: number, lon1: number, lat2: number,
 }
 
 export default function HomeScreen() {
+const [activeMarker, setActiveMarker] = useState<any | null>(null);
 const circleRadius = 5000;
 const [activeMarker, setActiveMarker] = useState<any | null>(null);
 const [barMarkers, setBarMarkers] = useState<any[]>([]);
@@ -169,7 +172,19 @@ useEffect(() => {
                       strokeWidth={2}
                       strokeColor={Colors.primary}
 
-                  />
+            />
+
+              {markerData.map((marker, index) => {
+                  const backgroundColor =
+                  marker.icon === 'beer-outline'
+                  ? Colors.primary // lighter color for houses
+                  : Colors.secondary;
+                  return (
+                  <Marker
+                      key={index}
+                      coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
+                      onPress={() => setActiveMarker(marker)}
+                  >
 
                   {/* Location Markers */}
                   {markers.map((marker, index) => {
@@ -243,6 +258,27 @@ useEffect(() => {
                   >
                       <Text style={{ color: 'white', fontWeight: 'bold' }}>Check In</Text>
                   </TouchableOpacity>
+                      )}
+
+                  </Marker>
+                  );
+              })}
+          </MapView>
+
+          {activeMarker && (
+            <View style={popupStyles.container}>
+              <View style={popupStyles.row}>
+                <Text style={popupStyles.title}>{activeMarker.title}</Text>
+
+                <TouchableOpacity
+                  onPress={() => setActiveMarker(null)}
+                  style={popupStyles.closeButton}
+                >
+                  <Ionicons name="close" size={20} color="#333" />
+                </TouchableOpacity>
+              </View>
+
+              <Text style={popupStyles.description}>{activeMarker.description}</Text>
               </View>
           )}
         {activeMarker && (
