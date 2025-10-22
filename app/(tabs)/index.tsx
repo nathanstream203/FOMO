@@ -1,14 +1,16 @@
-import { Stack } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { StyleSheet, View } from 'react-native';
+import { Stack } from 'expo-router';
+import React, { useState } from 'react';
+import { Platform, StyleSheet, Text, TouchableOpacity, View, } from 'react-native';
 import MapView, { Circle, Marker } from 'react-native-maps';
-import { Colors } from '../theme';
 import markerData from '../markers.json';
+import { Colors } from '../theme';
 // import { Location, defaultLocation } from "../utils/location";
 
 
 
 export default function HomeScreen() {
+const [activeMarker, setActiveMarker] = useState<any | null>(null);
 const circleRadius = 5000;
 
   return (
@@ -48,7 +50,7 @@ const circleRadius = 5000;
                   <Marker
                       key={index}
                       coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
-                      title={marker.title}
+                      onPress={() => setActiveMarker(marker)}
                   >
 
                       {marker.icon && (
@@ -74,6 +76,23 @@ const circleRadius = 5000;
                   );
               })}
           </MapView>
+
+          {activeMarker && (
+            <View style={popupStyles.container}>
+              <View style={popupStyles.row}>
+                <Text style={popupStyles.title}>{activeMarker.title}</Text>
+
+                <TouchableOpacity
+                  onPress={() => setActiveMarker(null)}
+                  style={popupStyles.closeButton}
+                >
+                  <Ionicons name="close" size={20} color="#333" />
+                </TouchableOpacity>
+              </View>
+
+              <Text style={popupStyles.description}>{activeMarker.description}</Text>
+              </View>
+          )}
       </View>
   );
 }
@@ -96,3 +115,43 @@ const mapStyle = [
     stylers: [{ visibility: "off" }],
   },
 ];
+
+const popupStyles = StyleSheet.create({
+  container: {
+    position: 'absolute',
+    left: 12,
+    right: 12,
+    bottom: Platform.OS === 'ios' ? 34 : 20,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 12,
+
+    shadowColor: '#000',
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 6,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  title: {
+    flex: 1,
+    fontSize: 16,
+    fontWeight: '700',
+    textAlign: 'center',
+    color: '#111',
+  },
+  closeButton: {
+    position: 'absolute',
+    right: 6,
+    top: -2,
+    padding: 6,
+  },
+  description: {
+    marginTop: 8,
+    fontSize: 14,
+    color: '#333',
+  }
+});
