@@ -1,7 +1,5 @@
 import * as Location from 'expo-location';
 import React, { useEffect, useState } from 'react';
-import { Platform, Stylesheet, ActivityIndicator, Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import MapView, { Circle, Marker } from 'react-native-maps';
 import { ActivityIndicator, Alert, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import MapView, { Circle, Marker } from 'react-native-maps';
 import { getBars } from '../api/databaseOperations';
@@ -19,23 +17,25 @@ interface BarLocation {
 }
 
 function getDistanceFromLatLonInMeters(lat1: number, lon1: number, lat2: number, lon2: number) {
-    const R = 6371000; // Earth radius in meters
-    const dLat = ((lat2 - lat1) * Math.PI) / 180;
-    const dLon = ((lon2 - lon1) * Math.PI) / 180;
-    const a =
-        Math.sin(dLat / 2) ** 2 +
-        Math.cos((lat1 * Math.PI) / 180) *
-        Math.cos((lat2 * Math.PI) / 180) *
-        Math.sin(dLon / 2) ** 2;
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
+  const R = 6371000; // meters
+  const φ1 = Number(lat1) * Math.PI / 180;
+  const φ2 = Number(lat2) * Math.PI / 180;
+  const Δφ = (Number(lat2) - Number(lat1)) * Math.PI / 180;
+  const Δλ = (Number(lon2) - Number(lon1)) * Math.PI / 180;
+
+  const a = Math.sin(Δφ / 2) ** 2 +
+            Math.cos(φ1) * Math.cos(φ2) *
+            Math.sin(Δλ / 2) ** 2;
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return Math.round(R * c);
 }
+
 
 export default function HomeScreen() {
 const [activeMarker, setActiveMarker] = useState<any | null>(null);
 const circleRadius = 5000;
-const [activeMarker, setActiveMarker] = useState<any | null>(null);
-const [barMarkers, setBarMarkers] = useState<any[]>([]);
 const [region, setRegion] = useState<any>(null);
 const [nearbyBar, setNearbyBar] = useState<any>(null);
 const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
@@ -123,11 +123,19 @@ useEffect(() => {
                             bar.latitude,
                             bar.longitude
                         );
-                        if (distance <= 10)
-                        console.log('📍 Nearby Bar')
+                        //Distance to every bar for debugging
+                        markers.forEach((bar) => {
+                            console.log(`${bar.name}: ${distance.toFixed(2)}m away`);
+                        });
                         return distance <= 10;
                     });
+                    
                     setNearbyBar(closeBar || null);
+                    if (closeBar) {
+                    console.log('📍 Nearby ' + closeBar.name);
+                    } else {
+                    console.log('❌ No nearby bar');
+                    }
 
                 }
             );
@@ -149,8 +157,7 @@ useEffect(() => {
     }
 
   return (
-      <View style={styles.container}>
-          
+       <View style={styles.container}>
           {region ? (
               <MapView
                   //provider={PROVIDER_GOOGLE}
@@ -172,50 +179,44 @@ useEffect(() => {
                       strokeWidth={2}
                       strokeColor={Colors.primary}
 
-            />
-
-              {markerData.map((marker, index) => {
-                  const backgroundColor =
-                  marker.icon === 'beer-outline'
-                  ? Colors.primary // lighter color for houses
-                  : Colors.secondary;
-                  return (
-                  <Marker
-                      key={index}
-                      coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
-                      onPress={() => setActiveMarker(marker)}
-                  >
+                  />
 
                   {/* Location Markers */}
                   {markers.map((marker, index) => {
-                    //   const backgroundColor =
-                    //       marker.name.includes("") === 'beer-outline'
-                    //           ? Colors.primary // lighter color for houses
-                    //           : Colors.secondary;
+                      const isActive = activeMarker?.id === marker.id;
                       return (
-                        <Marker
-                            key={index}
-                            coordinate={{latitude: Number(marker.latitude), longitude: Number(marker.longitude)}}
-                            title={marker.name}
-                            description='test'
-                            onPress={() => setActiveMarker(marker)}
-                        >
+                          <Marker
+                              key={index}
+                              coordinate={{latitude: Number(marker.latitude), longitude: Number(marker.longitude)}}
+                              title={marker.name}
+                              onPress={() => setActiveMarker(marker)}
+                              zIndex={isActive ? 999 : 1}
+                          >
 
-                        <View
-                            style={{
-                                backgroundColor: Colors.primary,
-                                borderRadius: 20,
-                                padding: 8,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                            }}
+                              {marker && (
+                                  <View
+                                      style={{
+                                        backgroundColor: isActive ? Colors.secondary : Colors.primary,
+                                        borderRadius: 20,
+                                        padding: 8, // slightly bigger when selected
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        shadowColor: isActive ? Colors.secondary : 'transparent',
+                                        shadowOpacity: isActive ? 0.5 : 0,
+                                        shadowRadius: isActive ? 6 : 0,
+                                        elevation: isActive ? 8 : 0, // Android shadow
+                                      }}
 
-                        >
-                        <Ionicons name="beer-outline" size={20} color="white" />
-                        </View>
-                             
+                                  >
+                                      <Ionicons
+                                          name={'beer-outline'}
+                                          size={20}
+                                          color="white"
+                                      />
+                                  </View>
+                              )}
 
-                        </Marker>
+                          </Marker>
                       );
                   })}
 
@@ -226,7 +227,7 @@ useEffect(() => {
                               latitude: location.latitude,
                               longitude: location.longitude,
                           }}
-                          zIndex={9999}
+                          zIndex={99}
                       >
                           <View
                               style={{
@@ -245,62 +246,55 @@ useEffect(() => {
                   )}
               </MapView>
           ) : null}
-          {nearbyBar && (
-              <View style={{ position: 'absolute', bottom: 50, left: 0, right: 0, alignItems: 'center' }}>
-                  <TouchableOpacity
-                      style={{
-                          backgroundColor: Colors.primary,
-                          paddingVertical: 12,
-                          paddingHorizontal: 25,
-                          borderRadius: 25,
-                      }}
-                      onPress={() => Alert.alert('Checked in!', `You are at ${nearbyBar.name}`)}
-                  >
-                      <Text style={{ color: 'white', fontWeight: 'bold' }}>Check In</Text>
-                  </TouchableOpacity>
-                      )}
-
-                  </Marker>
-                  );
-              })}
-          </MapView>
-
           {activeMarker && (
-            <View style={popupStyles.container}>
-              <View style={popupStyles.row}>
-                <Text style={popupStyles.title}>{activeMarker.title}</Text>
+          <View style={popupStyles.container}>
+            <View style={popupStyles.row}>
+              <Text style={popupStyles.title}>{activeMarker.name}</Text>
 
-                <TouchableOpacity
-                  onPress={() => setActiveMarker(null)}
-                  style={popupStyles.closeButton}
-                >
-                  <Ionicons name="close" size={20} color="#333" />
-                </TouchableOpacity>
-              </View>
-
-              <Text style={popupStyles.description}>{activeMarker.description}</Text>
-              </View>
-          )}
-        {activeMarker && (
-            <View style={popupStyles.container}>
-              <View style={popupStyles.row}>
-                <Text style={popupStyles.title}>{activeMarker.title}</Text>
-
-                <TouchableOpacity
-                  onPress={() => setActiveMarker(null)}
-                  style={popupStyles.closeButton}
-                >
+              <TouchableOpacity
+                onPress={() => setActiveMarker(null)}
+                style={popupStyles.closeButton}
+              >
                 <Ionicons name="close" size={20} color="#333" />
-                </TouchableOpacity>
-              </View>
-
-              <Text style={popupStyles.description}>{activeMarker.description}</Text>
+              </TouchableOpacity>
             </View>
-          )}
+
+            <View style={popupStyles.divider} />
+
+            <Text style={popupStyles.description}>
+              {activeMarker.address || 'No address available.'}
+            </Text>
+
+            <View style={popupStyles.actions}>
+              <TouchableOpacity
+                style={[
+                  popupStyles.button,
+                  nearbyBar?.id === activeMarker.id
+                    ? popupStyles.buttonEnabled
+                    : popupStyles.buttonDisabled,
+                ]}
+                disabled={nearbyBar?.id !== activeMarker.id}
+                onPress={() =>
+                  Alert.alert('Checked in!', `You are at ${activeMarker.name}`)
+                }
+              >
+                <Text
+                  style={[
+                    popupStyles.buttonText,
+                    nearbyBar?.id !== activeMarker.id && popupStyles.buttonTextDisabled,
+                  ]}
+                >
+                  {nearbyBar?.id === activeMarker.id ? 'Check In' : 'Too Far!'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
 
       </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -325,39 +319,73 @@ const mapStyle = [
 const popupStyles = StyleSheet.create({
   container: {
     position: 'absolute',
-    left: 12,
-    right: 12,
-    bottom: Platform.OS === 'ios' ? 34 : 20,
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 12,
-
+    left: 16,
+    right: 16,
+    bottom: Platform.OS === 'ios' ? 40 : 24,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 18,
     shadowColor: '#000',
-    shadowOpacity: 0.12,
-    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
     elevation: 6,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 6,
   },
   title: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '700',
-    textAlign: 'center',
-    color: '#111',
+    color: '#1a1a1a',
   },
   closeButton: {
-    position: 'absolute',
-    right: 6,
-    top: -2,
+    backgroundColor: '#f2f2f2',
+    borderRadius: 20,
     padding: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   description: {
-    marginTop: 8,
-    fontSize: 14,
-    color: '#333',
-  }
+    fontSize: 15,
+    lineHeight: 21,
+    color: '#444',
+    marginTop: 6,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#e6e6e6',
+    marginVertical: 10,
+  },
+  actions: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 10,
+  },
+  button: {
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    borderRadius: 25,
+  },
+  buttonEnabled: {
+    backgroundColor: Colors.primary,
+  },
+  buttonDisabled: {
+    backgroundColor: '#ccc',
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 15,
+  },
+  buttonTextDisabled: {
+    color: '#eee',
+  },
 });
+
+
