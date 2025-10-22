@@ -1,18 +1,31 @@
-// databasePostGet.js
+// databaseOperations.js
 // Centralized API helper for your React Native frontend
+import { BASE_URL } from '../api/localAdresses';
 
+/**
+ * --------------------------
+ * CONNECTION TEST
+ * --------------------------
+ */
 
-//const BASE_URL = 'http://localhost:5000'; 
+//Tests if the backend server is reachable. Returns true if connection succeeds, false otherwise.
+export const testConnection = async () => {
+  try {
+    console.log('Testing connection to:', BASE_URL);
+    const response = await fetch(`${BASE_URL}/users`);
 
-// --- Home ---
-//const BASE_URL = 'http://192.168.1.145:5000'; 
-
-// --- Jarvis SW (Classroom) ---
-const BASE_URL = 'http://10.200.120.231:5000';
-
-// --- Sorenson (TechDesk) --- 
-//BASE_URL = 'http://10.200.121.114:5000';
-
+    if (response.ok) {
+      console.log('Connection successful:', BASE_URL);
+      return true;
+    } else {
+      console.warn('Server responded but some problems were found:', response.status);
+      return false;
+    }
+  } catch (error) {
+    console.error('Cannot connect to server:', error.message);
+    return false;
+  }
+};
 /**
  * --------------------------
  * USERS
@@ -111,6 +124,18 @@ export const postNewLocation = async (firebase_id, latitude, longitude, name, de
     return data;
   } catch (error) {
     console.error('Error posting new location:', error);
+    throw error;
+  }
+};
+
+// Get a single bar location by id
+export const getBars = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/locations/bars`);
+    const bars = await response.json();
+    return bars || null;
+  } catch (error) {
+    console.error('Error fetching bars', error);
     throw error;
   }
 };
