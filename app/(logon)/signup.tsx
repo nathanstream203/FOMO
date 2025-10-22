@@ -1,7 +1,4 @@
 //signup.tsx
-import { useRouter } from 'expo-router';
-import * as React from 'react';
-import { postNewUser } from '../api/databaseOperations';
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import {
@@ -22,6 +19,7 @@ import {
   View,
 } from "react-native";
 import { auth } from "../(logon)/firebaseConfig";
+import { postNewUser } from "../api/databaseOperations";
 
 export default function signUpScreen() {
   const [firstName, setFirstName] = React.useState("");
@@ -33,8 +31,8 @@ export default function signUpScreen() {
   const router = useRouter();
 
   const signUp = async () => {
-      if (!email || !password) {
-      Alert.alert("Error", "Email and Password are required.");
+    if (!firstName || !lastName || !dateOfBirth || !email || !password) {
+      Alert.alert("Error", "Please enter all fields. All fields are required.");
       return;
     }
     try {
@@ -44,14 +42,21 @@ export default function signUpScreen() {
         password
       );
       const user = userCredential?.user;
+      const formattedDOB = dateOfBirth.split("/").reverse().join("-"); // "MM/DD/YYYY" -> "YYYY-MM-DD"
       console.log("Creating account for:", user?.email);
       await sendEmailVerification(user); //send verification email after account created
       console.log("Verification email sent to:", user.email);
-        //POST to database - TEST DATA - REPLACE LATER
-        // 2000-01-01T01:01:00.000Z
-        postNewUser(firebaseUID, 'FirstTestFirstName', 'FirstTestLastName', '2000-01-01T01:01:00.000Z', 1)
-          .then((dbUser) => console.log('User stored in database:', dbUser))
-          .catch((err) => console.error('DB Error:', err));
+      //POST to database
+      const firebaseUID = user.uid;
+      postNewUser(
+        firebaseUID,
+        firstName,
+        lastName,
+        formattedDOB,
+        1 //role_id
+      )
+        .then((dbUser) => console.log("User stored in database:", dbUser))
+        .catch((err) => console.error("DB Error:", err));
       await signOut(auth); //sign user out after sending verfication email
       Alert.alert(
         "Please Verify Your Email",

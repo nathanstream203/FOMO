@@ -1,20 +1,19 @@
 // /(tabs)/account.tsx
-import { useRouter } from 'expo-router';
-import { reload, signOut } from 'firebase/auth';
-import React from 'react';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth } from '../(logon)/firebaseConfig';
-import { getUserByFirebaseId } from '../api/databaseOperations';
+import { useRouter } from "expo-router";
+import { reload, signOut } from "firebase/auth";
+import React from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
 import {
+  ActivityIndicator,
   Image,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  ActivityIndicator,
-  Button
 } from "react-native";
+import { auth } from "../(logon)/firebaseConfig";
+import { getUserByFirebaseId } from "../api/databaseOperations";
 
 interface DatabaseUser {
   firebase_id: string;
@@ -23,9 +22,9 @@ interface DatabaseUser {
   birth_date: string;
   role_id: number | string;
 }
+
 export default function AccountScreen() {
-  const [user, loading, error] = useAuthState(auth);
-  //const [dbUser, setDbUser] = React.useState(null);
+  const [user, loading] = useAuthState(auth);
   const [dbUser, setDbUser] = React.useState<DatabaseUser | null>(null);
   const [dbLoading, setDbLoading] = React.useState(false);
   const router = useRouter();
@@ -33,32 +32,12 @@ export default function AccountScreen() {
   const signOutUser = async () => {
     try {
       await signOut(auth);
-      console.log("User signed out successfully : ", user?.email);
       router.replace("/signin");
     } catch (error) {
       console.error("Error signing out: ", error);
     }
   };
 
-  // Fetch user profile from database
-  React.useEffect(() => {
-    const fetchUserData = async () => {
-      if (user && user.uid) {
-        setDbLoading(true);
-        try {
-          const userData = await getUserByFirebaseId(user.uid);
-          setDbUser(userData);
-          console.log('Fetched user from DB: ', userData);
-        } catch (err) {
-          console.error('Error fetching user from DB: ', err);
-        } finally {
-          setDbLoading(false);
-        }
-      }
-    };
-    fetchUserData();
-  }, [user]);
-      
   const reloadUserData = async () => {
     if (auth.currentUser) {
       await reload(auth.currentUser);
@@ -66,6 +45,26 @@ export default function AccountScreen() {
     }
   };
 
+  React.useEffect(() => {
+    if (user?.uid) {
+      reloadUserData();
+    }
+
+    const fetchUserData = async () => {
+      if (user?.uid) {
+        setDbLoading(true);
+        try {
+          const userData = await getUserByFirebaseId(user.uid);
+          setDbUser(userData);
+        } catch (err) {
+          console.error("Error fetching user from DB:", err);
+        } finally {
+          setDbLoading(false);
+        }
+      }
+    };
+    fetchUserData();
+  }, [user]);
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -75,7 +74,8 @@ export default function AccountScreen() {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container} style={{ flex: 1 }}>
+    <ScrollView contentContainerStyle={styles.container}>
+      {/* Firebase Profile */}
       <View style={styles.profileCard}>
         <Image
           source={{
@@ -85,7 +85,6 @@ export default function AccountScreen() {
           }}
           style={styles.avatar}
         />
-
         <Text style={styles.nameText}>
           {user?.displayName || "Welcome User!"}
         </Text>
@@ -101,41 +100,29 @@ export default function AccountScreen() {
         </View>
 
         <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}>Full Name</Text>
-          <Text style={styles.infoValue}>{user?.displayName || "N/A"}</Text>
+          <Text style={styles.infoLabel}>First Name</Text>
+          <Text style={styles.infoValue}>{dbUser?.first_name || "N/A"}</Text>
+        </View>
+
+        <View style={styles.infoRow}>
+          <Text style={styles.infoLabel}>Last Name</Text>
+          <Text style={styles.infoValue}>{dbUser?.last_name || "N/A"}</Text>
         </View>
 
         <View style={styles.infoRow}>
           <Text style={styles.infoLabel}>Date of Birth</Text>
-          <Text style={styles.infoValue}>N/A</Text>
+          <Text style={styles.infoValue}>{dbUser?.birth_date || "N/A"}</Text>
         </View>
 
         <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}>Email Verified</Text>
-          <Text style={styles.infoValue}>
-            {user?.emailVerified ? "✅ Yes" : "❌ No"}
-          </Text>
+          <Text style={styles.infoLabel}>Role ID</Text>
+          <Text style={styles.infoValue}>{dbUser?.role_id || "N/A"}</Text>
         </View>
-        
-              {/* Display database user info */}
-      <View style={styles.dbSection}>
-        <Text style={styles.sectionTitle}>Database User Info</Text>
 
-        {dbLoading ? (
-          <ActivityIndicator size="small" color="#fff" />
-        ) : dbUser ? (
-          <>
-            <Text style={styles.text}>First Name: {dbUser.first_name}</Text>
-            <Text style={styles.text}>Last Name: {dbUser.last_name}</Text>
-            <Text style={styles.text}>Birth Date: {dbUser.birth_date}</Text>
-            <Text style={styles.text}>Role ID: {dbUser.role_id}</Text>
-          </>
-        ) : (
-          <Text style={[styles.text, { fontStyle: 'italic' }]}>
-            No user data found in database.
-          </Text>
+        {/* Database Loading/Error */}
+        {dbLoading && <ActivityIndicator size="small" color="#fff" />}
 
-
+        {/* Buttons */}
         <TouchableOpacity
           style={[styles.button, { backgroundColor: "#e63946" }]}
           onPress={signOutUser}
@@ -163,37 +150,10 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     flex: 1,
-    backgroundColor: '#25292e',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  header: {
-    color: '#fff',
-    fontSize: 22,
-    marginBottom: 16,
-  },
-  text: {
-    color: '#fff',
-    fontSize: 16,
-    marginVertical: 4,
-  },
-  dbSection: {
-    marginTop: 30,
-    padding: 15,
-    borderRadius: 8,
-    backgroundColor: '#333842',
-    width: '100%',
-  },
-  sectionTitle: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    textAlign: 'center',
-    backgroundColor: "#1b1d1f",
+    backgroundColor: "#25292e",
     justifyContent: "center",
     alignItems: "center",
+    padding: 20,
   },
   loadingText: {
     color: "#fff",
@@ -250,6 +210,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     flexShrink: 1,
     textAlign: "right",
+  },
+  dbSection: {
+    marginTop: 20,
+    padding: 15,
+    borderRadius: 8,
+    backgroundColor: "#333842",
+    width: "100%",
   },
   button: {
     marginTop: 15,

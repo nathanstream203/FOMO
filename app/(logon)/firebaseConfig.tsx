@@ -1,5 +1,3 @@
-
-
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
@@ -10,7 +8,7 @@ const firebaseConfig = {
   storageBucket: "fomo-6f2ee.firebasestorage.app",
   messagingSenderId: "268519497605",
   appId: "1:268519497605:web:7f661eb99c327c16ff2eec",
-  measurementId: "G-LNVYRWY60B"
+  measurementId: "G-LNVYRWY60B",
 };
 
 const app = initializeApp(firebaseConfig);
