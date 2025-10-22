@@ -1,12 +1,8 @@
 //signup.tsx
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import {
-  createUserWithEmailAndPassword,
-  sendEmailVerification,
-  signOut,
-} from "firebase/auth";
-import * as React from "react";
+import { useRouter } from 'expo-router';
+import { createUserWithEmailAndPassword, sendEmailVerification, signOut, } from "firebase/auth";
+import * as React from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -19,7 +15,8 @@ import {
   View,
 } from "react-native";
 import { auth } from "../(logon)/firebaseConfig";
-import { postNewUser } from "../api/databaseOperations";
+import { postNewUser, testConnection } from '../api/databaseOperations';
+
 
 export default function signUpScreen() {
   const [firstName, setFirstName] = React.useState("");
@@ -27,42 +24,70 @@ export default function signUpScreen() {
   const [dateOfBirth, setDateOfBirth] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
-
   const router = useRouter();
+
+  React.useEffect(() => {
+    const checkConnection = async () => {
+      const isConnected = await testConnection();
+      if (!isConnected) {
+        Alert.alert(
+          "Connection Error",
+          "Cannot reach the server. Please check your internet or try again later."
+        );
+      } else {
+        console.log("Server connection verified.");
+      }
+    };
+    checkConnection();
+  }, []);
 
   const signUp = async () => {
     if (!firstName || !lastName || !dateOfBirth || !email || !password) {
       Alert.alert("Error", "Please enter all fields. All fields are required.");
       return;
+    } else if (!firstName || !lastName) {
+      Alert.alert("Error", "First and Last Name are required.");
+      return;
+    } else if (!dateOfBirth) {
+      Alert.alert("Error", "Date of Birth is required.");
+      return;
+    } else if (dateOfBirth.length !== 10 || !/^\d{4}-\d{2}-\d{2}$/.test(dateOfBirth)) {
+      Alert.alert("Error", "Date of Birth must be in YYYY-MM-DD format.");
+      return;
     }
+
+
     try {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
         password
       );
+
       const user = userCredential?.user;
       const formattedDOB = dateOfBirth.split("/").reverse().join("-"); // "MM/DD/YYYY" -> "YYYY-MM-DD"
       console.log("Creating account for:", user?.email);
+
+      if (user) {
+        //POST to database
+        // 2000-01-01T01:01:00.000Z
+        const firebaseUID = user?.uid;
+        const dbDateOfBirth = dateOfBirth + "T00:00:00.000Z";
+        await postNewUser(firebaseUID, firstName, lastName, dbDateOfBirth, 1)
+          .then((dbUser) => console.log('User stored in database:', dbUser))
+          .catch((err) => console.error('DB Error:', err));
+      }
+
       await sendEmailVerification(user); //send verification email after account created
       console.log("Verification email sent to:", user.email);
-      //POST to database
-      const firebaseUID = user.uid;
-      postNewUser(
-        firebaseUID,
-        firstName,
-        lastName,
-        formattedDOB,
-        1 //role_id
-      )
-        .then((dbUser) => console.log("User stored in database:", dbUser))
-        .catch((err) => console.error("DB Error:", err));
       await signOut(auth); //sign user out after sending verfication email
       Alert.alert(
         "Please Verify Your Email",
         "A verification email has been sent to your email. Please verify your email"
       );
+
       router.replace("/signin");
+
     } catch (error: any) {
       console.error("Error signing up:", error.message);
       Alert.alert("Error", error.message);
@@ -119,7 +144,7 @@ export default function signUpScreen() {
             <TextInput
               keyboardType="numbers-and-punctuation"
               onChangeText={setDateOfBirth}
-              placeholder="Date of Birth (MM/DD/YYYY)"
+              placeholder="Date of Birth (YYYY-MM-DD)"
               style={styles.input}
               placeholderTextColor="#aaa"
             />

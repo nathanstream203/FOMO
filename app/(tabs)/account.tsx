@@ -1,8 +1,8 @@
 // /(tabs)/account.tsx
-import { useRouter } from "expo-router";
-import { reload, signOut } from "firebase/auth";
-import React from "react";
-import { useAuthState } from "react-firebase-hooks/auth";
+import { useRouter } from 'expo-router';
+import { reload, signOut } from 'firebase/auth';
+import React from 'react';
+import { useAuthState } from 'react-firebase-hooks/auth';
 import {
   ActivityIndicator,
   Image,
@@ -10,10 +10,10 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
-import { auth } from "../(logon)/firebaseConfig";
-import { getUserByFirebaseId } from "../api/databaseOperations";
+import { auth } from '../(logon)/firebaseConfig';
+import { getUserByFirebaseId } from '../api/databaseOperations';
 
 interface DatabaseUser {
   firebase_id: string;
@@ -24,7 +24,7 @@ interface DatabaseUser {
 }
 
 export default function AccountScreen() {
-  const [user, loading] = useAuthState(auth);
+  const [user, loading, error] = useAuthState(auth);
   const [dbUser, setDbUser] = React.useState<DatabaseUser | null>(null);
   const [dbLoading, setDbLoading] = React.useState(false);
   const router = useRouter();
@@ -115,19 +115,27 @@ export default function AccountScreen() {
         </View>
 
         <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}>Role ID</Text>
-          <Text style={styles.infoValue}>{dbUser?.role_id || "N/A"}</Text>
+          <Text style={styles.infoLabel}>Email Verified</Text>
+          <Text style={styles.infoValue}>
+            {user?.emailVerified ? "Yes" : "No"}
+          </Text>
         </View>
 
-        {/* Database Loading/Error */}
-        {dbLoading && <ActivityIndicator size="small" color="#fff" />}
+        <View style={styles.infoRow}>
+          <Text style={styles.infoLabel}>User in Database?</Text>
+          <Text style={styles.infoValue}>{dbLoading ? 
+            (<ActivityIndicator size="small" color="#fff"/>) : (dbUser ? "Yes" : "No user data found in database.")}   
+          </Text>
+        </View>
+
+      </View>
 
         {/* Buttons */}
         <TouchableOpacity
-          style={[styles.button, { backgroundColor: "#e63946" }]}
-          onPress={signOutUser}
+          style={[styles.button, { backgroundColor: "#299c63ff" }]}
+          onPress={reloadUserData}
         >
-          <Text style={styles.buttonText}>Sign Out</Text>
+          <Text style={styles.buttonText}>Update User Info</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -136,7 +144,15 @@ export default function AccountScreen() {
         >
           <Text style={styles.buttonText}>Refresh</Text>
         </TouchableOpacity>
-      </View>
+
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: "#e63946" }]}
+          onPress={signOutUser}
+        >
+          <Text style={styles.buttonText}>Sign Out</Text>
+        </TouchableOpacity>
+
+        
     </ScrollView>
   );
 }
@@ -190,12 +206,6 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 4,
   },
-  sectionTitle: {
-    fontSize: 18,
-    color: "#fff",
-    fontWeight: "600",
-    marginBottom: 15,
-  },
   infoRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -227,5 +237,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
     fontWeight: "600",
+    width: 200,
+    textAlign: "center"
   },
 });
