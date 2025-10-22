@@ -42,37 +42,18 @@ let choice = -1
 while(true){
     choice = readlineSync.question('>');
     choice = Number(choice);
-    if(!isNaN(choice) && choice <= 3 && choice > 0){
+    if(!isNaN(choice) && choice <= 4 && choice > 0){
         break;
     }
     console.log('Invalid Choice');
 }
-if(choice === 1){
-    populateRoles()
-        .catch(e => {
-            console.error(e);
-        });
-}else if(choice === 2){
-    populateUsers()
-        .catch(e => {
-            console.error(e);
-        });
-}else if(choice === 3){
-    populateBars()
-        .catch(e => {
-            console.error(e);
-        });
-}else if(choice === 4){
-    populateRoles()
-        .catch(e => {
-            console.error(e);
-        });
-    populateUsers()
-        .catch(e => {
-            console.error(e);
-        });
-    populateBars()
-        .catch(e => {
-            console.error(e);
-        });
+
+switch(choice){
+    case 1: populateRoles().catch(e => { console.error(e); }); break;
+    case 2: populateUsers().catch(e => { console.error(e); }); break;
+    case 3: populateBars().catch(e => { console.error(e); }); break;
+    case 4:
+        populateRoles().catch(e => { console.error(e); });
+        populateUsers().catch(e => { console.error(e); });
+        populateBars().catch(e => { console.error(e); });
 }
