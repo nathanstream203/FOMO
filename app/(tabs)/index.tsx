@@ -1,13 +1,22 @@
 import * as Location from 'expo-location';
-import { Stack } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Platform, Stylesheet, ActivityIndicator, Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import MapView, { Circle, Marker } from 'react-native-maps';
+import { ActivityIndicator, Alert, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import MapView, { Circle, Marker } from 'react-native-maps';
+import { getBars } from '../api/databaseOperations';
+
 import Ionicons from '@expo/vector-icons/Ionicons';
-import markerData from '../markers.json';
 import { Colors } from '../theme.js';
 
-// import { Location, defaultLocation } from "../utils/location";
+interface BarLocation {
+  id: string;
+  name: string;
+  address: string;
+  longitude: number;
+  latitude: number;
+  events: Event[];
+}
 
 function getDistanceFromLatLonInMeters(lat1: number, lon1: number, lat2: number, lon2: number) {
     const R = 6371000; // Earth radius in meters
@@ -25,17 +34,33 @@ function getDistanceFromLatLonInMeters(lat1: number, lon1: number, lat2: number,
 export default function HomeScreen() {
 const [activeMarker, setActiveMarker] = useState<any | null>(null);
 const circleRadius = 5000;
+const [activeMarker, setActiveMarker] = useState<any | null>(null);
+const [barMarkers, setBarMarkers] = useState<any[]>([]);
 const [region, setRegion] = useState<any>(null);
 const [nearbyBar, setNearbyBar] = useState<any>(null);
 const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
-const [barMarkers, setBarMarkers] = useState<any[]>([]);
+const [markers, setMarkers] = useState<BarLocation[]>([]);
+const [loading, setLoading] = useState(false);
 
-async function getBarNavMarkers() {
-    const res = await fetch('http:10.200.25.76:5000/locations/bars')
-    const data = await res.json();
+useEffect(() => {
+    const fetchBars = async () => {
+      setLoading(true);
+      try {
+        const data = await getBars();
+        setMarkers(data);
 
-    return data;
-}
+    
+        console.log("Fetched bars:", data);
+      } catch (err) {
+        console.error("Error fetching bars:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBars();
+  }, []);
+
 // Request location permission
     useEffect(() => {
         let subscription: Location.LocationSubscription;
@@ -69,7 +94,7 @@ async function getBarNavMarkers() {
             // Subscribe to location updates
             subscription = await Location.watchPositionAsync(
                 {
-                    accuracy: Location.Accuracy.BestForNavigation,
+                    accuracy: Location.Accuracy.Highest,
                     distanceInterval: 1, // update every 1 meters
                     timeInterval: 1000, // update every 1 seconds
                 },
@@ -91,13 +116,15 @@ async function getBarNavMarkers() {
                     setLocation({ latitude:newLocation.coords.latitude, longitude: newLocation.coords.longitude });
 
                     // Check if user is near any bar (~6 meters = 20 feet)
-                    const closeBar = markerData.find((bar) => {
+                    const closeBar = markers.find((bar) => {
                         const distance = getDistanceFromLatLonInMeters(
                             newLocation.coords.latitude,
                             newLocation.coords.longitude,
                             bar.latitude,
                             bar.longitude
                         );
+                        if (distance <= 10)
+                        console.log('📍 Nearby Bar')
                         return distance <= 10;
                     });
                     setNearbyBar(closeBar || null);
@@ -107,14 +134,6 @@ async function getBarNavMarkers() {
         };
 
         startTracking();
-
-        async function fetchBarMarkers() {
-            setBarMarkers(await getBarNavMarkers());
-            console.log('Bar markers fetched:', barMarkers);
-        }
-
-        fetchBarMarkers();
-
         // Cleanup subscription when component unmounts
         return () => {
             if (subscription) subscription.remove();
@@ -131,29 +150,27 @@ async function getBarNavMarkers() {
 
   return (
       <View style={styles.container}>
-          <Stack.Screen options={{headerShown: false}} />
-          <MapView
-              style={styles.map}
-              customMapStyle={mapStyle}
-              initialRegion={{
-                  latitude: 44.872394,
-                  longitude: -91.925203,
-                  latitudeDelta: 0.0922,
-                  longitudeDelta: 0.0421,
-              }}
-              minZoomLevel={14}
-              maxZoomLevel={18}
+          
+          {region ? (
+              <MapView
+                  //provider={PROVIDER_GOOGLE}
+                  style={styles.map}
+                  customMapStyle={mapStyle}
+                  region={region}
+                  showsUserLocation={false}
+                  followsUserLocation
+                  minZoomLevel={14}
+                  maxZoomLevel={18}
 
-
-          >
-            <Circle
-            center={{
-              latitude: 44.872394,
-              longitude: -91.925203,
-            }}
-            radius={circleRadius}
-            strokeWidth={2}
-            strokeColor={Colors.primary}
+              >
+                  <Circle
+                      center={{
+                          latitude: 44.872394,
+                          longitude: -91.925203,
+                      }}
+                      radius={circleRadius}
+                      strokeWidth={2}
+                      strokeColor={Colors.primary}
 
             />
 
@@ -170,38 +187,35 @@ async function getBarNavMarkers() {
                   >
 
                   {/* Location Markers */}
-                  {markerData.map((marker, index) => {
-                      const backgroundColor =
-                          marker.icon === 'beer-outline'
-                              ? Colors.primary // lighter color for houses
-                              : Colors.secondary;
+                  {markers.map((marker, index) => {
+                    //   const backgroundColor =
+                    //       marker.name.includes("") === 'beer-outline'
+                    //           ? Colors.primary // lighter color for houses
+                    //           : Colors.secondary;
                       return (
-                          <Marker
-                              key={index}
-                              coordinate={{latitude: marker.latitude, longitude: marker.longitude}}
-                              title={marker.title}
-                          >
+                        <Marker
+                            key={index}
+                            coordinate={{latitude: Number(marker.latitude), longitude: Number(marker.longitude)}}
+                            title={marker.name}
+                            description='test'
+                            onPress={() => setActiveMarker(marker)}
+                        >
 
-                              {marker.icon && (
-                                  <View
-                                      style={{
-                                          backgroundColor,
-                                          borderRadius: 20,
-                                          padding: 8,
-                                          justifyContent: 'center',
-                                          alignItems: 'center',
-                                      }}
+                        <View
+                            style={{
+                                backgroundColor: Colors.primary,
+                                borderRadius: 20,
+                                padding: 8,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }}
 
-                                  >
-                                      <Ionicons
-                                          name={marker.icon as any}
-                                          size={20}
-                                          color="white"
-                                      />
-                                  </View>
-                              )}
+                        >
+                        <Ionicons name="beer-outline" size={20} color="white" />
+                        </View>
+                             
 
-                          </Marker>
+                        </Marker>
                       );
                   })}
 
@@ -240,7 +254,7 @@ async function getBarNavMarkers() {
                           paddingHorizontal: 25,
                           borderRadius: 25,
                       }}
-                      onPress={() => Alert.alert('Checked in!', `You are at ${nearbyBar.title}`)}
+                      onPress={() => Alert.alert('Checked in!', `You are at ${nearbyBar.name}`)}
                   >
                       <Text style={{ color: 'white', fontWeight: 'bold' }}>Check In</Text>
                   </TouchableOpacity>
@@ -267,6 +281,23 @@ async function getBarNavMarkers() {
               <Text style={popupStyles.description}>{activeMarker.description}</Text>
               </View>
           )}
+        {activeMarker && (
+            <View style={popupStyles.container}>
+              <View style={popupStyles.row}>
+                <Text style={popupStyles.title}>{activeMarker.title}</Text>
+
+                <TouchableOpacity
+                  onPress={() => setActiveMarker(null)}
+                  style={popupStyles.closeButton}
+                >
+                <Ionicons name="close" size={20} color="#333" />
+                </TouchableOpacity>
+              </View>
+
+              <Text style={popupStyles.description}>{activeMarker.description}</Text>
+            </View>
+          )}
+
       </View>
   );
 }

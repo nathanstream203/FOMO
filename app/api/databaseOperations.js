@@ -1,6 +1,6 @@
 // databaseOperations.js
 // Centralized API helper for your React Native frontend
-import { BASE_URL } from './localAddresses';
+import { BASE_URL } from '../api/localAdresses';
 
 /**
  * --------------------------
@@ -26,7 +26,6 @@ export const testConnection = async () => {
     return false;
   }
 };
-
 /**
  * --------------------------
  * USERS
@@ -125,6 +124,18 @@ export const postNewLocation = async (firebase_id, latitude, longitude, name, de
     return data;
   } catch (error) {
     console.error('Error posting new location:', error);
+    throw error;
+  }
+};
+
+// Get a single bar location by id
+export const getBars = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/locations/bars`);
+    const bars = await response.json();
+    return bars || null;
+  } catch (error) {
+    console.error('Error fetching bars', error);
     throw error;
   }
 };
