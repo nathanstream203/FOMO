@@ -42,8 +42,8 @@ export default function signUpScreen() {
   }, []);
 
   const signUp = async () => {
-      if (!email || !password) {
-      Alert.alert("Error", "Email and Password are required.");
+    if (!firstName || !lastName || !dateOfBirth || !email || !password) {
+      Alert.alert("Error", "Please enter all fields. All fields are required.");
       return;
     } else if (!firstName || !lastName) {
       Alert.alert("Error", "First and Last Name are required.");
@@ -65,6 +65,7 @@ export default function signUpScreen() {
       );
 
       const user = userCredential?.user;
+      const formattedDOB = dateOfBirth.split("/").reverse().join("-"); // "MM/DD/YYYY" -> "YYYY-MM-DD"
       console.log("Creating account for:", user?.email);
 
       if (user) {

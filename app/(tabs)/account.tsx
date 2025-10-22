@@ -22,6 +22,7 @@ interface DatabaseUser {
   birth_date: string;
   role_id: number | string;
 }
+
 export default function AccountScreen() {
   const [user, loading, error] = useAuthState(auth);
   const [dbUser, setDbUser] = React.useState<DatabaseUser | null>(null);
@@ -31,32 +32,12 @@ export default function AccountScreen() {
   const signOutUser = async () => {
     try {
       await signOut(auth);
-      console.log("User signed out successfully : ", user?.email);
       router.replace("/signin");
     } catch (error) {
       console.error("Error signing out: ", error);
     }
   };
 
-  // Fetch user profile from database
-  React.useEffect(() => {
-    const fetchUserData = async () => {
-      if (user && user.uid) {
-        setDbLoading(true);
-        try {
-          const userData = await getUserByFirebaseId(user.uid);
-          setDbUser(userData);
-          console.log('Fetched user from DB: ', userData);
-        } catch (err) {
-          console.error('Error fetching user from DB: ', err);
-        } finally {
-          setDbLoading(false);
-        }
-      }
-    };
-    fetchUserData();
-  }, [user]);
-      
   const reloadUserData = async () => {
     if (auth.currentUser) {
       await reload(auth.currentUser);
@@ -64,6 +45,26 @@ export default function AccountScreen() {
     }
   };
 
+  React.useEffect(() => {
+    if (user?.uid) {
+      reloadUserData();
+    }
+
+    const fetchUserData = async () => {
+      if (user?.uid) {
+        setDbLoading(true);
+        try {
+          const userData = await getUserByFirebaseId(user.uid);
+          setDbUser(userData);
+        } catch (err) {
+          console.error("Error fetching user from DB:", err);
+        } finally {
+          setDbLoading(false);
+        }
+      }
+    };
+    fetchUserData();
+  }, [user]);
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -73,7 +74,8 @@ export default function AccountScreen() {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container} style={{ flex: 1 }}>
+    <ScrollView contentContainerStyle={styles.container}>
+      {/* Firebase Profile */}
       <View style={styles.profileCard}>
         <Image
           source={{
@@ -83,7 +85,6 @@ export default function AccountScreen() {
           }}
           style={styles.avatar}
         />
-
         <Text style={styles.nameText}>
           {user?.displayName || "Welcome User!"}
         </Text>
@@ -129,6 +130,7 @@ export default function AccountScreen() {
 
       </View>
 
+        {/* Buttons */}
         <TouchableOpacity
           style={[styles.button, { backgroundColor: "#299c63ff" }]}
           onPress={reloadUserData}
@@ -164,37 +166,10 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     flex: 1,
-    backgroundColor: '#25292e',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  header: {
-    color: '#fff',
-    fontSize: 22,
-    marginBottom: 16,
-  },
-  text: {
-    color: '#fff',
-    fontSize: 16,
-    marginVertical: 4,
-  },
-  dbSection: {
-    marginTop: 30,
-    padding: 15,
-    borderRadius: 8,
-    backgroundColor: '#333842',
-    width: '100%',
-  },
-  sectionTitle: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    textAlign: 'center',
-    backgroundColor: "#1b1d1f",
+    backgroundColor: "#25292e",
     justifyContent: "center",
     alignItems: "center",
+    padding: 20,
   },
   loadingText: {
     color: "#fff",
@@ -245,6 +220,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     flexShrink: 1,
     textAlign: "right",
+  },
+  dbSection: {
+    marginTop: 20,
+    padding: 15,
+    borderRadius: 8,
+    backgroundColor: "#333842",
+    width: "100%",
   },
   button: {
     marginTop: 15,
