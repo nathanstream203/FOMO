@@ -7,8 +7,9 @@ const prisma = new PrismaClient();
 async function populateRoles() {
     await prisma.roles.createMany({
         data: [
-            { name: 'Basic', description: 'Basic user role'},
-            { name: 'Admin', description: 'Admin user role'}
+            { name: 'Basic', description: 'Basic user'},
+            { name: 'Manager', description: 'Manager of a bar'},
+            { name: 'Admin', description: 'Admin of FOMO'}
         ]
     })
 }
