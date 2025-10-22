@@ -8,7 +8,7 @@ node_modules/
 dist/
 web-build/
 expo-env.d.ts
-
+localAddresses.js
 
 
 # Native
@@ -46,3 +46,7 @@ app-example
 app.json
 
 /generated/prisma
+
+# Firebase admin keys
+fomo-6f2ee-*
+adminScript.js
