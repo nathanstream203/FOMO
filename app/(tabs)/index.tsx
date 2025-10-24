@@ -1,26 +1,37 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import * as Location from 'expo-location';
-import { Stack } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import MapView, { Circle, Marker } from 'react-native-maps';
-import markerData from '../markers.json';
+import { getBars } from '../api/databaseOperations';
+
 import { Colors } from '../theme.js';
 
-// import { Location, defaultLocation } from "../utils/location";
+interface BarLocation {
+  id: string;
+  name: string;
+  address: string;
+  longitude: number;
+  latitude: number;
+  events: Event[];
+}
 
 function getDistanceFromLatLonInMeters(lat1: number, lon1: number, lat2: number, lon2: number) {
-    const R = 6371000; // Earth radius in meters
-    const dLat = ((lat2 - lat1) * Math.PI) / 180;
-    const dLon = ((lon2 - lon1) * Math.PI) / 180;
-    const a =
-        Math.sin(dLat / 2) ** 2 +
-        Math.cos((lat1 * Math.PI) / 180) *
-        Math.cos((lat2 * Math.PI) / 180) *
-        Math.sin(dLon / 2) ** 2;
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
+  const R = 6371000; // meters
+  const φ1 = Number(lat1) * Math.PI / 180;
+  const φ2 = Number(lat2) * Math.PI / 180;
+  const Δφ = (Number(lat2) - Number(lat1)) * Math.PI / 180;
+  const Δλ = (Number(lon2) - Number(lon1)) * Math.PI / 180;
+
+  const a = Math.sin(Δφ / 2) ** 2 +
+            Math.cos(φ1) * Math.cos(φ2) *
+            Math.sin(Δλ / 2) ** 2;
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return Math.round(R * c);
 }
+
 
 export default function HomeScreen() {
 const [activeMarker, setActiveMarker] = useState<any | null>(null);
@@ -28,14 +39,28 @@ const circleRadius = 5000;
 const [region, setRegion] = useState<any>(null);
 const [nearbyBar, setNearbyBar] = useState<any>(null);
 const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
-const [barMarkers, setBarMarkers] = useState<any[]>([]);
+const [markers, setMarkers] = useState<BarLocation[]>([]);
+const [loading, setLoading] = useState(false);
 
-async function getBarNavMarkers() {
-    const res = await fetch('http:10.200.25.76:5000/locations/bars')
-    const data = await res.json();
+useEffect(() => {
+    const fetchBars = async () => {
+      setLoading(true);
+      try {
+        const data = await getBars();
+        setMarkers(data);
 
-    return data;
-}
+    
+        console.log("Fetched bars:", data);
+      } catch (err) {
+        console.error("Error fetching bars:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBars();
+  }, []);
+
 // Request location permission
     useEffect(() => {
         let subscription: Location.LocationSubscription;
@@ -69,7 +94,7 @@ async function getBarNavMarkers() {
             // Subscribe to location updates
             subscription = await Location.watchPositionAsync(
                 {
-                    accuracy: Location.Accuracy.BestForNavigation,
+                    accuracy: Location.Accuracy.Highest,
                     distanceInterval: 1, // update every 1 meters
                     timeInterval: 1000, // update every 1 seconds
                 },
@@ -91,30 +116,32 @@ async function getBarNavMarkers() {
                     setLocation({ latitude:newLocation.coords.latitude, longitude: newLocation.coords.longitude });
 
                     // Check if user is near any bar (~6 meters = 20 feet)
-                    const closeBar = markerData.find((bar) => {
+                    const closeBar = markers.find((bar) => {
                         const distance = getDistanceFromLatLonInMeters(
                             newLocation.coords.latitude,
                             newLocation.coords.longitude,
                             bar.latitude,
                             bar.longitude
                         );
+                        //Distance to every bar for debugging
+                        markers.forEach((bar) => {
+                            console.log(`${bar.name}: ${distance.toFixed(2)}m away`);
+                        });
                         return distance <= 10;
                     });
+                    
                     setNearbyBar(closeBar || null);
+                    if (closeBar) {
+                    console.log('📍 Nearby ' + closeBar.name);
+                    } else {
+                    console.log('❌ No nearby bar');
+                    }
 
                 }
             );
         };
 
         startTracking();
-
-        async function fetchBarMarkers() {
-            setBarMarkers(await getBarNavMarkers());
-            console.log('Bar markers fetched:', barMarkers);
-        }
-
-        fetchBarMarkers();
-
         // Cleanup subscription when component unmounts
         return () => {
             if (subscription) subscription.remove();
@@ -130,8 +157,7 @@ async function getBarNavMarkers() {
     }
 
   return (
-  <View style={styles.container}>
-          <Stack.Screen options={{headerShown: false}}/>
+       <View style={styles.container}>
           {region ? (
               <MapView
                   //provider={PROVIDER_GOOGLE}
@@ -156,31 +182,34 @@ async function getBarNavMarkers() {
                   />
 
                   {/* Location Markers */}
-                  {markerData.map((marker, index) => {
-                      const backgroundColor =
-                          marker.icon === 'beer-outline'
-                              ? Colors.primary // lighter color for houses
-                              : Colors.secondary;
+                  {markers.map((marker, index) => {
+                      const isActive = activeMarker?.id === marker.id;
                       return (
                           <Marker
                               key={index}
-                              coordinate={{latitude: marker.latitude, longitude: marker.longitude}}
-                              title={marker.title}
+                              coordinate={{latitude: Number(marker.latitude), longitude: Number(marker.longitude)}}
+                              title={marker.name}
+                              onPress={() => setActiveMarker(marker)}
+                              zIndex={isActive ? 999 : 1}
                           >
 
-                              {marker.icon && (
+                              {marker && (
                                   <View
                                       style={{
-                                          backgroundColor,
-                                          borderRadius: 20,
-                                          padding: 8,
-                                          justifyContent: 'center',
-                                          alignItems: 'center',
+                                        backgroundColor: isActive ? Colors.secondary : Colors.primary,
+                                        borderRadius: 20,
+                                        padding: 8, // slightly bigger when selected
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        shadowColor: isActive ? Colors.secondary : 'transparent',
+                                        shadowOpacity: isActive ? 0.5 : 0,
+                                        shadowRadius: isActive ? 6 : 0,
+                                        elevation: isActive ? 8 : 0, // Android shadow
                                       }}
 
                                   >
                                       <Ionicons
-                                          name={marker.icon as any}
+                                          name={'beer-outline'}
                                           size={20}
                                           color="white"
                                       />
@@ -198,7 +227,7 @@ async function getBarNavMarkers() {
                               latitude: location.latitude,
                               longitude: location.longitude,
                           }}
-                          zIndex={9999}
+                          zIndex={99}
                       >
                           <View
                               style={{
@@ -217,40 +246,55 @@ async function getBarNavMarkers() {
                   )}
               </MapView>
           ) : null}
-          {nearbyBar && (
-              <View style={{ position: 'absolute', bottom: 50, left: 0, right: 0, alignItems: 'center' }}>
-                  <TouchableOpacity
-                      style={{
-                          backgroundColor: Colors.primary,
-                          paddingVertical: 12,
-                          paddingHorizontal: 25,
-                          borderRadius: 25,
-                      }}
-                      onPress={() => Alert.alert('Checked in!', `You are at ${nearbyBar.title}`)}
-                  >
-                      <Text style={{ color: 'white', fontWeight: 'bold' }}>Check In</Text>
-                  </TouchableOpacity>
-              </View>
-          )}
           {activeMarker && (
-            <View style={popupStyles.container}>
-              <View style={popupStyles.row}>
-                <Text style={popupStyles.title}>{activeMarker.title}</Text>
+          <View style={popupStyles.container}>
+            <View style={popupStyles.row}>
+              <Text style={popupStyles.title}>{activeMarker.name}</Text>
 
-                <TouchableOpacity
-                  onPress={() => setActiveMarker(null)}
-                  style={popupStyles.closeButton}
+              <TouchableOpacity
+                onPress={() => setActiveMarker(null)}
+                style={popupStyles.closeButton}
+              >
+                <Ionicons name="close" size={20} color="#333" />
+              </TouchableOpacity>
+            </View>
+
+            <View style={popupStyles.divider} />
+
+            <Text style={popupStyles.description}>
+              {activeMarker.address || 'No address available.'}
+            </Text>
+
+            <View style={popupStyles.actions}>
+              <TouchableOpacity
+                style={[
+                  popupStyles.button,
+                  nearbyBar?.id === activeMarker.id
+                    ? popupStyles.buttonEnabled
+                    : popupStyles.buttonDisabled,
+                ]}
+                disabled={nearbyBar?.id !== activeMarker.id}
+                onPress={() =>
+                  Alert.alert('Checked in!', `You are at ${activeMarker.name}`)
+                }
+              >
+                <Text
+                  style={[
+                    popupStyles.buttonText,
+                    nearbyBar?.id !== activeMarker.id && popupStyles.buttonTextDisabled,
+                  ]}
                 >
-                  <Ionicons name="close" size={20} color="#333" />
-                </TouchableOpacity>
-              </View>
+                  {nearbyBar?.id === activeMarker.id ? 'Check In' : 'Too Far!'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
 
-              <Text style={popupStyles.description}>{activeMarker.description}</Text>
-              </View>
-          )}
       </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -275,39 +319,73 @@ const mapStyle = [
 const popupStyles = StyleSheet.create({
   container: {
     position: 'absolute',
-    left: 12,
-    right: 12,
-    bottom: Platform.OS === 'ios' ? 34 : 20,
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 12,
-
+    left: 16,
+    right: 16,
+    bottom: Platform.OS === 'ios' ? 40 : 24,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 18,
     shadowColor: '#000',
-    shadowOpacity: 0.12,
-    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
     elevation: 6,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 6,
   },
   title: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '700',
-    textAlign: 'center',
-    color: '#111',
+    color: '#1a1a1a',
   },
   closeButton: {
-    position: 'absolute',
-    right: 6,
-    top: -2,
+    backgroundColor: '#f2f2f2',
+    borderRadius: 20,
     padding: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   description: {
-    marginTop: 8,
-    fontSize: 14,
-    color: '#333',
-  }
+    fontSize: 15,
+    lineHeight: 21,
+    color: '#444',
+    marginTop: 6,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#e6e6e6',
+    marginVertical: 10,
+  },
+  actions: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 10,
+  },
+  button: {
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    borderRadius: 25,
+  },
+  buttonEnabled: {
+    backgroundColor: Colors.primary,
+  },
+  buttonDisabled: {
+    backgroundColor: '#ccc',
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 15,
+  },
+  buttonTextDisabled: {
+    color: '#eee',
+  },
 });
+
+
