@@ -55,11 +55,19 @@ Columns:
   id: PK, auto incremented integer, unique identifier for a post
   user_id: integer, id of the user who made the post
   user: FK, used to link post to user
+  bar_id: integer, id of the bar where the post was made
+  bar: FK, used to link post to bar
+  content: string, the content of the post
+  timestamp: DateTime default to current time, the time the post was made
 */
 model Posts {
   id Int @id @default(autoincrement())
   user_id Int
   user Users @relation(fields: [user_id], references: [id])
+  bar_id Int
+  bar Bar @relation(fields: [bar_id], references: [id])
+  content String
+  timestamp DateTime @default(now())
 }
 
 /*
@@ -92,6 +100,7 @@ Columns:
   name: string, the name of the bar
   address: string, address of the bar's location
   events: Event Array, stores any events that take place at the bar
+  posts: Posts Array, stores any posts made at the bar
 */
 model Bar {
   id Int @id @default(autoincrement())
@@ -100,6 +109,7 @@ model Bar {
   longitude Decimal
   latitude Decimal
   events Event[]
+  posts Posts[]
 }
 
 /*
