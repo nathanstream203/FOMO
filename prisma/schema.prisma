@@ -95,7 +95,7 @@ Columns:
 */
 model Bar {
   id Int @id @default(autoincrement())
-  name String
+  name String @unique
   address String
   longitude Decimal
   latitude Decimal
