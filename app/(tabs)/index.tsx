@@ -1,9 +1,9 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import * as Location from 'expo-location';
 import { Stack } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Platform, Stylesheet, ActivityIndicator, Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import MapView, { Circle, Marker } from 'react-native-maps';
-import Ionicons from '@expo/vector-icons/Ionicons';
 import markerData from '../markers.json';
 import { Colors } from '../theme.js';
 
@@ -130,44 +130,30 @@ async function getBarNavMarkers() {
     }
 
   return (
-      <View style={styles.container}>
-          <Stack.Screen options={{headerShown: false}} />
-          <MapView
-              style={styles.map}
-              customMapStyle={mapStyle}
-              initialRegion={{
-                  latitude: 44.872394,
-                  longitude: -91.925203,
-                  latitudeDelta: 0.0922,
-                  longitudeDelta: 0.0421,
-              }}
-              minZoomLevel={14}
-              maxZoomLevel={18}
+  <View style={styles.container}>
+          <Stack.Screen options={{headerShown: false}}/>
+          {region ? (
+              <MapView
+                  //provider={PROVIDER_GOOGLE}
+                  style={styles.map}
+                  customMapStyle={mapStyle}
+                  region={region}
+                  showsUserLocation={false}
+                  followsUserLocation
+                  minZoomLevel={14}
+                  maxZoomLevel={18}
 
+              >
+                  <Circle
+                      center={{
+                          latitude: 44.872394,
+                          longitude: -91.925203,
+                      }}
+                      radius={circleRadius}
+                      strokeWidth={2}
+                      strokeColor={Colors.primary}
 
-          >
-            <Circle
-            center={{
-              latitude: 44.872394,
-              longitude: -91.925203,
-            }}
-            radius={circleRadius}
-            strokeWidth={2}
-            strokeColor={Colors.primary}
-
-            />
-
-              {markerData.map((marker, index) => {
-                  const backgroundColor =
-                  marker.icon === 'beer-outline'
-                  ? Colors.primary // lighter color for houses
-                  : Colors.secondary;
-                  return (
-                  <Marker
-                      key={index}
-                      coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
-                      onPress={() => setActiveMarker(marker)}
-                  >
+                  />
 
                   {/* Location Markers */}
                   {markerData.map((marker, index) => {
@@ -244,13 +230,8 @@ async function getBarNavMarkers() {
                   >
                       <Text style={{ color: 'white', fontWeight: 'bold' }}>Check In</Text>
                   </TouchableOpacity>
-                      )}
-
-                  </Marker>
-                  );
-              })}
-          </MapView>
-
+              </View>
+          )}
           {activeMarker && (
             <View style={popupStyles.container}>
               <View style={popupStyles.row}>

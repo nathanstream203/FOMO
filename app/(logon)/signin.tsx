@@ -51,6 +51,10 @@ export default function SignInScreen() {
     }
   };
 
+  const byPass = async() => {
+    router.replace("/(tabs)");
+  }
+
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -104,6 +108,10 @@ export default function SignInScreen() {
           {/* Buttons */}
           <Pressable style={styles.buttonPrimary} onPress={signIn}>
             <Text style={styles.buttonText}>Sign In</Text>
+          </Pressable>
+
+          <Pressable style={styles.buttonPrimary} onPress={byPass}>
+            <Text style={styles.buttonText}>Sign In - BYPASS</Text>
           </Pressable>
 
           <Pressable
