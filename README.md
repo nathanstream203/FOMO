@@ -68,7 +68,7 @@ npx prisma migrate dev --name version-name-example
 
 Fill database with test data
 ```bash
-npm run populate
+npx prisma db seed
 ```
 
 ## Start local server
