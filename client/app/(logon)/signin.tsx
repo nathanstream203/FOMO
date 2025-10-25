@@ -14,7 +14,7 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { auth } from "../(logon)/firebaseConfig";
+import { auth } from "./firebaseConfig";
 
 export default function SignInScreen() {
   const [email, setEmail] = React.useState("");

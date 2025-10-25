@@ -14,7 +14,7 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { auth } from "../(logon)/firebaseConfig";
+import { auth } from "./firebaseConfig";
 import { postNewUser, testConnection } from '../api/databaseOperations';
 
 
