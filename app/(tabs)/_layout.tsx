@@ -1,3 +1,5 @@
+// app/(tabs)/_layout.tsx
+
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Tabs } from 'expo-router';
 import { Colors } from '../theme';
@@ -23,10 +25,10 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index" // Home page
         options={{
-          title: 'Home',
+          title: 'Map',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
-              name={focused ? 'home-sharp' : 'home-outline'}
+              name={focused ? 'map' : 'map-outline'}
               color={color}
               size={24}
             />

@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -131,4 +128,17 @@ model Event {
   end_time DateTime
   bar_id Int
   bar Bar @relation(fields: [bar_id], references: [id])
+}
+
+/*
+Table: Permissions
+Columns:
+  id: PK, auto incremented integer, unique identifier for a permission
+  name: string, name of the permission
+  description: optional string, description for the permission
+*/
+model Permissions {
+  id Int @id @default(autoincrement())
+  name String
+  description String?
 }

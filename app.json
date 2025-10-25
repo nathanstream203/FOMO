@@ -1,19 +1,18 @@
 {
   "expo": {
-    "name": "FOMO",
-    "slug": "FOMO",
+    "name": "fomo",
+    "slug": "fomo",
+    "originalFullName": "@fomo_25/fomo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "fomo", //search -> fomo://
+    "scheme": "fomo",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.yourname.fomo"
+      "supportsTablet": true
     },
     "android": {
-      "package": "com.yourname.fomo",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -23,9 +22,15 @@
       "edgeToEdgeEnabled": true,
       "permissions": [
         "ACCESS_FINE_LOCATION",
-        "ACCESS_COARSE_LOCATION"
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION"
       ],
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyBZ8Yp6b82qtwnJu9uxkJZyKJw5WOqPPDY"
+        }
+      }
     },
     "web": {
       "output": "static",
@@ -45,7 +50,7 @@
           }
         }
       ],
-      "expo-web-browser",
+      "expo-web-browser"
       /*
       [
         "@react-native-google-signin/google-signin",
