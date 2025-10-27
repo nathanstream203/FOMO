@@ -1,22 +1,22 @@
 import express from 'express';
-import prisma from "../prisma.js";
+import prisma from "../prisma_export.js";
 
 const router = express.Router();
 
 router.get('/', async (req, res) => {
-    const roles = await prisma.posts.findMany();
+    const roles = await prisma.role.findMany();
     res.json(roles);
 });
 
 router.post('/', async (req, res) => {
     try {
-         const { user_id, bar_id, content, timestamp } = req.body;
-        if(!user_id || !bar_id || !content || !timestamp) {
+        const { name, description } = req.body;
+        if(!name) {
             res.json({'Error': 'Bad request'}).status(401);
             return;
         }
-        const user = await prisma.users.create({ data: { user_id, bar_id, content, timestamp} });
-        res.json(user).status(201);
+        const role = await prisma.roles.create({ data: { name, description } });
+        res.json(role).status(201);
     } catch (error) {
         res.json({'Error': `${error}`});
     }

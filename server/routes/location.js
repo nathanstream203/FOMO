@@ -1,9 +1,9 @@
 import express from 'express';
-import prisma from "../prisma.js";
+import prisma from "../prisma_export";
 
 const router = express.Router();
 
-router.get('/bars', async (req, res) => {
+router.get('/bar', async (req, res) => {
     try{
         const bars = await prisma.bar.findMany();
         res.json(bars).status(200);
@@ -12,7 +12,7 @@ router.get('/bars', async (req, res) => {
     }
 });
 
-router.get('/parties', async (req, res) => {
+router.get('/party', async (req, res) => {
     try{
         const parties = await prisma.party.findMany();
         res.json(parties).status(200);
@@ -21,7 +21,7 @@ router.get('/parties', async (req, res) => {
     }
 });
 
-router.post('/bars', async (req, res) => {
+router.post('/bar', async (req, res) => {
     try{
         const data = req.body;
         if(!data.name || !data.address || !data.longitude || !data.latitude){
@@ -42,7 +42,7 @@ router.post('/bars', async (req, res) => {
     }
 });
 
-router.post('/parties', async (req, res) => {
+router.post('/party', async (req, res) => {
     try{
         res.json({'Error': 'Route Incomplete'}).status(400);
     }catch(e){

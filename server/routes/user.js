@@ -1,10 +1,10 @@
 import express from "express";
-import prisma from "../prisma.js";
+import prisma from "../prisma_export.js";
 
 const router = express.Router();
 
 router.get('/', async (req, res) => {
-    const users = await prisma.users.findMany();
+    const users = await prisma.user.findMany();
     res.json(users);
 });
 
