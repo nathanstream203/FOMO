@@ -12,7 +12,7 @@ import { BASE_URL } from './localAdresses';
 export const testConnection = async () => {
   try {
     console.log('Testing connection to:', BASE_URL);
-    const response = await fetch(`${BASE_URL}/users`);
+    const response = await fetch(`${BASE_URL}/user`);
 
     if (response.ok) {
       console.log('Connection successful:', BASE_URL);
@@ -35,7 +35,7 @@ export const testConnection = async () => {
 // Get all users
 export const getAllUsers = async () => {
   try {
-    const response = await fetch(`${BASE_URL}/users`);
+    const response = await fetch(`${BASE_URL}/user`);
     if (!response.ok) throw new Error(`Failed to fetch users: ${response.status}`);
     return await response.json();
   } catch (error) {
@@ -47,7 +47,7 @@ export const getAllUsers = async () => {
 // Get a single user profile by Firebase UID
 export const getUserByFirebaseId = async (firebase_id) => {
   try {
-    const response = await fetch(`${BASE_URL}/users`);
+    const response = await fetch(`${BASE_URL}/user`);
     const users = await response.json();
     return users.find((u) => u.firebase_id === firebase_id) || null;
   } catch (error) {
@@ -59,7 +59,7 @@ export const getUserByFirebaseId = async (firebase_id) => {
 // Create new user in 
 export const postNewUser = async (firebase_id, first_name, last_name, birth_date, role_id = 1) => {
   try {
-    const response = await fetch(`${BASE_URL}/users`, {
+    const response = await fetch(`${BASE_URL}/user`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -107,7 +107,7 @@ export const updateUser = async (firebase_id, updates) => {
 // Post a new location/marker
 export const postNewLocation = async (firebase_id, latitude, longitude, name, description) => {
   try {
-    const response = await fetch(`${BASE_URL}/locations`, {
+    const response = await fetch(`${BASE_URL}/location`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -131,7 +131,7 @@ export const postNewLocation = async (firebase_id, latitude, longitude, name, de
 // Get a single bar location by id
 export const getBars = async () => {
   try {
-    const response = await fetch(`${BASE_URL}/locations/bars`);
+    const response = await fetch(`${BASE_URL}/location/bar`);
     const bars = await response.json();
     return bars || null;
   } catch (error) {
