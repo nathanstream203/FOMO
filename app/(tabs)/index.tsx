@@ -4,8 +4,6 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import MapView, { Circle, Marker } from 'react-native-maps';
 import { getBars } from '../api/databaseOperations';
-
-import markerData from '../markers.json';
 import { Colors } from '../theme.js';
 
 interface BarLocation {
@@ -159,7 +157,7 @@ useEffect(() => {
 
   return (
  <View style={styles.container}>
-          <Stack.Screen options={{headerShown: false}}/>
+          
           {region ? (
               <MapView
                   //provider={PROVIDER_GOOGLE}
@@ -248,73 +246,53 @@ useEffect(() => {
                   )}
               </MapView>
           ) : null}
-          {nearbyBar && (
-              <View style={{ position: 'absolute', bottom: 50, left: 0, right: 0, alignItems: 'center' }}>
-                  <TouchableOpacity
-                      style={{
-                          backgroundColor: Colors.primary,
-                          paddingVertical: 12,
-                          paddingHorizontal: 25,
-                          borderRadius: 25,
-                      }}
-                      onPress={() => Alert.alert('Checked in!', `You are at ${nearbyBar.title}`)}
-                  >
-                      <Text style={{ color: 'white', fontWeight: 'bold' }}>Check In</Text>
-                  </TouchableOpacity>
-              </View>
-          )}
 
+          {/* Active marker popup */}
           {activeMarker && (
-          <View style={popupStyles.container}>
-            <View style={popupStyles.row}>
-              <Text style={popupStyles.title}>{activeMarker.name}</Text>
-
-              <TouchableOpacity
-                onPress={() => setActiveMarker(null)}
-                style={popupStyles.closeButton}
-              >
-                <Ionicons name="close" size={20} color="#333" />
-              </TouchableOpacity>
-            </View>
-
-            <View style={popupStyles.divider} />
-
-            <Text style={popupStyles.description}>
-              {activeMarker.address || 'No address available.'}
-            </Text>
-
-            <View style={popupStyles.actions}>
-              <TouchableOpacity
-                style={[
-                  popupStyles.button,
-                  nearbyBar?.id === activeMarker.id
-                    ? popupStyles.buttonEnabled
-                    : popupStyles.buttonDisabled,
-                ]}
-                disabled={nearbyBar?.id !== activeMarker.id}
-                onPress={() =>
-                  Alert.alert('Checked in!', `You are at ${activeMarker.name}`)
-                }
-              >
-                <Text
-                  style={[
-                    popupStyles.buttonText,
-                    nearbyBar?.id !== activeMarker.id && popupStyles.buttonTextDisabled,
-                  ]}
+            <View style={popupStyles.container}>
+              <View style={popupStyles.row}>
+                <Text style={popupStyles.title}>{activeMarker.name}</Text>
+                <TouchableOpacity
+                  onPress={() => setActiveMarker(null)}
+                  style={popupStyles.closeButton}
                 >
-                  {nearbyBar?.id === activeMarker.id ? 'Check In' : 'Too Far!'}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
+                  <Ionicons name="close" size={20} color="#333" />
+                </TouchableOpacity>
+              </View>
 
-              <Text style={popupStyles.description}>{activeMarker.description}</Text>
+              <View style={popupStyles.divider} />
+
+              <Text style={popupStyles.description}>
+                {activeMarker.address || 'No address available.'}
+              </Text>
+
+            {/* Check-in Button */}
+              <View style={popupStyles.actions}>
+                <TouchableOpacity
+                  style={[
+                    popupStyles.button,
+                    nearbyBar?.id === activeMarker.id
+                      ? popupStyles.buttonEnabled
+                      : popupStyles.buttonDisabled,
+                  ]}
+                  disabled={nearbyBar?.id !== activeMarker.id}
+                  onPress={() => Alert.alert('Checked in!', `You are at ${activeMarker.name}`)}
+                >
+                  <Text
+                    style={[
+                      popupStyles.buttonText,
+                      nearbyBar?.id !== activeMarker.id && popupStyles.buttonTextDisabled,
+                    ]}
+                  >
+                    {nearbyBar?.id === activeMarker.id ? 'Check In' : 'Too Far!'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           )}
-      </View>
-  );
-}
+        </View>
+      );
+    }
 
 
 const styles = StyleSheet.create({
