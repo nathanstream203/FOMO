@@ -1,10 +1,11 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import * as Location from 'expo-location';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import MapView, { Circle, Marker } from 'react-native-maps';
 import { getBars } from '../api/databaseOperations';
 
-import Ionicons from '@expo/vector-icons/Ionicons';
+import markerData from '../markers.json';
 import { Colors } from '../theme.js';
 
 interface BarLocation {
@@ -157,7 +158,8 @@ useEffect(() => {
     }
 
   return (
-       <View style={styles.container}>
+ <View style={styles.container}>
+          <Stack.Screen options={{headerShown: false}}/>
           {region ? (
               <MapView
                   //provider={PROVIDER_GOOGLE}
@@ -246,6 +248,22 @@ useEffect(() => {
                   )}
               </MapView>
           ) : null}
+          {nearbyBar && (
+              <View style={{ position: 'absolute', bottom: 50, left: 0, right: 0, alignItems: 'center' }}>
+                  <TouchableOpacity
+                      style={{
+                          backgroundColor: Colors.primary,
+                          paddingVertical: 12,
+                          paddingHorizontal: 25,
+                          borderRadius: 25,
+                      }}
+                      onPress={() => Alert.alert('Checked in!', `You are at ${nearbyBar.title}`)}
+                  >
+                      <Text style={{ color: 'white', fontWeight: 'bold' }}>Check In</Text>
+                  </TouchableOpacity>
+              </View>
+          )}
+
           {activeMarker && (
           <View style={popupStyles.container}>
             <View style={popupStyles.row}>
@@ -291,6 +309,9 @@ useEffect(() => {
           </View>
         )}
 
+              <Text style={popupStyles.description}>{activeMarker.description}</Text>
+            </View>
+          )}
       </View>
   );
 }
