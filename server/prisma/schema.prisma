@@ -1,0 +1,144 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+/*
+Table: Roles
+Columns:
+  id: PK, auto incremented integer, unique identifier for a role
+  name: unique string, role name related to function of role
+  description: optional string, describes the role
+  users: FK, Users array, holds the users that have this role
+*/
+model Role {
+  id Int @id @default(autoincrement())
+  name String @unique
+  description String?
+  users User[]
+}
+
+/*
+Table: Users
+Columns:
+  id: PK, auto incremented integer, unique identifier for a user
+  role_id: integer, set up to hold FK
+  role: FK, stores the user's role
+  post: Posts array, holds the posts made by the user
+  party: Party array, holds the parties made by the user
+*/
+model User {
+  id Int @id @default(autoincrement())
+  firebase_id String @unique
+  first_name String
+  last_name String
+  birth_date DateTime
+  role_id Int
+  role Role @relation(fields: [role_id], references: [id])
+  post Post[]
+  party Party[]
+}
+
+/*
+Table: Post
+Columns:
+  id: PK, auto incremented integer, unique identifier for a post
+  user_id: integer, id of the user who made the post
+  user: FK, used to link post to user
+  bar_id: integer, id of the bar where the post was made
+  bar: FK, used to link post to bar
+  content: string, the content of the post
+  timestamp: DateTime default to current time, the time the post was made
+*/
+model Post {
+  id Int @id @default(autoincrement())
+  user_id Int
+  user User @relation(fields: [user_id], references: [id])
+  bar_id Int
+  bar Bar @relation(fields: [bar_id], references: [id])
+  content String
+  timestamp DateTime @default(now())
+}
+
+/*
+Table: Party
+Columns:
+  id: PK, auto incremented integer, unique identifier for a party
+  name: string, name of the party
+  description: optional string, description for the party
+  start_time: DateTime default to current time, the start time for the party
+  end_time: DateTime, the end time for the party
+  user_id: integer, stores the host for the party
+  user: FK, links the host user to the party
+*/
+model Party {
+  id Int @id @default(autoincrement())
+  name String
+  description String?
+  start_time DateTime @default(now())
+  end_time DateTime
+  user_id Int
+  longitude Decimal
+  latitude Decimal
+  user User @relation(fields: [user_id], references: [id])
+}
+
+/*
+Table: Bar
+Columns:
+  id: PK, auto incremented integer, unique identifier for a bar
+  name: string, the name of the bar
+  address: string, address of the bar's location
+  events: Event Array, stores any events that take place at the bar
+  posts: Posts Array, stores any posts made at the bar
+*/
+model Bar {
+  id Int @id @default(autoincrement())
+  name String @unique
+  address String
+  longitude Decimal
+  latitude Decimal
+  events Event[]
+  posts Post[]
+}
+
+/*
+Table: Event
+Columns:
+  id: PK, auto incremented integer, unique identifier for an event
+  name: string, name of the event
+  description: optional string, description for the event
+  start_time: DateTime default to current time, the start time for the event
+  end_time: DateTime, the end time for the event
+  bar_id: integer, stores the hosting bar for the event
+  bar: FK, links the hosting bar to the event
+*/
+model Event {
+  id Int @id @default(autoincrement())
+  name String
+  description String?
+  start_time DateTime @default(now())
+  end_time DateTime
+  bar_id Int
+  bar Bar @relation(fields: [bar_id], references: [id])
+}
+
+/*
+Table: Permission
+Columns:
+  id: PK, auto incremented integer, unique identifier for a permission
+  name: string, name of the permission
+  description: optional string, description for the permission
+*/
+model Permission {
+  id Int @id @default(autoincrement())
+  name String
+  description String?
+}
