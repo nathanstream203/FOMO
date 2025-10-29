@@ -1,8 +1,5 @@
 {
   "editor.codeActionsOnSave": {
-    "source.fixAll": "explicit",
-    "source.organizeImports": "explicit",
-    "source.sortMembers": "explicit"
-  },
-  "java.configuration.updateBuildConfiguration": "interactive"
+    "source.fixAll": "always",
+  }
 }
