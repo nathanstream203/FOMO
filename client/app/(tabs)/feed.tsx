@@ -17,48 +17,8 @@ interface Post {
   time: number;
   likes: number;
   userReaction: "none" | "like";
+  username: string;
 }
-
-interface ReactionMenuProps {
-  postId: number;
-  onReact: (postId: number) => void;
-  onClose: () => void;
-}
-
-const ReactionMenu = ({ postId, onReact, onClose }: ReactionMenuProps) => (
-  <View style={menuStyles.menuContainer}>
-    <TouchableOpacity
-      style={menuStyles.menuButton}
-      onPress={() => {
-        onReact(postId);
-        onClose();
-      }}
-    >
-      <Ionicons name="heart" size={30} color="#e63946" />
-    </TouchableOpacity>
-  </View>
-);
-
-const menuStyles = StyleSheet.create({
-  menuContainer: {
-    position: "absolute",
-    top: -60,
-    left: 20,
-    flexDirection: "row",
-    backgroundColor: "#333",
-    borderRadius: 30,
-    padding: 5,
-    zIndex: 10,
-    shadowColor: "#000",
-    shadowOpacity: 0.8,
-    shadowRadius: 10,
-    elevation: 10,
-  },
-  menuButton: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-  },
-});
 
 export default function FeedScreen() {
   const [isCheckedIn, setIsCheckedIn] = useState(true);
@@ -66,8 +26,6 @@ export default function FeedScreen() {
   const [newPost, setNewPost] = useState("");
   const [posts, setPosts] = useState<Post[]>([]);
   const [timeRefresh, setTimeRefresh] = useState(0);
-
-  const [activePostId, setActivePostId] = useState<number | null>(null);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -106,6 +64,7 @@ export default function FeedScreen() {
       time: Date.now(),
       likes: 0,
       userReaction: "none",
+      username: "User123", // Placeholder username
     };
 
     setPosts([newItem, ...posts]);
@@ -134,7 +93,6 @@ export default function FeedScreen() {
       prevPosts.map((post) => {
         if (post.id === postId) {
           const isLiked = post.userReaction === "like";
-
           return {
             ...post,
             // Toggle like count: -1 if already liked, +1 if not
@@ -155,13 +113,6 @@ export default function FeedScreen() {
 
   return (
     <View style={styles.container}>
-      {activePostId !== null && (
-        <Pressable
-          style={StyleSheet.absoluteFill}
-          onPress={() => setActivePostId(null)}
-        />
-      )}
-
       <TouchableOpacity
         style={styles.createPostButton}
         onPress={handleCreatePress}
@@ -196,54 +147,44 @@ export default function FeedScreen() {
           data={posts}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
-            <Pressable
-              style={styles.postCard}
-              onLongPress={() => setActivePostId(item.id)}
-            >
+            <View style={styles.postCard}>
+              <View style={styles.userTimeRow}>
+                <Text style={styles.usernameText}>{item.username}</Text>
+                <Text style={styles.postTime}>{getTimeAgo(item.time)}</Text>
+              </View>
+
               <Text style={styles.postContent}>{item.content}</Text>
 
               <View style={styles.postFooter}>
-                <Text style={styles.postTime}>{getTimeAgo(item.time)}</Text>
-
-                <View style={styles.postActions}>
-                  <TouchableOpacity
-                    style={styles.reactionButton}
-                    onPress={() => handleReaction(item.id)}
+                <TouchableOpacity
+                  style={styles.reactionButton}
+                  onPress={() => handleReaction(item.id)}
+                >
+                  <Ionicons
+                    name={getHeartIconName(item.userReaction)}
+                    size={22}
+                    color={item.userReaction === "like" ? "#e63946" : "#aaa"}
+                  />
+                  <Text
+                    style={[
+                      styles.reactionCount,
+                      {
+                        color:
+                          item.userReaction === "like" ? "#e63946" : "#fff",
+                      },
+                    ]}
                   >
-                    <Ionicons
-                      name={getHeartIconName(item.userReaction)}
-                      size={22}
-                      // Red if liked, gray if not
-                      color={item.userReaction === "like" ? "#e63946" : "#aaa"}
-                    />
-                    <Text
-                      style={[
-                        styles.reactionCount,
-                        {
-                          color:
-                            item.userReaction === "like" ? "#e63946" : "#fff",
-                        },
-                      ]}
-                    >
-                      {item.likes > 0 ? item.likes : ""}{" "}
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.deleteIconButton}
-                    onPress={() => handleDeletePost(item.id)}
-                  >
-                    <Ionicons name="trash-outline" size={20} color="#aaa" />
-                  </TouchableOpacity>
-                </View>
+                    {item.likes > 0 ? item.likes : ""}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.deleteIconButton}
+                  onPress={() => handleDeletePost(item.id)}
+                >
+                  <Ionicons name="trash-outline" size={20} color="#aaa" />
+                </TouchableOpacity>
               </View>
-              {activePostId === item.id && (
-                <ReactionMenu
-                  postId={item.id}
-                  onReact={handleReaction}
-                  onClose={() => setActivePostId(null)}
-                />
-              )}
-            </Pressable>
+            </View>
           )}
           contentContainerStyle={{ paddingBottom: 40 }}
         />
@@ -255,7 +196,52 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#1b1d1f",
+    paddingHorizontal: 16,
+  },
+  postCard: {
+    backgroundColor: "#2a2d31",
+    borderRadius: 12,
     padding: 16,
+    marginBottom: 12,
+  },
+  userTimeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  usernameText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+    marginRight: 8,
+  },
+  postTime: {
+    color: "#aaa",
+    fontSize: 12,
+  },
+  postContent: {
+    color: "#fff",
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  postFooter: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 5,
+  },
+  reactionButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 5,
+  },
+  reactionCount: {
+    color: "#fff",
+    fontSize: 14,
+    marginLeft: 4,
+  },
+  deleteIconButton: {
+    padding: 5,
   },
   createPostButton: {
     backgroundColor: "#4e9af1",
@@ -263,6 +249,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: "center",
     marginBottom: 12,
+    marginHorizontal: 0,
   },
   createPostButtonText: {
     color: "#fff",
@@ -300,47 +287,5 @@ const styles = StyleSheet.create({
     color: "#aaa",
     textAlign: "center",
     marginTop: 20,
-  },
-  postCard: {
-    backgroundColor: "#2a2d31",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    position: "relative",
-  },
-  postContent: {
-    color: "#fff",
-    fontSize: 16,
-    marginBottom: 8,
-  },
-  postFooter: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: 5,
-  },
-  postTime: {
-    color: "#aaa",
-    fontSize: 12,
-  },
-  postActions: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  reactionButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginLeft: 0,
-    padding: 5,
-  },
-  reactionCount: {
-    color: "#fff",
-    fontSize: 14,
-    marginLeft: 4,
-    minWidth: 10,
-  },
-  deleteIconButton: {
-    padding: 5,
-    marginLeft: 15,
   },
 });
