@@ -9,4 +9,4 @@
 change the 'localhost' to your local IP address for the node server to connect to the frontend
 */
 
-export const BASE_URL = 'http://10.200.25.188:5000'; 
+export const BASE_URL = "http://10.200.25.229:5000";
