@@ -86,7 +86,7 @@ export default function AccountScreen() {
           style={styles.avatar}
         />
         <Text style={styles.nameText}>
-          {user?.displayName || "Welcome User!"}
+          {user?.displayName || `Welcome ${dbUser?.first_name || "User"}!`}
         </Text>
         <Text style={styles.emailText}>{user?.email}</Text>
       </View>
