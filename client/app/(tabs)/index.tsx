@@ -333,12 +333,21 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
-  loader: { flex: 1, justifyContent: "center", alignItems: "center" },
+  loader: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: Colors.darkPrimary,
+  },
   loadingText: {
     marginTop: 10,
-    fontSize: 16,
-    color: "#555", // or any color you like
+    fontSize: 18,
+    color: "#FFF", // or any color you like
+    textShadowColor: "#a388f6", // Glow color
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 20,
     textAlign: "center",
+    fontWeight: "bold",
   },
 });
 
