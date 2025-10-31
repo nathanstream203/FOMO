@@ -1,13 +1,11 @@
 // app/(tabs)/_layout.tsx
 
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { Tabs } from 'expo-router';
-import { Colors } from '../theme';
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { Tabs } from "expo-router";
+import { Colors } from "../theme";
 
 export default function TabLayout() {
-  
   return (
-    
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors.white,
@@ -21,14 +19,13 @@ export default function TabLayout() {
         },
       }}
     >
-      
       <Tabs.Screen
         name="index" // Home page
         options={{
-          title: 'Map',
+          title: "Map",
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
-              name={focused ? 'map' : 'map-outline'}
+              name={focused ? "map" : "map-outline"}
               color={color}
               size={24}
             />
@@ -38,10 +35,10 @@ export default function TabLayout() {
       <Tabs.Screen
         name="feed"
         options={{
-          title: 'Post',
+          title: "Post",
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
-              name={focused ? 'add-circle' : 'add-circle-outline'}
+              name={focused ? "add-circle" : "add-circle-outline"}
               color={color}
               size={24}
             />
@@ -51,10 +48,10 @@ export default function TabLayout() {
       <Tabs.Screen
         name="friends"
         options={{
-          title: 'Friends',
+          title: "Friends",
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
-              name={focused ? 'people-circle' : 'people-circle-outline'}
+              name={focused ? "people-circle" : "people-circle-outline"}
               color={color}
               size={24}
             />
@@ -64,10 +61,10 @@ export default function TabLayout() {
       <Tabs.Screen
         name="account"
         options={{
-          title: 'Account',
+          title: "Account",
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
-              name={focused ? 'person-circle' : 'person-circle-outline'}
+              name={focused ? "person-circle" : "person-circle-outline"}
               color={color}
               size={24}
             />
