@@ -1,8 +1,8 @@
 // /(tabs)/account.tsx
-import { useRouter } from 'expo-router';
-import { reload, signOut } from 'firebase/auth';
-import React from 'react';
-import { useAuthState } from 'react-firebase-hooks/auth';
+import { useRouter } from "expo-router";
+import { reload, signOut } from "firebase/auth";
+import React from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
 import {
   ActivityIndicator,
   Image,
@@ -10,10 +10,10 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
-import { auth } from '../(logon)/firebaseConfig';
-import { getUserByFirebaseId } from '../api/databaseOperations';
+import { auth } from "../(logon)/firebaseConfig";
+import { getUserByFirebaseId } from "../api/databaseOperations";
 
 interface DatabaseUser {
   firebase_id: string;
@@ -86,7 +86,7 @@ export default function AccountScreen() {
           style={styles.avatar}
         />
         <Text style={styles.nameText}>
-          {user?.displayName || "Welcome User!"}
+          {user?.displayName || `Welcome ${dbUser?.first_name || "User"}!`}
         </Text>
         <Text style={styles.emailText}>{user?.email}</Text>
       </View>
@@ -123,36 +123,39 @@ export default function AccountScreen() {
 
         <View style={styles.infoRow}>
           <Text style={styles.infoLabel}>User in Database?</Text>
-          <Text style={styles.infoValue}>{dbLoading ? 
-            (<ActivityIndicator size="small" color="#fff"/>) : (dbUser ? "Yes" : "No user data found in database.")}   
+          <Text style={styles.infoValue}>
+            {dbLoading ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : dbUser ? (
+              "Yes"
+            ) : (
+              "No user data found in database."
+            )}
           </Text>
         </View>
-
       </View>
 
-        {/* Buttons */}
-        <TouchableOpacity
-          style={[styles.button, { backgroundColor: "#299c63ff" }]}
-          onPress={reloadUserData}
-        >
-          <Text style={styles.buttonText}>Update User Info</Text>
-        </TouchableOpacity>
+      {/* Buttons */}
+      <TouchableOpacity
+        style={[styles.button, { backgroundColor: "#299c63ff" }]}
+        onPress={reloadUserData}
+      >
+        <Text style={styles.buttonText}>Update User Info</Text>
+      </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.button, { backgroundColor: "#4e9af1" }]}
-          onPress={reloadUserData}
-        >
-          <Text style={styles.buttonText}>Refresh</Text>
-        </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.button, { backgroundColor: "#4e9af1" }]}
+        onPress={reloadUserData}
+      >
+        <Text style={styles.buttonText}>Refresh</Text>
+      </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.button, { backgroundColor: "#e63946" }]}
-          onPress={signOutUser}
-        >
-          <Text style={styles.buttonText}>Sign Out</Text>
-        </TouchableOpacity>
-
-        
+      <TouchableOpacity
+        style={[styles.button, { backgroundColor: "#e63946" }]}
+        onPress={signOutUser}
+      >
+        <Text style={styles.buttonText}>Sign Out</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 }
@@ -238,6 +241,15 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "600",
     width: 200,
-    textAlign: "center"
+    textAlign: "center",
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#fff",
+    marginBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "#4e9af1",
+    paddingBottom: 5,
   },
 });
