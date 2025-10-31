@@ -15,6 +15,7 @@ import {
 import MapView, { Circle, Marker } from "react-native-maps";
 import { getBars } from "../api/databaseOperations";
 import { Colors } from "../theme.js";
+import { barImages } from "../barImages.js";
 interface BarLocation {
   id: string;
   name: string;
@@ -238,7 +239,10 @@ export default function HomeScreen() {
             <>
               <View style={popupStyles.imageContainer}>
                 <Image
-                  source={require("../../assets/images/background-image.jpg")}
+                  source={
+                    barImages[activeMarker.name as keyof typeof barImages] ||
+                    require("../../assets/images/background-image.jpg")
+                  }
                   style={popupStyles.image}
                 />
                 <View style={popupStyles.badges}>
@@ -266,6 +270,10 @@ export default function HomeScreen() {
                 <View style={popupStyles.infoRow}>
                   <Ionicons name="time-outline" size={12} color="#7f54e2" />
                   <Text style={popupStyles.infoText}>9pm-2am</Text>
+                </View>
+                <View style={popupStyles.infoRow}>
+                  <Ionicons name="star" size={12} color="#7f54e2" />
+                  <Text style={popupStyles.infoText}>4.5/5</Text>
                 </View>
                 <View style={popupStyles.infoRow}>
                   <Ionicons
