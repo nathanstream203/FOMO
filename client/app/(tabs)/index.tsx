@@ -11,10 +11,202 @@ import {
   Text,
   TouchableOpacity,
   View,
+  FlatList,
+  TextInput,
 } from "react-native";
 import MapView, { Circle, Marker } from "react-native-maps";
 import { getBars } from "../api/databaseOperations";
 import { Colors } from "../theme.js";
+interface Post {
+  id: number;
+  content: string;
+  time: number;
+  likes: number;
+  userReaction: "none" | "like";
+  username: string;
+}
+const getTimeAgo = (time: number) => {
+  const diffMinutes = Math.floor((Date.now() - time) / 60000);
+  if (diffMinutes < 1) return "Just now";
+  if (diffMinutes === 1) return "1m ago";
+  return `${diffMinutes}m ago`;
+};
+interface LiveFeedProps {
+  isCheckedIn: boolean;
+}
+const LiveFeedTab: React.FC<LiveFeedProps> = ({ isCheckedIn }) => {
+  const [showCreateBox, setShowCreateBox] = useState(false);
+  const [newPost, setNewPost] = useState("");
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [timeRefresh, setTimeRefresh] = useState(0);
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeRefresh((prev) => prev + 1);
+    }, 60000);
+  }, []);
+  const handleCreatePress = () => {
+    // if (!isCheckedIn) {
+    //   Alert.alert(
+    //     "Check-in required",
+    //     "Please check in to the event/bar before posting."
+    //   );
+    //   return;
+    // }
+    setShowCreateBox(!showCreateBox);
+  };
+  const handlePost = () => {
+    if (!newPost.trim()) {
+      Alert.alert("Empty Post", "Please enter some content.");
+      return;
+    }
+    const newItem: Post = {
+      id: Date.now(),
+      content: newPost.trim(),
+      time: Date.now(),
+      likes: 0,
+      userReaction: "none",
+      username: "User123", // Placeholder username
+    };
+    setPosts([newItem, ...posts]);
+    setNewPost("");
+    setShowCreateBox(false);
+  };
+  const handleDeletePost = (postId: number) => {
+    Alert.alert("Delete Post", "Are you sure you want to delete this post?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: () => {
+          setPosts(posts.filter((post) => post.id !== postId));
+        },
+      },
+    ]);
+  };
+  const handleReaction = (postId: number) => {
+    //if (!isCheckedIn) return;
+    setPosts((prevPosts) =>
+      prevPosts.map((post) => {
+        if (post.id === postId) {
+          const isLiked = post.userReaction === "like";
+          return {
+            ...post,
+            likes: isLiked ? post.likes - 1 : post.likes + 1,
+            userReaction: isLiked ? "none" : "like",
+          };
+        }
+        return post;
+      })
+    );
+  };
+  const getHeartIconName = (reaction: "none" | "like") => {
+    return reaction === "like" ? "heart" : "heart-outline";
+  };
+  return (
+    <View style={feedStyles.feedContainer}>
+      <TouchableOpacity
+        style={feedStyles.createPostButton}
+        onPress={handleCreatePress}
+      >
+        <Text style={feedStyles.createPostButtonText}>
+          {showCreateBox ? "Cancel" : "Create Post"}
+        </Text>
+      </TouchableOpacity>
+      {/* Post Form - Only visible if checked in and active */}
+      {showCreateBox && (
+        <View style={feedStyles.postFormContainer}>
+          <TextInput
+            style={feedStyles.postInput}
+            placeholder="What's happening?"
+            placeholderTextColor="#aaa"
+            value={newPost}
+            onChangeText={setNewPost}
+            multiline
+          />
+          <TouchableOpacity style={feedStyles.postButton} onPress={handlePost}>
+            <Text style={feedStyles.postButtonText}>Post</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+      {posts.length > 0 && (
+        <View style={feedStyles.liveIndicator}>
+          <Ionicons name="flame" size={20} color="#e63946" />
+          <Text style={feedStyles.liveIndicatorText}>
+            {posts.length} post{posts.length > 1 ? "s" : ""} live
+          </Text>
+          <View style={feedStyles.liveBadge}>
+            <Text style={feedStyles.liveBadgeText}>Live</Text>
+          </View>
+        </View>
+      )}
+
+      {/* Posts List */}
+      {posts.length === 0 ? (
+        <Text style={feedStyles.noPostsText}>
+          No posts yet. Be the first to share!
+        </Text>
+      ) : (
+        <FlatList
+          data={posts}
+          keyExtractor={(item) => item.id.toString() + timeRefresh}
+          renderItem={({ item }) => (
+            <View style={feedStyles.postCard}>
+              <View style={feedStyles.userTimeRow}>
+                {/* Placeholder for User Avatar */}
+                <View style={feedStyles.avatarPlaceholder} />
+                <View>
+                  <Text style={feedStyles.usernameText}>{item.username}</Text>
+                  <Text style={feedStyles.postTime}>
+                    {getTimeAgo(item.time)}
+                  </Text>
+                </View>
+              </View>
+
+              <Text style={feedStyles.postContent}>{item.content}</Text>
+
+              <View style={feedStyles.postFooter}>
+                {/* Reaction button */}
+                <TouchableOpacity
+                  style={feedStyles.reactionButton}
+                  onPress={() => handleReaction(item.id)}
+                  //disabled={!isCheckedIn} - for later
+                >
+                  <Ionicons
+                    name={getHeartIconName(item.userReaction)}
+                    size={22}
+                    color={item.userReaction === "like" ? "#e63946" : "#aaa"}
+                  />
+                  <Text
+                    style={[
+                      feedStyles.reactionCount,
+                      {
+                        color:
+                          item.userReaction === "like" ? "#e63946" : "#fff",
+                      },
+                    ]}
+                  >
+                    {item.likes > 0 ? item.likes : ""}
+                  </Text>
+                </TouchableOpacity>
+                {/* Delete button */}
+                {
+                  <TouchableOpacity
+                    style={feedStyles.deleteIconButton}
+                    onPress={() => handleDeletePost(item.id)}
+                  >
+                    <Ionicons name="trash-outline" size={20} color="#aaa" />
+                  </TouchableOpacity>
+                }
+              </View>
+            </View>
+          )}
+          contentContainerStyle={{ paddingBottom: 40 }}
+        />
+      )}
+    </View>
+  );
+};
+
 import { barImages } from "../barImages.js";
 interface BarLocation {
   id: string;
@@ -24,7 +216,6 @@ interface BarLocation {
   latitude: number;
   events: Event[];
 }
-
 export default function HomeScreen() {
   const [activeMarker, setActiveMarker] = useState<any | null>(null);
   const circleRadius = 5000;
@@ -37,6 +228,7 @@ export default function HomeScreen() {
   const [markers, setMarkers] = useState<BarLocation[]>([]);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("details");
+  const [isCheckedIn, setIsCheckedIn] = useState(false);
 
   useEffect(() => {
     const fetchBars = async () => {
@@ -132,6 +324,14 @@ export default function HomeScreen() {
     setNearbyBar(closeBar || null);
   }, [location, markers]);
 
+  const handleCheckIn = () => {
+    if (nearbyBar?.id === activeMarker.id) {
+      Alert.alert("Checked in!", `You are at ${activeMarker.name}`);
+      setIsCheckedIn(true);
+      setActiveTab("live"); // Optional: Move to the live feed upon check-in
+    }
+  };
+
   // Show loader while region is not set
   if (!region) {
     return (
@@ -177,7 +377,13 @@ export default function HomeScreen() {
                 }}
                 //title={marker.name}
                 anchor={{ x: 0.5, y: 0.5 }} // center alignment
-                onPress={() => setActiveMarker(marker)}
+                onPress={() => {
+                  setActiveMarker(marker);
+                  // Reset check-in status if the new active marker is different
+                  if (marker.id !== activeMarker?.id) {
+                    setIsCheckedIn(false);
+                  }
+                }}
               >
                 {marker && (
                   <View
@@ -288,26 +494,28 @@ export default function HomeScreen() {
                   <TouchableOpacity
                     style={[
                       popupStyles.checkInButton,
-                      nearbyBar?.id === activeMarker.id
+                      // Logic for button color based on proximity and checked-in status
+                      nearbyBar?.id === activeMarker.id && !isCheckedIn
                         ? popupStyles.buttonEnabled
                         : popupStyles.buttonDisabled,
+                      isCheckedIn && popupStyles.buttonEnabled,
                     ]}
-                    disabled={nearbyBar?.id !== activeMarker.id}
-                    onPress={() =>
-                      Alert.alert(
-                        "Checked in!",
-                        `You are at ${activeMarker.name}`
-                      )
-                    }
+                    // Disable if too far OR if already checked in
+                    disabled={nearbyBar?.id !== activeMarker.id && !isCheckedIn}
+                    onPress={handleCheckIn} // Use the new handler
                   >
                     <Text
                       style={[
                         popupStyles.buttonText,
+                        // Text color for disabled state
                         nearbyBar?.id !== activeMarker.id &&
+                          !isCheckedIn &&
                           popupStyles.buttonTextDisabled,
                       ]}
                     >
-                      {nearbyBar?.id === activeMarker.id
+                      {isCheckedIn
+                        ? "Checked In!"
+                        : nearbyBar?.id === activeMarker.id
                         ? "Check In"
                         : "Too Far!"}
                     </Text>
@@ -319,10 +527,8 @@ export default function HomeScreen() {
               </ScrollView>
             </>
           ) : (
-            <View style={popupStyles.liveFeedContainer}>
-              <Text style={{ color: "#fff" }}>Live Feed Coming Soon...</Text>
-              {/* Later you can map through posts, images, etc. */}
-            </View>
+            // Renders the Live Feed tab content
+            <LiveFeedTab isCheckedIn={isCheckedIn} />
           )}
         </View>
       )}
@@ -496,5 +702,133 @@ const popupStyles = StyleSheet.create({
   },
   buttonTextDisabled: {
     color: "#000",
+  },
+});
+
+const feedStyles = StyleSheet.create({
+  feedContainer: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingTop: 10,
+  },
+  liveIndicator: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 15,
+  },
+  liveIndicatorText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "500",
+    marginLeft: 5,
+    marginRight: 10,
+  },
+  liveBadge: {
+    backgroundColor: "#e63946",
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  liveBadgeText: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+  postCard: {
+    backgroundColor: "#2a2d31",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+  },
+  userTimeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  avatarPlaceholder: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: "#555",
+    marginRight: 8,
+  },
+  usernameText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  postTime: {
+    color: "#aaa",
+    fontSize: 12,
+  },
+  postContent: {
+    color: "#fff",
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  postFooter: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 5,
+  },
+  reactionButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 5,
+  },
+  reactionCount: {
+    color: "#fff",
+    fontSize: 14,
+    marginLeft: 4,
+  },
+  deleteIconButton: {
+    padding: 5,
+  },
+  createPostButton: {
+    backgroundColor: Colors.secondary,
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  createPostButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  postFormContainer: {
+    backgroundColor: "#2a2d31",
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 16,
+  },
+  postInput: {
+    backgroundColor: "#1f2227",
+    color: "#fff",
+    borderRadius: 8,
+    padding: 12,
+    height: 100,
+    textAlignVertical: "top",
+    fontSize: 15,
+    marginBottom: 10,
+  },
+  postButton: {
+    backgroundColor: "#6b3fd1ff",
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  postButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  noPostsText: {
+    color: "#aaa",
+    textAlign: "center",
+    marginTop: 20,
   },
 });
