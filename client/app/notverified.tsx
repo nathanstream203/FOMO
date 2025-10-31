@@ -1,8 +1,8 @@
 // app/(tabs)/NotVerified.tsx
-import { useRouter } from 'expo-router';
-import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Colors } from './theme';
+import { useRouter } from "expo-router";
+import React from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Colors } from "./theme";
 
 export default function NotVerified() {
   const router = useRouter();
@@ -12,7 +12,7 @@ export default function NotVerified() {
       <Text style={styles.text}>You have not verified your email yet.</Text>
       <TouchableOpacity
         style={styles.button}
-        onPress={() => router.push('/(tabs)/account')}
+        onPress={() => router.push("/(tabs)/account")}
       >
         <Text style={styles.buttonText}>Go to Account</Text>
       </TouchableOpacity>
@@ -23,26 +23,32 @@ export default function NotVerified() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'black',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "black",
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
   },
   text: {
-    color: 'white',
+    color: "white",
     fontSize: 18,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 24,
   },
   button: {
-    backgroundColor: Colors.primary || '#1E90FF',
+    backgroundColor: Colors.secondary || "#1E90FF",
+    overflow: "visible",
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 10,
+    shadowColor: Colors.secondary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 6,
+    elevation: 10, // for Android glow effect
   },
   buttonText: {
-    color: 'white',
+    color: "white",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });
