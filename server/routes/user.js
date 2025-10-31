@@ -15,7 +15,7 @@ router.post('/', async (req, res) => {
             res.json({'Error': 'Bad request'}).status(401);
             return;
         }
-        const user = await prisma.users.create({ data: { firebase_id, first_name, last_name, birth_date, role_id } });
+        const user = await prisma.user.create({ data: { firebase_id, first_name, last_name, birth_date, role_id } });
         res.json(user).status(201);
     } catch (error) {
         res.json({'Error': `${error}`});
