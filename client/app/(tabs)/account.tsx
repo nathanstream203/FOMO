@@ -240,4 +240,10 @@ const styles = StyleSheet.create({
     width: 200,
     textAlign: "center"
   },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#fff",
+    marginBottom: 15,
+  },
 });
