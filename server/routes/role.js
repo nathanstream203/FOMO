@@ -15,7 +15,7 @@ router.post('/', async (req, res) => {
             res.json({'Error': 'Bad request'}).status(401);
             return;
         }
-        const role = await prisma.roles.create({ data: { name, description } });
+        const role = await prisma.role.create({ data: { name, description } });
         res.json(role).status(201);
     } catch (error) {
         res.json({'Error': `${error}`});

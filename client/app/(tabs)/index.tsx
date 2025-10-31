@@ -1,11 +1,20 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
-import * as Location from 'expo-location';
-import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import MapView, { Circle, Marker } from 'react-native-maps';
-import { getBars } from '../api/databaseOperations';
-import { Colors } from '../theme.js';
-
+import Ionicons from "@expo/vector-icons/Ionicons";
+import * as Location from "expo-location";
+import { getDistance } from "geolib";
+import React, { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import MapView, { Circle, Marker } from "react-native-maps";
+import { getBars } from "../api/databaseOperations";
+import { Colors } from "../theme.js";
 interface BarLocation {
   id: string;
   name: string;
@@ -15,40 +24,26 @@ interface BarLocation {
   events: Event[];
 }
 
-function getDistanceFromLatLonInMeters(lat1: number, lon1: number, lat2: number, lon2: number) {
-  const R = 6371000; // meters
-  const φ1 = Number(lat1) * Math.PI / 180;
-  const φ2 = Number(lat2) * Math.PI / 180;
-  const Δφ = (Number(lat2) - Number(lat1)) * Math.PI / 180;
-  const Δλ = (Number(lon2) - Number(lon1)) * Math.PI / 180;
-
-  const a = Math.sin(Δφ / 2) ** 2 +
-            Math.cos(φ1) * Math.cos(φ2) *
-            Math.sin(Δλ / 2) ** 2;
-
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-  return Math.round(R * c);
-}
-
-
 export default function HomeScreen() {
-const [activeMarker, setActiveMarker] = useState<any | null>(null);
-const circleRadius = 5000;
-const [region, setRegion] = useState<any>(null);
-const [nearbyBar, setNearbyBar] = useState<any>(null);
-const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
-const [markers, setMarkers] = useState<BarLocation[]>([]);
-const [loading, setLoading] = useState(false);
+  const [activeMarker, setActiveMarker] = useState<any | null>(null);
+  const circleRadius = 5000;
+  const [region, setRegion] = useState<any>(null);
+  const [nearbyBar, setNearbyBar] = useState<any>(null);
+  const [location, setLocation] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
+  const [markers, setMarkers] = useState<BarLocation[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("details");
 
-useEffect(() => {
+  useEffect(() => {
     const fetchBars = async () => {
       setLoading(true);
       try {
         const data = await getBars();
         setMarkers(data);
 
-    
         console.log("Fetched bars:", data);
       } catch (err) {
         console.error("Error fetching bars:", err);
@@ -60,252 +55,300 @@ useEffect(() => {
     fetchBars();
   }, []);
 
-// Request location permission
-    useEffect(() => {
-        let subscription: Location.LocationSubscription;
+  //Request location permission and get initial location
+  useEffect(() => {
+    const getInitialLocation = async () => {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("Permission denied", "Cannot access location.");
+        return;
+      }
 
-        const startTracking = async () => {
-            // Request permission
-            const { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== 'granted') {
-                Alert.alert('Permission denied', 'Cannot access location.');
-                return;
-            }
+      const location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Highest,
+      });
 
-            // Get initial location
-            const location = await Location.getCurrentPositionAsync({
-                accuracy: Location.Accuracy.Highest,
-            });
+      setRegion({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      });
+      setLocation({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      });
+    };
 
-            // Log initial coordinates here
-            console.log('Initial user location:', {
-                latitude: location.coords.latitude,
-                longitude: location.coords.longitude,
-            });
+    getInitialLocation();
+  }, []);
 
-            setRegion({
-                latitude: location.coords.latitude,
-                longitude: location.coords.longitude,
-                latitudeDelta: 0.01,
-                longitudeDelta: 0.01,
-            });
+  // Track location updates
+  useEffect(() => {
+    let subscription: Location.LocationSubscription;
 
-            // Subscribe to location updates
-            subscription = await Location.watchPositionAsync(
-                {
-                    accuracy: Location.Accuracy.Highest,
-                    distanceInterval: 1, // update every 1 meters
-                    timeInterval: 1000, // update every 1 seconds
-                },
-                (newLocation) => {
-                    // Log each location update
-                    console.log('📍 Location updated:', {
-                        latitude: newLocation.coords.latitude,
-                        longitude: newLocation.coords.longitude,
-                        timestamp: new Date(newLocation.timestamp).toLocaleTimeString(),
-                    });
+    const startTracking = async () => {
+      subscription = await Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.Highest,
+          distanceInterval: 1,
+          timeInterval: 1000,
+        },
+        (newLocation) => {
+          setRegion({
+            latitude: newLocation.coords.latitude,
+            longitude: newLocation.coords.longitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          });
+          setLocation({
+            latitude: newLocation.coords.latitude,
+            longitude: newLocation.coords.longitude,
+          });
+        }
+      );
+    };
 
-                    setRegion({
-                        latitude: newLocation.coords.latitude,
-                        longitude: newLocation.coords.longitude,
-                        latitudeDelta: 0.01,
-                        longitudeDelta: 0.01,
-                    });
+    startTracking();
 
-                    setLocation({ latitude:newLocation.coords.latitude, longitude: newLocation.coords.longitude });
+    return () => {
+      if (subscription) subscription.remove();
+    };
+  }, []);
 
-                    // Check if user is near any bar (~6 meters = 20 feet)
-                    const closeBar = markers.find((bar) => {
-                        const distance = getDistanceFromLatLonInMeters(
-                            newLocation.coords.latitude,
-                            newLocation.coords.longitude,
-                            bar.latitude,
-                            bar.longitude
-                        );
-                        //Distance to every bar for debugging
-                        markers.forEach((bar) => {
-                            console.log(`${bar.name}: ${distance.toFixed(2)}m away`);
-                        });
-                        return distance <= 10;
-                    });
-                    
-                    setNearbyBar(closeBar || null);
-                    if (closeBar) {
-                    console.log('📍 Nearby ' + closeBar.name);
-                    } else {
-                    console.log('❌ No nearby bar');
-                    }
+  // Check for nearby bars
+  useEffect(() => {
+    if (!location) return;
 
-                }
-            );
-        };
+    const closeBar = markers.find((bar) => {
+      const distance = getDistance(
+        { latitude: location.latitude, longitude: location.longitude },
+        { latitude: bar.latitude, longitude: bar.longitude }
+      );
+      return distance <= 10; // ~10 meters
+    });
 
-        startTracking();
-        // Cleanup subscription when component unmounts
-        return () => {
-            if (subscription) subscription.remove();
-        };
-    }, []);
+    setNearbyBar(closeBar || null);
+  }, [location, markers]);
 
-    if (!region) {
-        return (
-            <View style={styles.loader}>
-                <ActivityIndicator size="large" />
-            </View>
-        );
-    }
+  // Show loader while region is not set
+  if (!region) {
+    return (
+      <View style={styles.loader}>
+        <ActivityIndicator size="large" />
+        <Text style={styles.loadingText}>Hang Tight, Your Night Awaits…</Text>
+      </View>
+    );
+  }
 
   return (
- <View style={styles.container}>
-          
-          {region ? (
-              <MapView
-                  //provider={PROVIDER_GOOGLE}
-                  style={styles.map}
-                  customMapStyle={mapStyle}
-                  region={region}
-                  showsUserLocation={false}
-                  followsUserLocation
-                  minZoomLevel={14}
-                  maxZoomLevel={18}
+    <View style={styles.container}>
+      {region ? (
+        <MapView
+          style={styles.map}
+          customMapStyle={mapStyle}
+          region={region}
+          showsUserLocation={true}
+          followsUserLocation
+          minZoomLevel={14}
+          maxZoomLevel={18}
+          toolbarEnabled={false}
+        >
+          <Circle
+            center={{
+              latitude: 44.872394,
+              longitude: -91.925203,
+            }}
+            radius={circleRadius}
+            strokeWidth={2}
+            strokeColor={Colors.primary}
+          />
 
+          {/* Location Markers */}
+          {markers.map((marker, index) => {
+            const isActive = activeMarker?.id === marker.id;
+            return (
+              <Marker
+                key={index}
+                coordinate={{
+                  latitude: Number(marker.latitude),
+                  longitude: Number(marker.longitude),
+                }}
+                //title={marker.name}
+                anchor={{ x: 0.5, y: 0.5 }} // center alignment
+                onPress={() => setActiveMarker(marker)}
               >
-                  <Circle
-                      center={{
-                          latitude: 44.872394,
-                          longitude: -91.925203,
-                      }}
-                      radius={circleRadius}
-                      strokeWidth={2}
-                      strokeColor={Colors.primary}
-
-                  />
-
-                  {/* Location Markers */}
-                  {markers.map((marker, index) => {
-                      const isActive = activeMarker?.id === marker.id;
-                      return (
-                          <Marker
-                              key={index}
-                              coordinate={{latitude: Number(marker.latitude), longitude: Number(marker.longitude)}}
-                              title={marker.name}
-                              onPress={() => setActiveMarker(marker)}
-                              zIndex={isActive ? 999 : 1}
-                          >
-
-                              {marker && (
-                                  <View
-                                      style={{
-                                        backgroundColor: isActive ? Colors.secondary : Colors.primary,
-                                        borderRadius: 20,
-                                        padding: 8, // slightly bigger when selected
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        shadowColor: isActive ? Colors.secondary : 'transparent',
-                                        shadowOpacity: isActive ? 0.5 : 0,
-                                        shadowRadius: isActive ? 6 : 0,
-                                        elevation: isActive ? 8 : 0, // Android shadow
-                                      }}
-
-                                  >
-                                      <Ionicons
-                                          name={'beer-outline'}
-                                          size={20}
-                                          color="white"
-                                      />
-                                  </View>
-                              )}
-
-                          </Marker>
-                      );
-                  })}
-
-                  {/* User Marker */}
-                  {location && (
-                      <Marker
-                          coordinate={{
-                              latitude: location.latitude,
-                              longitude: location.longitude,
-                          }}
-                          zIndex={99}
-                      >
-                          <View
-                              style={{
-                                  backgroundColor: Colors.blue,
-                                  borderRadius: 20,
-                                  padding: 3,
-                                  justifyContent: 'center',
-                                  alignItems: 'center',
-                                  borderWidth: 2,
-                                  borderColor: '#fff',
-                              }}
-                          >
-                              <Ionicons name="person" size={9} color="white" />
-                          </View>
-                      </Marker>
-                  )}
-              </MapView>
-          ) : null}
-
-          {/* Active marker popup */}
-          {activeMarker && (
-            <View style={popupStyles.container}>
-              <View style={popupStyles.row}>
-                <Text style={popupStyles.title}>{activeMarker.name}</Text>
-                <TouchableOpacity
-                  onPress={() => setActiveMarker(null)}
-                  style={popupStyles.closeButton}
-                >
-                  <Ionicons name="close" size={20} color="#333" />
-                </TouchableOpacity>
-              </View>
-
-              <View style={popupStyles.divider} />
-
-              <Text style={popupStyles.description}>
-                {activeMarker.address || 'No address available.'}
-              </Text>
-
-            {/* Check-in Button */}
-              <View style={popupStyles.actions}>
-                <TouchableOpacity
-                  style={[
-                    popupStyles.button,
-                    nearbyBar?.id === activeMarker.id
-                      ? popupStyles.buttonEnabled
-                      : popupStyles.buttonDisabled,
-                  ]}
-                  disabled={nearbyBar?.id !== activeMarker.id}
-                  onPress={() => Alert.alert('Checked in!', `You are at ${activeMarker.name}`)}
-                >
-                  <Text
-                    style={[
-                      popupStyles.buttonText,
-                      nearbyBar?.id !== activeMarker.id && popupStyles.buttonTextDisabled,
-                    ]}
+                {marker && (
+                  <View
+                    style={{
+                      backgroundColor: isActive
+                        ? Colors.secondary
+                        : Colors.primary,
+                      borderRadius: 20,
+                      borderColor: "#fff",
+                      borderWidth: 1,
+                      padding: 7, // slightly bigger when selected
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
                   >
-                    {nearbyBar?.id === activeMarker.id ? 'Check In' : 'Too Far!'}
-                  </Text>
-                </TouchableOpacity>
+                    <Ionicons name={"beer-outline"} size={18} color="white" />
+                  </View>
+                )}
+              </Marker>
+            );
+          })}
+        </MapView>
+      ) : null}
+
+      {/* Active marker popup */}
+      {activeMarker && (
+        <View style={popupStyles.container}>
+          {/* Close Button */}
+          <TouchableOpacity
+            onPress={() => setActiveMarker(null)}
+            style={popupStyles.closeButton}
+          >
+            <Ionicons name="close" size={20} color="#FFF" />
+          </TouchableOpacity>
+
+          <View style={popupStyles.tabContainer}>
+            <TouchableOpacity
+              style={[
+                popupStyles.tabButton,
+                activeTab === "details" && popupStyles.activeTab,
+              ]}
+              onPress={() => setActiveTab("details")}
+            >
+              <Text style={popupStyles.tabText}>Details</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                popupStyles.tabButton,
+                activeTab === "live" && popupStyles.activeTab,
+              ]}
+              onPress={() => setActiveTab("live")}
+            >
+              <Text style={popupStyles.tabText}>Live Feed</Text>
+            </TouchableOpacity>
+          </View>
+
+          {activeTab === "details" ? (
+            <>
+              <View style={popupStyles.imageContainer}>
+                <Image
+                  source={require("../../assets/images/background-image.jpg")}
+                  style={popupStyles.image}
+                />
+                <View style={popupStyles.badges}>
+                  <View style={popupStyles.activityBadge}>
+                    <Ionicons
+                      name="people-circle-outline"
+                      size={12}
+                      color="#FFF"
+                    />
+                    <Text style={popupStyles.badgeText}>100</Text>
+                  </View>
+                </View>
               </View>
+
+              <ScrollView style={popupStyles.detailsContainer}>
+                <Text style={popupStyles.barName}>{activeMarker.name}</Text>
+                <Text style={popupStyles.location}>{activeMarker.address}</Text>
+
+                <View style={popupStyles.infoRow}>
+                  <Ionicons name="location-outline" size={12} color="#7f54e2" />
+                  <Text style={popupStyles.infoText}>
+                    {activeMarker.address}
+                  </Text>
+                </View>
+                <View style={popupStyles.infoRow}>
+                  <Ionicons name="time-outline" size={12} color="#7f54e2" />
+                  <Text style={popupStyles.infoText}>9pm-2am</Text>
+                </View>
+                <View style={popupStyles.infoRow}>
+                  <Ionicons
+                    name="people-circle-outline"
+                    size={12}
+                    color="#7f54e2"
+                  />
+                  <Text style={popupStyles.infoText}>100 checked in</Text>
+                </View>
+
+                <View style={popupStyles.actions}>
+                  <TouchableOpacity
+                    style={[
+                      popupStyles.checkInButton,
+                      nearbyBar?.id === activeMarker.id
+                        ? popupStyles.buttonEnabled
+                        : popupStyles.buttonDisabled,
+                    ]}
+                    disabled={nearbyBar?.id !== activeMarker.id}
+                    onPress={() =>
+                      Alert.alert(
+                        "Checked in!",
+                        `You are at ${activeMarker.name}`
+                      )
+                    }
+                  >
+                    <Text
+                      style={[
+                        popupStyles.buttonText,
+                        nearbyBar?.id !== activeMarker.id &&
+                          popupStyles.buttonTextDisabled,
+                      ]}
+                    >
+                      {nearbyBar?.id === activeMarker.id
+                        ? "Check In"
+                        : "Too Far!"}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={popupStyles.shareButton}>
+                    <Text style={popupStyles.buttonText}>Share</Text>
+                  </TouchableOpacity>
+                </View>
+              </ScrollView>
+            </>
+          ) : (
+            <View style={popupStyles.liveFeedContainer}>
+              <Text style={{ color: "#fff" }}>Live Feed Coming Soon...</Text>
+              {/* Later you can map through posts, images, etc. */}
             </View>
           )}
         </View>
-      );
-    }
-
+      )}
+    </View>
+  );
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
-    map: {
-      width: '100%', height: '100%',
-    },
-    loader: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  map: {
+    width: "100%",
+    height: "100%",
+  },
+  loader: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: Colors.darkPrimary,
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 18,
+    color: "#FFF", // or any color you like
+    textShadowColor: "#a388f6", // Glow color
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 20,
+    textAlign: "center",
+    fontWeight: "bold",
+  },
 });
 
 const mapStyle = [
@@ -317,74 +360,133 @@ const mapStyle = [
 
 const popupStyles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    left: 16,
-    right: 16,
-    bottom: Platform.OS === 'ios' ? 40 : 24,
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    paddingVertical: 16,
-    paddingHorizontal: 18,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 6,
-  },
-  title: {
-    flex: 1,
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#1a1a1a',
+    padding: 16,
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: "70%",
+    backgroundColor: Colors.primary,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+    zIndex: 100,
   },
   closeButton: {
-    backgroundColor: '#f2f2f2',
-    borderRadius: 20,
-    padding: 6,
-    alignItems: 'center',
-    justifyContent: 'center',
+    position: "absolute",
+    top: 16,
+    right: 16,
+    zIndex: 10,
   },
-  description: {
-    fontSize: 15,
-    lineHeight: 21,
-    color: '#444',
-    marginTop: 6,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#e6e6e6',
-    marginVertical: 10,
-  },
-  actions: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+  tabContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
     marginTop: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#444",
+    paddingBottom: 8,
   },
-  button: {
+  tabButton: {
+    flex: 1,
+    alignItems: "center",
+    paddingVertical: 10,
+  },
+  activeTab: {
+    borderBottomWidth: 2,
+    borderBottomColor: Colors.secondary, // highlight color
+  },
+  tabText: {
+    color: "#fff",
+    fontWeight: "600",
+  },
+  detailsContainer: {
+    padding: 16,
+  },
+  liveFeedContainer: {
+    padding: 16,
+  },
+
+  imageContainer: {
+    height: 160,
+    position: "relative",
+  },
+  image: { width: "100%", height: "100%", borderRadius: 12 },
+  activityBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: Colors.secondary,
+    padding: 4,
+    borderRadius: 6,
+    gap: 4,
+  },
+  badgeText: { color: "#fff", fontSize: 12 },
+  badges: {
+    position: "absolute",
+    top: 8,
+    right: 8,
+    flexDirection: "row",
+    gap: 8,
+  },
+  barName: { fontSize: 20, fontWeight: "bold", color: "#fff" },
+  location: { color: Colors.secondary, marginBottom: 8 },
+  infoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginVertical: 2,
+  },
+  vibeLabel: { color: "#aaa", marginTop: 12, marginBottom: 4 },
+  vibeContainer: { flexDirection: "row", flexWrap: "wrap", gap: 4 },
+  vibeBadge: {
+    backgroundColor: "#333",
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  vibeText: { fontSize: 12, color: "#fff" },
+  buttonRow: { flexDirection: "row", gap: 8, marginTop: 12 },
+  checkInButton: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 10,
+    paddingHorizontal: 24,
+    alignItems: "center",
+  },
+  checkedInButton: { opacity: 0.6 },
+  shareButton: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#fff",
     paddingVertical: 10,
     paddingHorizontal: 24,
-    borderRadius: 25,
+    borderRadius: 10,
+    alignItems: "center",
   },
+  infoBox: {
+    marginTop: 12,
+    backgroundColor: "#FFF",
+    padding: 12,
+    borderRadius: 6,
+  },
+  infoText: { fontSize: 12, color: "#FFF" },
+  actions: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 10,
+    marginTop: 10,
+  },
+
   buttonEnabled: {
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.secondary,
   },
   buttonDisabled: {
-    backgroundColor: '#ccc',
+    backgroundColor: "#b0b0b0ff",
   },
   buttonText: {
-    color: '#fff',
-    fontWeight: '700',
+    color: "#fff",
+    fontWeight: "700",
     fontSize: 15,
   },
   buttonTextDisabled: {
-    color: '#eee',
+    color: "#000",
   },
 });
-
-
