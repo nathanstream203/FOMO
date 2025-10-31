@@ -33,19 +33,6 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="feed"
-        options={{
-          title: "Post",
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              name={focused ? "add-circle" : "add-circle-outline"}
-              color={color}
-              size={24}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="friends"
         options={{
           title: "Friends",
