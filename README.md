@@ -1,77 +1,65 @@
-# Welcome to your Expo app 👋
+# FOMO
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## Setting up local dev invironment
 
-## Get started
+This repository functions as a mono repo. The client and server directories function as two separate projects. You must run commands from the respective directory. 
 
-1. Install dependencies
+[Expo documentation](https://docs.expo.dev/)
 
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+[Prisma Documentation](https://www.prisma.io/docs)
+### Client Setup
+Enter client directory
 
 ```bash
-npm run reset-project
+cd client/
+```
+Install dependencies
+```bash
+npm i
+```
+Start the app
+```bash
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Server Setup
 
-## Learn more
+Download and install [MySQL Server](https://dev.mysql.com/downloads/mysql/8.0.html) 8.4.7 LTS and create a local user
 
-To learn more about developing your project with Expo, look at the following resources:
+(Optional) Download and Install [MySQL Workbench](https://dev.mysql.com/downloads/workbench/) for managing your local database
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Enter server directory
+```bash
+cd server/
+```
+Install dependencies
+```bash
+npm i
+```
+Create a copy of file 'env.local' as '.env' and modify the variable with your MySQL Server local account
 
-
-## Set up Prisma
-
-Create a MySQL database on your local machine. Remember the username and password to your database.
-
-Copy the contents of .env.local into your .env file. Create a .env if needed.
-Change the user and password to your local db instance.
-
-Run the following prisma commands to push the schema to the database.
-
+Update your local database with the latest schema
 ```bash
 npx prisma migrate dev
 ```
-
 ```bash
 npx prisma generate
 ```
+Start the server
+```bash
+npm start
+```
+The server is accessible at http://localhost:5000/
 
-FOR DEVELOPING SCHEMA CMD
+## Database schema development
+
+If changes are made to schema.prisma, run the following command
 
 ```bash
 npx prisma migrate dev --name version-name-example
 ```
 
-Fill database with test data
+Fix migration errors
 ```bash
-npx prisma db seed
+npx prisma migrate reset
 ```
-
-## Start local server
-node ./server/server.js
-
-NOTE : when running local servers, I have found it works best to run expo server first then database server - Gabe.
