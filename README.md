@@ -36,7 +36,7 @@ Install dependencies
 ```bash
 npm i
 ```
-Create a copy of file 'env.local' as '.env' and modify the variable with your MySQL Server local account
+Create a copy of file 'env.example' as '.env' and modify the variable with your MySQL Server local account
 
 Update your local database with the latest schema
 ```bash
