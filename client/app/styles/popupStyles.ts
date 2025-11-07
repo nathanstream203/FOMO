@@ -1,0 +1,135 @@
+import { StyleSheet } from "react-native";
+import { Colors } from "./colors";
+
+export const popupStyles = StyleSheet.create({
+  container: {
+    padding: 16,
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: "70%",
+    backgroundColor: Colors.primary,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+    zIndex: 100,
+  },
+  closeButton: {
+    position: "absolute",
+    top: 16,
+    right: 16,
+    zIndex: 10,
+  },
+  tabContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginTop: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#444",
+    paddingBottom: 8,
+  },
+  tabButton: {
+    flex: 1,
+    alignItems: "center",
+    paddingVertical: 10,
+  },
+  activeTab: {
+    borderBottomWidth: 2,
+    borderBottomColor: Colors.secondary, // highlight color
+  },
+  tabText: {
+    color: "#fff",
+    fontWeight: "600",
+  },
+  detailsContainer: {
+    padding: 16,
+  },
+  liveFeedContainer: {
+    padding: 16,
+  },
+
+  imageContainer: {
+    height: 160,
+    position: "relative",
+  },
+  image: { width: "100%", height: "100%", borderRadius: 12 },
+  activityBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: Colors.secondary,
+    padding: 4,
+    borderRadius: 6,
+    gap: 4,
+  },
+  badgeText: { color: "#fff", fontSize: 12 },
+  badges: {
+    position: "absolute",
+    top: 8,
+    right: 8,
+    flexDirection: "row",
+    gap: 8,
+  },
+  barName: { fontSize: 20, fontWeight: "bold", color: "#fff" },
+  location: { color: Colors.secondary, marginBottom: 8 },
+  infoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginVertical: 2,
+  },
+  vibeLabel: { color: "#aaa", marginTop: 12, marginBottom: 4 },
+  vibeContainer: { flexDirection: "row", flexWrap: "wrap", gap: 4 },
+  vibeBadge: {
+    backgroundColor: "#333",
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  vibeText: { fontSize: 12, color: "#fff" },
+  buttonRow: { flexDirection: "row", gap: 8, marginTop: 12 },
+  checkInButton: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 10,
+    paddingHorizontal: 24,
+    alignItems: "center",
+  },
+  checkedInButton: { opacity: 0.6 },
+  shareButton: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#fff",
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  infoBox: {
+    marginTop: 12,
+    backgroundColor: "#FFF",
+    padding: 12,
+    borderRadius: 6,
+  },
+  infoText: { fontSize: 12, color: "#FFF" },
+  actions: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 10,
+    marginTop: 10,
+  },
+
+  buttonEnabled: {
+    backgroundColor: Colors.secondary,
+  },
+  buttonDisabled: {
+    backgroundColor: "#b0b0b0ff",
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 15,
+  },
+  buttonTextDisabled: {
+    color: "#000",
+  },
+});
