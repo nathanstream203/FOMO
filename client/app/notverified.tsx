@@ -2,7 +2,7 @@
 import { useRouter } from "expo-router";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { Colors } from "./theme";
+import { Colors } from "./styles/colors";
 
 export default function NotVerified() {
   const router = useRouter();

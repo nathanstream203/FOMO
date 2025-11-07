@@ -15,7 +15,7 @@ import {
   View,
 } from "react-native";
 import { auth } from "./firebaseConfig";
-import { Colors } from "../theme";
+import { Colors } from "../styles/colors";
 
 export default function SignInScreen() {
   const [email, setEmail] = React.useState("");

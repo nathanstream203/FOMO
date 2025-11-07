@@ -1,27 +1,26 @@
 // app/(tabs)/friends.tsx
 
-import React, { useEffect, useState } from 'react';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { StyleSheet, Text, View } from 'react-native';
-import { auth } from '../(logon)/firebaseConfig';
-import NotVerified from '../notverified';
-import { Colors } from '../theme';
+import React, { useEffect, useState } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { StyleSheet, Text, View } from "react-native";
+import { auth } from "../(logon)/firebaseConfig";
+import NotVerified from "../notverified";
+import { Colors } from "../styles/colors";
 
 export default function FriendsScreen() {
-  const [friendCode, setFriendCode] = useState('');
+  const [friendCode, setFriendCode] = useState("");
   const [user, loading, error] = useAuthState(auth);
 
-    
   // Generate a random friend code
   useEffect(() => {
     const generateCode = () => {
-      const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-      const numbers = '0123456789';
-      let code = '';
+      const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      const numbers = "0123456789";
+      let code = "";
       for (let i = 0; i < 4; i++) {
         code += letters[Math.floor(Math.random() * letters.length)];
       }
-      code += '-';
+      code += "-";
       for (let i = 0; i < 4; i++) {
         code += numbers[Math.floor(Math.random() * numbers.length)];
       }
@@ -30,14 +29,13 @@ export default function FriendsScreen() {
 
     setFriendCode(generateCode());
   }, []);
-    
-    if (!user?.emailVerified) {
-      return <NotVerified />;
-    }
+
+  if (!user?.emailVerified) {
+    return <NotVerified />;
+  }
 
   return (
     <View style={styles.container}>
-
       <View style={styles.section}>
         <Text style={styles.label}>Your Friend Code:</Text>
         <Text style={styles.code}>{friendCode}</Text>
@@ -57,28 +55,28 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.grey,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
   },
   heading: {
     fontSize: 22,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: Colors.white,
     marginBottom: 20,
   },
   section: {
     marginVertical: 12,
-    alignItems: 'center',
+    alignItems: "center",
   },
   label: {
     color: Colors.text,
     fontSize: 14,
   },
   code: {
-    color: '#4CAF50',
+    color: "#4CAF50",
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginTop: 4,
   },
   friend: {

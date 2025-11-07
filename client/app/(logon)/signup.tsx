@@ -20,7 +20,7 @@ import {
 } from "react-native";
 import { auth } from "./firebaseConfig";
 import { postNewUser, testConnection } from "../api/databaseOperations";
-import { Colors } from "../theme";
+import { Colors } from "../styles/colors";
 
 export default function signUpScreen() {
   const [firstName, setFirstName] = React.useState("");
