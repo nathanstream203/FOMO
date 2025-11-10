@@ -1,6 +1,7 @@
 // databaseOperations.js
 // Centralized API helper for your React Native frontend
-import { BASE_URL } from './localAdresses';
+
+import BASE_URL from '../../_base_url.js';
 
 /**
  * --------------------------
@@ -26,6 +27,60 @@ export const testConnection = async () => {
     return false;
   }
 };
+
+/**
+ * --------------------------
+ * FEED/POSTS
+ * --------------------------
+ */
+
+// Create new post in database
+export const postNewPost = async (firebase_id, bar_id, content, timestamp) => {
+  try {
+    const response = await fetch(`${BASE_URL}/post`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        firebase_id,
+        bar_id,
+        content,
+        timestamp
+      }),
+    });
+
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.Error || 'Failed to create user');
+    return data;
+  } catch (error) {
+    console.error('Error posting new post in database:', error);
+    throw error;
+  }
+};
+
+// Get all posts
+export const getAllPosts = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/post`);
+    if (!response.ok) throw new Error(`Failed to fetch users: ${response.status}`);
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    throw error;
+  }
+};
+
+// Get posts for a specific bar
+export const getPostsByBarId = async (bar_id) => {
+  try {
+    const response = await fetch(`${BASE_URL}/post`);
+    const posts = await response.json();
+    return posts.filter((post) => post.bar_id === bar_id);
+  } catch (error) {
+    console.error(`Error fetching posts for bar ${bar_id}:`, error);
+    throw error;
+  }
+};
+
 /**
  * --------------------------
  * USERS
@@ -47,6 +102,7 @@ export const getAllUsers = async () => {
 // Get a single user profile by Firebase UID
 export const getUserByFirebaseId = async (firebase_id) => {
   try {
+    console.log(BASE_URL);
     const response = await fetch(`${BASE_URL}/user`);
     const users = await response.json();
     return users.find((u) => u.firebase_id === firebase_id) || null;
