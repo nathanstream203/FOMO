@@ -8,12 +8,16 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
-// Possibly redundant - could be removed if User table is updated to store a defined role name
-model Role { 
-  id Int @id @default(autoincrement())
-  name String @unique // Must have a unique name 
-  description String? // Optional description
-  users User[]
+
+enum Status {
+  CHECKED_IN
+  CHECKED_OUT
+}
+
+enum Role {
+  BASIC
+  MANAGER
+  ADMIN
 }
 
 model User {
@@ -22,8 +26,7 @@ model User {
   first_name String 
   last_name String
   birth_date DateTime
-  role_id Int
-  role Role @relation(fields: [role_id], references: [id])
+  role Role @default(BASIC)
   post Post[]
   party Party[]
   attendance Attendance_log[]
@@ -82,9 +85,4 @@ model Attendance_log {
   timestamp DateTime @default(now()) 
   user User @relation(fields: [user_id], references: [id])
   bar Bar @relation(fields: [bar_id], references: [id])
-}
-
-enum Status {
-  checked_in
-  checked_out
 }
