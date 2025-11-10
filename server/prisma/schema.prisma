@@ -26,6 +26,7 @@ model User {
   role Role @relation(fields: [role_id], references: [id])
   post Post[]
   party Party[]
+  attendance Attendance_log[]
 }
 
 model Post {
@@ -60,6 +61,7 @@ model Bar {
   latitude Decimal
   events Event[]
   posts Post[]
+  attendance Attendance_log[]
 }
 
 model Event {
@@ -70,4 +72,19 @@ model Event {
   end_time DateTime
   bar_id Int
   bar Bar @relation(fields: [bar_id], references: [id])
+}
+
+model Attendance_log {
+  id Int @id @default(autoincrement())
+  user_id Int
+  bar_id Int
+  status Status
+  timestamp DateTime @default(now()) 
+  user User @relation(fields: [user_id], references: [id])
+  bar Bar @relation(fields: [bar_id], references: [id])
+}
+
+enum Status {
+  checked_in
+  checked_out
 }
