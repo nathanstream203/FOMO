@@ -11,7 +11,8 @@ async function main() {
       first_name: "dummy",
       last_name: "bob",
       birth_date: "2000-01-01T01:01:00Z",
-      role: 'BASIC'
+      role: 'BASIC',
+      points: 500
     },
   });
   await prisma.user.upsert({

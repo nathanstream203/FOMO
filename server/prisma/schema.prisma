@@ -20,12 +20,18 @@ enum Role {
   ADMIN
 }
 
+enum Transaction {
+  EARN
+  SPEND
+}
+
 model User {
   id Int @id @default(autoincrement())
   firebase_id String @unique // Unique ID retrieved from firebase
   first_name String 
   last_name String
   birth_date DateTime
+  points Int @default(0)
   role Role @default(BASIC)
   post Post[]
   party Party[]
@@ -85,4 +91,13 @@ model Attendance_log {
   timestamp DateTime @default(now()) 
   user User @relation(fields: [user_id], references: [id])
   bar Bar @relation(fields: [bar_id], references: [id])
+}
+
+model Points_log {
+  id Int @id @default(autoincrement())
+  user_id Int
+  transaction_type Transaction
+  points_change Int
+  source String?
+  timestamp DateTime @default(now())
 }
