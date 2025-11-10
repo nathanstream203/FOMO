@@ -252,4 +252,10 @@ const styles = StyleSheet.create({
     borderBottomColor: "#4e9af1",
     paddingBottom: 5,
   },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#fff",
+    marginBottom: 15,
+  },
 });
