@@ -8,14 +8,24 @@ router.get('/', async (req, res) => {
     res.json(users);
 });
 
+router.get('/:id', async (req, res) => {
+    const user = await prisma.user.findUnique({
+        where: { 
+            id: Number(req.params.id)
+         }
+    });
+    res.json(user);
+});
+
+
 router.post('/', async (req, res) => {
     try {
-         const { firebase_id, first_name, last_name, birth_date, role_id } = req.body;
-        if(!firebase_id || !first_name || !last_name || !birth_date || !role_id) {
+        const { firebase_id, first_name, last_name, birth_date, role } = req.body;
+        if(!firebase_id || !first_name || !last_name || !birth_date || !role) {
             res.json({'Error': 'Bad request'}).status(401);
             return;
         }
-        const user = await prisma.user.create({ data: { firebase_id, first_name, last_name, birth_date, role_id } });
+        const user = await prisma.user.create({ data: { firebase_id, first_name, last_name, birth_date, role } });
         res.json(user).status(201);
     } catch (error) {
         res.json({'Error': `${error}`});

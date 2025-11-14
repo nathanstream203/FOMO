@@ -3,17 +3,17 @@ import express from "express";
 
 import locationRouter from './routes/location.js';
 import postRouter from './routes/post.js';
-import roleRouter from './routes/role.js';
 import userRouter from './routes/user.js';
+import pointsRouter from './routes/points.js'
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 app.use('/user', userRouter);
-app.use('/role', roleRouter);
 app.use('/location', locationRouter);
 app.use('/post', postRouter);
+app.use('/points', pointsRouter);
 
 // Default route
 app.get('/', (req,res) => {
