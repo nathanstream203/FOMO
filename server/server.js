@@ -4,7 +4,8 @@ import express from "express";
 import locationRouter from './routes/location.js';
 import postRouter from './routes/post.js';
 import userRouter from './routes/user.js';
-import pointsRouter from './routes/points.js'
+import pointsRouter from './routes/points.js';
+import friendsRouter from './routes/friends.js';
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use('/user', userRouter);
 app.use('/location', locationRouter);
 app.use('/post', postRouter);
 app.use('/points', pointsRouter);
+app.use('/friends', friendsRouter);
 
 // Default route
 app.get('/', (req,res) => {
