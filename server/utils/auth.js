@@ -1,5 +1,4 @@
 import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs"
 
 export function createToken(firebase_id) {
     return jwt.sign(
