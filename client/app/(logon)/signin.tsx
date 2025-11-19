@@ -14,8 +14,17 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { auth } from "./firebaseConfig";
-import { Colors } from "../styles/colors";
+import { auth } from "../../src/firebaseConfig";
+import { Colors } from "../../src/styles/colors";
+import { saveTokens } from "../../src/tokenStorage.js";
+import BASE_URL from '../../src/_base_url';
+import * as SecureStore from 'expo-secure-store';
+
+// Debugging logs
+import { firebaseConfig } from "../../src/firebaseConfig";
+console.log("FIREBASE CONFIG:", firebaseConfig);
+
+
 
 export default function SignInScreen() {
   const [email, setEmail] = React.useState("");
@@ -26,32 +35,53 @@ export default function SignInScreen() {
   const [focusedField, setFocusedField] = React.useState<string | null>(null);
 
   const signIn = async () => {
-    try {
-      setError(null);
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const user = userCredential.user;
+  try {
+    setError(null);
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
 
-      if (!user.emailVerified) {
-        // If not verified, block login and sign out
-        await signOut(auth);
-        Alert.alert(
-          "Email Not Verified",
-          "Please verify your email before logging in. Check your inbox for the verification link."
-        );
-        return;
-      }
-      // If verified, allow access to the app
-      setUser(user);
-      router.replace("/(tabs)");
-    } catch (error: any) {
-      console.error(error);
-      Alert.alert("Login Error", error.message);
+    if (!user.emailVerified) {
+      await signOut(auth);
+      Alert.alert("Email Not Verified", "Please verify your email before logging in. Check your inbox for the verification link.");
+      return;
     }
-  };
+
+    // get firebase ID token (short-lived)
+    const idToken = await user.getIdToken();
+
+    // Send ID token to backend for verification and to get JWT tokens
+    const res = await fetch(`${BASE_URL}/session/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idToken }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || "Login failed on server");
+    }
+
+    const { accessToken, refreshToken } = await res.json();
+
+    // DEBUGGING LOG
+    console.log("Server login response:", {
+      accessToken,
+      refreshToken
+    });
+
+    await saveTokens(accessToken, refreshToken);
+
+    const test = await SecureStore.getItemAsync("refreshToken");
+    console.log("Read back refresh token:", test);
+
+
+    setUser(user);
+    router.replace("/(tabs)");
+  } catch (error: any) {
+    console.error(error);
+    Alert.alert("Login Error", error.message || "Could not sign in");
+  }
+};
 
   const byPass = async () => {
     router.replace("/(tabs)");
