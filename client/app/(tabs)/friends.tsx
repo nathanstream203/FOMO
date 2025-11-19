@@ -3,9 +3,9 @@
 import React, { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { StyleSheet, Text, View } from "react-native";
-import { auth } from "../(logon)/firebaseConfig";
+import { auth } from "../../src/firebaseConfig";
 import NotVerified from "../notverified";
-import { Colors } from "../styles/colors";
+import { Colors } from "../../src/styles/colors";
 
 export default function FriendsScreen() {
   const [friendCode, setFriendCode] = useState("");

@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, StyleSheet, Text, View } from "react-native";
-import { getBars } from "../api/databaseOperations";
-import { Colors } from "../styles/colors";
-import MapSection from "../components/MapSection";
-import ActiveMarkerPopup from "../components/ActiveMarkerPopup";
-import { barImages } from "../barImages.js";
-import { mapStyle } from "../styles/mapStyles";
-import { useLocation } from "../hooks/useLocation";
-import { findNearbyBar } from "../hooks/findNearbyBars";
+import { getBars } from "../../src/api/databaseOperations";
+import { Colors } from "../../src/styles/colors";
+import MapSection from "../../src/components/MapSection";
+import ActiveMarkerPopup from "../../src/components/ActiveMarkerPopup";
+import { barImages } from "../../src/barImages.js";
+import { mapStyle } from "../../src/styles/mapStyles";
+import { useLocation } from "../../src/hooks/useLocation";
+import { findNearbyBar } from "../../src/hooks/findNearbyBars";
 
 interface BarLocation {
   id: string;
