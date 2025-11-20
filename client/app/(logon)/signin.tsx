@@ -16,15 +16,9 @@ import {
 } from "react-native";
 import { auth } from "../../src/firebaseConfig";
 import { Colors } from "../../src/styles/colors";
-import { saveTokens } from "../../src/tokenStorage.js";
+import { saveAToken } from "../../src/tokenStorage.js";
 import BASE_URL from '../../src/_base_url';
 import * as SecureStore from 'expo-secure-store';
-
-// Debugging logs
-import { firebaseConfig } from "../../src/firebaseConfig";
-console.log("FIREBASE CONFIG:", firebaseConfig);
-
-
 
 export default function SignInScreen() {
   const [email, setEmail] = React.useState("");
@@ -47,13 +41,13 @@ export default function SignInScreen() {
     }
 
     // get firebase ID token (short-lived)
-    const idToken = await user.getIdToken();
+    const firebase_token = await user.getIdToken();
 
     // Send ID token to backend for verification and to get JWT tokens
-    const res = await fetch(`${BASE_URL}/session/login`, {
+    const res = await fetch(`${BASE_URL}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ idToken }),
+      body: JSON.stringify({ firebase_token }),
     });
 
     if (!res.ok) {
@@ -61,18 +55,15 @@ export default function SignInScreen() {
       throw new Error(err.error || "Login failed on server");
     }
 
-    const { accessToken, refreshToken } = await res.json();
+    const JWT_accessToken = await res.json();
 
     // DEBUGGING LOG
-    console.log("Server login response:", {
-      accessToken,
-      refreshToken
-    });
+    console.log("Server login response:", { JWT_accessToken });
 
-    await saveTokens(accessToken, refreshToken);
+    await saveAToken(JWT_accessToken);
 
-    const test = await SecureStore.getItemAsync("refreshToken");
-    console.log("Read back refresh token:", test);
+    const test = await SecureStore.getItemAsync("accessToken");
+    console.log("Read back access token just stored:", test);
 
 
     setUser(user);
@@ -88,6 +79,7 @@ export default function SignInScreen() {
   };
 
   return (
+
     <KeyboardAvoidingView
       style={{ flex: 1 }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}

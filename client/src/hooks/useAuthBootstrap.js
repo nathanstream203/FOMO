@@ -13,13 +13,21 @@ export function useAuthBootstrap() {
   useEffect(() => {
     async function init() {
       console.log("Bootstrapping auth state");
-      const refreshToken = await getRefreshToken();
-      if (!refreshToken) {
+      // const refreshToken = await getRefreshToken();
+      const accessToken = await getAToken();
+      console.log("Retrieved access token from storage:", accessToken);
+
+      if (!accessToken) {
         setLoading(false);
         setLoggedIn(false);
         return;
+      } else {
+        setLoggedIn(true);
+        setLoading(false);
+        return;
       }
 
+      /*
       try {
         console.log("Attempting token refresh");
         const res = await fetch(`${BASE_URL}/session/refresh`, {
@@ -43,6 +51,7 @@ export function useAuthBootstrap() {
       }
       
       setLoading(false);
+      */
     }
 
     init();
