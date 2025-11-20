@@ -49,3 +49,9 @@ export async function getAToken() {
       return null;
     }
 }
+
+export async function clearAToken() {
+  await SecureStore.deleteItemAsync("accessToken");
+  console.log("Access token cleared");
+  // await SecureStore.deleteItemAsync("refreshToken");
+}

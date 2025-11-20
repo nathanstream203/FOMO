@@ -2,7 +2,7 @@
 // Hook to bootstrap authentication state on app launch - checks for valid refresh token
 // Maintains loading and loggedIn state across app relaunching.
 import { useEffect, useState } from "react";
-import { getRefreshToken, saveTokens, clearTokens } from "../../src/tokenStorage";
+import { getRefreshToken, saveTokens, clearTokens, getAToken } from "../../src/tokenStorage";
 import BASE_URL from "../../src/_base_url";
 
 export function useAuthBootstrap() {
