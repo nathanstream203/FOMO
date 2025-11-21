@@ -16,9 +16,8 @@ import {
 } from "react-native";
 import { auth } from "../../src/firebaseConfig";
 import { Colors } from "../../src/styles/colors";
-import { saveAToken } from "../../src/tokenStorage.js";
+import { saveATokenWithDate, getAToken } from "../../src/tokenStorage.js";
 import BASE_URL from '../../src/_base_url';
-import * as SecureStore from 'expo-secure-store';
 
 export default function SignInScreen() {
   const [email, setEmail] = React.useState("");
@@ -56,18 +55,15 @@ export default function SignInScreen() {
     }
 
     const JWT_accessToken = await res.json();
-
-    // DEBUGGING LOG
-    console.log("Server login response:", { JWT_accessToken });
-
-    await saveAToken(JWT_accessToken);
-
-    const test = await SecureStore.getItemAsync("accessToken");
-    console.log("Read back access token just stored:", test);
-
-
-    setUser(user);
-    router.replace("/(tabs)");
+    await saveATokenWithDate(JWT_accessToken);
+    const verifyToken = await getAToken();
+    
+    if (verifyToken) {
+      setUser(user);
+      router.replace("/(tabs)");
+    } else {
+      throw new Error("Failed to store access token");
+    }
   } catch (error: any) {
     console.error(error);
     Alert.alert("Login Error", error.message || "Could not sign in");
