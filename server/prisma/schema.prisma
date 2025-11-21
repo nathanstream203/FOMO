@@ -8,12 +8,21 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
-// Possibly redundant - could be removed if User table is updated to store a defined role name
-model Role { 
-  id Int @id @default(autoincrement())
-  name String @unique // Must have a unique name 
-  description String? // Optional description
-  users User[]
+
+enum Status {
+  CHECKED_IN
+  CHECKED_OUT
+}
+
+enum Role {
+  BASIC
+  MANAGER
+  ADMIN
+}
+
+enum Transaction {
+  EARN
+  SPEND
 }
 
 model User {
@@ -22,10 +31,11 @@ model User {
   first_name String 
   last_name String
   birth_date DateTime
-  role_id Int
-  role Role @relation(fields: [role_id], references: [id])
+  points Int @default(0)
+  role Role @default(BASIC)
   post Post[]
   party Party[]
+  attendance Attendance_log[]
 }
 
 model Post {
@@ -49,6 +59,8 @@ model Party {
   end_time String
   longitude Decimal
   latitude Decimal
+  address String
+
   user User @relation(fields: [user_id], references: [id])
 }
 
@@ -61,6 +73,7 @@ model Bar {
   latitude Decimal
   events Event[]
   posts Post[]
+  attendance Attendance_log[]
 }
 
 model Event {
@@ -71,4 +84,23 @@ model Event {
   end_time DateTime
   bar_id Int
   bar Bar @relation(fields: [bar_id], references: [id])
+}
+
+model Attendance_log {
+  id Int @id @default(autoincrement())
+  user_id Int
+  bar_id Int
+  status Status
+  timestamp DateTime @default(now()) 
+  user User @relation(fields: [user_id], references: [id])
+  bar Bar @relation(fields: [bar_id], references: [id])
+}
+
+model Points_log {
+  id Int @id @default(autoincrement())
+  user_id Int
+  transaction_type Transaction
+  points_change Int
+  source String?
+  timestamp DateTime @default(now())
 }

@@ -18,7 +18,6 @@ import { useMarkers } from "../hooks/useMarkers";
 import { findNearbyBar } from "../hooks/findNearbyBars";
 import Modal from "react-native-modal";
 import { Ionicons } from "@expo/vector-icons";
-import { getBars, getParties } from "../api/databaseOperations"; // adjust paths
 
 export default function HomeScreen() {
   const [activeMarker, setActiveMarker] = useState<any | null>(null);

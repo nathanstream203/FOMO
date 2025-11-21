@@ -12,8 +12,9 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { auth } from "../(logon)/firebaseConfig";
-import { getUserByFirebaseId } from "../api/databaseOperations";
+import { auth } from "../../src/firebaseConfig";
+import { getUserByFirebaseId } from "../../src/api/databaseOperations";
+import { clearAToken } from "../../src/tokenStorage";
 
 interface DatabaseUser {
   firebase_id: string;
@@ -31,6 +32,7 @@ export default function AccountScreen() {
 
   const signOutUser = async () => {
     try {
+      await clearAToken();
       await signOut(auth);
       router.replace("/signin");
     } catch (error) {
@@ -251,11 +253,5 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#4e9af1",
     paddingBottom: 5,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#fff",
-    marginBottom: 15,
   },
 });
