@@ -1,5 +1,6 @@
 import Constants from "expo-constants";
 
+/** @type {string} */
 let BASE_URL;
 
 try {

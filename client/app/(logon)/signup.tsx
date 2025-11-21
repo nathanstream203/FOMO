@@ -18,9 +18,9 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { auth } from "./firebaseConfig";
-import { postNewUser, testConnection } from "../api/databaseOperations";
-import { Colors } from "../styles/colors";
+import { auth } from "../../src/firebaseConfig";
+import { postNewUser, testConnection } from "../../src/api/databaseOperations";
+import { Colors } from "../../src/styles/colors";
 
 export default function signUpScreen() {
   const [firstName, setFirstName] = React.useState("");

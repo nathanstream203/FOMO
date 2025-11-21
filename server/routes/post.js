@@ -4,8 +4,14 @@ import prisma from "../prisma_export.js";
 const router = express.Router();
 
 router.get('/', async (req, res) => {
-    const posts = await prisma.posts.findMany();
+    const posts = await prisma.post.findMany();
     res.json(posts);
+});
+
+router.get('/:bar_id', async (req, res) => {
+    const post = await prisma.post.findMany({
+        where: bar_id = Number(req.params.bar_id)
+    })
 });
 
 router.post('/', async (req, res) => {

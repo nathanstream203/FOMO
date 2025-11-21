@@ -2,31 +2,6 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 async function main() {
-  // Role seeding
-  await prisma.role.upsert({
-    where: { name: "Basic" },
-    update: {},
-    create: {
-      name: "Basic",
-      description: "Basic user role",
-    },
-  });
-  await prisma.role.upsert({
-    where: { name: "Manager" },
-    update: {},
-    create: {
-      name: "Manager",
-      description: "Manager of a bar",
-    },
-  });
-  await prisma.role.upsert({
-    where: { name: "Admin" },
-    update: {},
-    create: {
-      name: "Admin",
-      description: "Admin of FOMO",
-    },
-  });
   // User seeding
   await prisma.user.upsert({
     where: { firebase_id: "1" },
@@ -36,9 +11,8 @@ async function main() {
       first_name: "dummy",
       last_name: "bob",
       birth_date: "2000-01-01T01:01:00Z",
-      role: {
-        connect: { name: "Basic" },
-      },
+      role: 'BASIC',
+      points: 500
     },
   });
   await prisma.user.upsert({
@@ -49,9 +23,7 @@ async function main() {
       first_name: "dummy2",
       last_name: "bob2",
       birth_date: "2002-01-01T01:01:00Z",
-      role: {
-        connect: { name: "Admin" },
-      },
+      role: 'MANAGER'
     },
   });
   // Bar seeding
