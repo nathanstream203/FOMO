@@ -3,7 +3,7 @@
 import { View, Text, StyleSheet } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Tabs } from "expo-router";
-import { Colors } from "../styles/colors";
+import { Colors } from "../../src/styles/colors";
 
 const HeaderPoints = () => {
   const userPoints = 1234;

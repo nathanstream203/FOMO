@@ -1,7 +1,7 @@
 // databaseOperations.js
 // Centralized API helper for your React Native frontend
 
-import BASE_URL from '../../_base_url.js';
+import BASE_URL from '../../src/_base_url.js';
 
 /**
  * --------------------------
