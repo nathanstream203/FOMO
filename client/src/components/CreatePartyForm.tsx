@@ -14,7 +14,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../styles/colors";
 import { useLocation } from "../hooks/useLocation";
-import { auth } from "../(logon)/firebaseConfig";
+import { auth } from "../../src/firebaseConfig";
 import {
   getUserByFirebaseId,
   postNewParty,

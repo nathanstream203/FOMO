@@ -7,15 +7,15 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Colors } from "../styles/colors";
-import MapSection from "../components/MapSection";
-import ActiveMarkerPopup from "../components/ActiveMarkerPopup";
-import CreatePartyForm from "../components/CreatePartyForm";
-import { barImages } from "../barImages.js";
-import { mapStyle } from "../styles/mapStyles";
-import { useLocation } from "../hooks/useLocation";
-import { useMarkers } from "../hooks/useMarkers";
-import { findNearbyBar } from "../hooks/findNearbyBars";
+import { Colors } from "../../src/styles/colors";
+import MapSection from "../../src/components/MapSection";
+import ActiveMarkerPopup from "../../src/components/ActiveMarkerPopup";
+import CreatePartyForm from "../../src/components/CreatePartyForm";
+import { barImages } from "../../src/barImages.js";
+import { mapStyle } from "../../src/styles/mapStyles";
+import { useLocation } from "../../src/hooks/useLocation";
+import { useMarkers } from "../../src/hooks/useMarkers";
+import { findNearbyBar } from "../../src/hooks/findNearbyBars";
 import Modal from "react-native-modal";
 import { Ionicons } from "@expo/vector-icons";
 
