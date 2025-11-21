@@ -7,10 +7,13 @@ import userRouter from './routes/user.js';
 import pointsRouter from './routes/points.js'
 import authRouter from './routes/auth.js'
 
+import { authenticateToken } from './middleware/authenticateToken.js';
+
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use('/', authenticateToken);
 app.use('/user', userRouter);
 app.use('/location', locationRouter);
 app.use('/post', postRouter);
