@@ -12,8 +12,13 @@ export const useMarkers = () => {
     setLoading(true);
     setError(null);
     try {
-      const [bars, parties] = await Promise.all([getBars(), getParties()]);
-
+      const [barsResponse, partiesResponse] = await Promise.all([
+        getBars(),
+        getParties(),
+      ]);
+      const bars = Array.isArray(barsResponse) ? barsResponse : [];
+      const parties = Array.isArray(partiesResponse) ? partiesResponse : [];
+      console.log(barsResponse, partiesResponse);
       const combined = [
         ...bars.map((b: any) => ({ ...b, type: "bar" })),
         ...parties.map((p: any) => ({ ...p, type: "party" })),

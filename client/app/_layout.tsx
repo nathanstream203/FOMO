@@ -9,9 +9,6 @@ export default function RootLayout() {
 
       {/* Tabs (home, about, account) live inside a folder `(tabs)` */}
       <Stack.Screen name="(tabs)" />
-
-      {/* Additional screens */}
-      <Stack.Screen name="MapPicker" />
     </Stack>
   );
 }

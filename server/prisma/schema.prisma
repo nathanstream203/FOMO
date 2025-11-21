@@ -59,7 +59,6 @@ model Party {
   end_time String
   longitude Decimal
   latitude Decimal
-  address String
 
   user User @relation(fields: [user_id], references: [id])
 }
