@@ -1,7 +1,13 @@
-import { verifyToken } from "../utils/auth";
+import { verifyToken } from "../utils/auth.js";
 
 export async function authenticateToken(req, res, next) {
     try {
+
+        // Skips the login routes
+        if(req.path === '/auth') {
+            return next();
+        }
+
         const header = req.header.authorization;
         if(!header) { return res.status(401).json({ error: "Not authorized" })};
 
