@@ -100,17 +100,31 @@ export const getAllUsers = async () => {
 };
 
 // Get a single user profile by Firebase UID
-export const getUserByFirebaseId = async (firebase_id) => {
+export const getUserByFirebaseId = async (firebase_id, JWT_token) => {
   try {
-    console.log(BASE_URL);
-    const response = await fetch(`${BASE_URL}/user`);
+    const response = await fetch(`${BASE_URL}/user`, {
+      method: 'GET',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${JWT_token}`
+      },
+    });
+    console.log(response);
+    
+    if (!response.ok) {
+      throw new Error(`Server returned ${response.status}`);
+    }
+
     const users = await response.json();
     return users.find((u) => u.firebase_id === firebase_id) || null;
+
   } catch (error) {
     console.error('Error fetching user by Firebase ID:', error);
     throw error;
   }
 };
+
+
 
 // Create new user in 
 export const postNewUser = async (firebase_id, first_name, last_name, birth_date, role_id = 1) => {

@@ -16,7 +16,7 @@ import {
 } from "react-native";
 import { auth } from "../../src/firebaseConfig";
 import { Colors } from "../../src/styles/colors";
-import { saveATokenWithDate, getAToken } from "../../src/tokenStorage.js";
+import { saveAToken, getAToken } from "../../src/tokenStorage.js";
 import BASE_URL from '../../src/_base_url';
 
 export default function SignInScreen() {
@@ -55,15 +55,16 @@ export default function SignInScreen() {
     }
 
     const JWT_accessToken = await res.json();
-    await saveATokenWithDate(JWT_accessToken);
-    const verifyToken = await getAToken();
-    
-    if (verifyToken) {
+    await saveAToken(JWT_accessToken);
+
+    const verifiedToken = await getAToken();
+    if (verifiedToken) {
       setUser(user);
       router.replace("/(tabs)");
     } else {
       throw new Error("Failed to store access token");
     }
+    
   } catch (error: any) {
     console.error(error);
     Alert.alert("Login Error", error.message || "Could not sign in");
