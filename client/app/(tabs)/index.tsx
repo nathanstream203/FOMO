@@ -8,6 +8,7 @@ import { barImages } from "../../src/barImages.js";
 import { mapStyle } from "../../src/styles/mapStyles";
 import { useLocation } from "../../src/hooks/useLocation";
 import { findNearbyBar } from "../../src/hooks/findNearbyBars";
+import { getAToken } from "../../src/tokenStorage";
 
 interface BarLocation {
   id: string;
@@ -31,7 +32,8 @@ export default function HomeScreen() {
     const fetchBars = async () => {
       setLoading(true);
       try {
-        const data = await getBars();
+        const JWT_token = await getAToken();
+        const data = await getBars(JWT_token);
         setMarkers(data);
 
         console.log("Fetched bars:", data);

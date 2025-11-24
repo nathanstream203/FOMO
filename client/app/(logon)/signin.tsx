@@ -16,7 +16,7 @@ import {
 } from "react-native";
 import { auth } from "../../src/firebaseConfig";
 import { Colors } from "../../src/styles/colors";
-import { saveATokenWithDate, getAToken } from "../../src/tokenStorage.js";
+import { saveAToken, getAToken, clearAToken } from "../../src/tokenStorage.js";
 import BASE_URL from '../../src/_base_url';
 
 export default function SignInScreen() {
@@ -39,10 +39,7 @@ export default function SignInScreen() {
       return;
     }
 
-    // get firebase ID token (short-lived)
     const firebase_token = await user.getIdToken();
-
-    // Send ID token to backend for verification and to get JWT tokens
     const res = await fetch(`${BASE_URL}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -55,15 +52,16 @@ export default function SignInScreen() {
     }
 
     const JWT_accessToken = await res.json();
-    await saveATokenWithDate(JWT_accessToken);
-    const verifyToken = await getAToken();
-    
-    if (verifyToken) {
+    await saveAToken(JWT_accessToken.token);
+    const verifiedToken = await getAToken(); // ADD BACKEND VERIFICATION FOR HERE
+
+    if (verifiedToken) {
       setUser(user);
       router.replace("/(tabs)");
     } else {
       throw new Error("Failed to store access token");
     }
+
   } catch (error: any) {
     console.error(error);
     Alert.alert("Login Error", error.message || "Could not sign in");
@@ -140,6 +138,10 @@ export default function SignInScreen() {
 
           <Pressable style={styles.buttonPrimary} onPress={byPass}>
             <Text style={styles.buttonText}>Sign In - BYPASS</Text>
+          </Pressable>
+
+          <Pressable style={styles.buttonPrimary} onPress={clearAToken}>
+            <Text style={styles.buttonText}>Clear Stored Tokens</Text>
           </Pressable>
 
           <View style={styles.buttonSecondary}>
