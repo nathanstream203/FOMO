@@ -13,8 +13,9 @@ export function useAuthBootstrap() {
     async function init() {
       console.log("Bootstrapping auth state");
       const accessToken = await getAToken();
-      console.log("Retrieved access token from storage:", accessToken);
+      console.log("Retrieved access token from storage");
 
+      // Currently, we just check if the access token exists. -> NEED BACKEN TOKEN VERIFICATION
       if (!accessToken) {
         setLoading(false);
         setLoggedIn(false);

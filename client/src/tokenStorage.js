@@ -10,13 +10,11 @@ import * as SecureStore from "expo-secure-store";
  * --------------------------
  */
 export async function saveAToken(accessToken) {
-  await SecureStore.setItemAsync("accessToken", accessToken.token);
-  console.log("Access token saved");
+  await SecureStore.setItemAsync("accessToken", accessToken);
 }
 
 export async function saveRToken(refreshToken) {
-  await SecureStore.setItemAsync("refreshToken", refreshToken.token);
-  console.log("Refresh token saved");
+  await SecureStore.setItemAsync("refreshToken", refreshToken);
 }
 
 /**
@@ -33,17 +31,6 @@ export async function getAToken() {
         return null;
     }
 
-    // TOKEN VERIFICATION
-    /*
-    try {
-      const decoded = verifyToken(aToken);
-      console.log("Token valid:", decoded);
-    } catch (err) {
-      console.log("Token invalid or expired:", err.name);
-      return null;
-    }
-      */
-    // Return token if valid
     return aToken;
 }
 

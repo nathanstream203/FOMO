@@ -13,7 +13,13 @@ import BASE_URL from '../../src/_base_url.js';
 export const testConnection = async () => {
   try {
     console.log('Testing connection to:', BASE_URL);
-    const response = await fetch(`${BASE_URL}/user`);
+    const response = await fetch(`${BASE_URL}/`, {
+      method: 'GET',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${JWT_token}`
+      },
+    });
 
     if (response.ok) {
       console.log('Connection successful:', BASE_URL);
@@ -35,11 +41,13 @@ export const testConnection = async () => {
  */
 
 // Create new post in database
-export const postNewPost = async (firebase_id, bar_id, content, timestamp) => {
+export const postNewPost = async (firebase_id, bar_id, content, timestamp, JWT_token) => {
   try {
     const response = await fetch(`${BASE_URL}/post`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json',
+                 'Authorization': `Bearer ${JWT_token}`
+       },
       body: JSON.stringify({
         firebase_id,
         bar_id,
@@ -58,9 +66,15 @@ export const postNewPost = async (firebase_id, bar_id, content, timestamp) => {
 };
 
 // Get all posts
-export const getAllPosts = async () => {
+export const getAllPosts = async (JWT_token) => {
   try {
-    const response = await fetch(`${BASE_URL}/post`);
+    const response = await fetch(`${BASE_URL}/post`, {
+      method: 'GET',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${JWT_token}`
+      },
+    });
     if (!response.ok) throw new Error(`Failed to fetch users: ${response.status}`);
     return await response.json();
   } catch (error) {
@@ -70,9 +84,15 @@ export const getAllPosts = async () => {
 };
 
 // Get posts for a specific bar
-export const getPostsByBarId = async (bar_id) => {
+export const getPostsByBarId = async (bar_id, JWT_token) => {
   try {
-    const response = await fetch(`${BASE_URL}/post`);
+    const response = await fetch(`${BASE_URL}/post`, {
+      method: 'GET',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${JWT_token}`
+      },
+    });
     const posts = await response.json();
     return posts.filter((post) => post.bar_id === bar_id);
   } catch (error) {
@@ -88,9 +108,16 @@ export const getPostsByBarId = async (bar_id) => {
  */
 
 // Get all users
-export const getAllUsers = async () => {
+export const getAllUsers = async (JWT_token) => {
   try {
-    const response = await fetch(`${BASE_URL}/user`);
+    const response = await fetch(`${BASE_URL}/user`, {
+      method: 'GET',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${JWT_token}`
+      },
+    });
+    console.log(response);
     if (!response.ok) throw new Error(`Failed to fetch users: ${response.status}`);
     return await response.json();
   } catch (error) {
@@ -110,7 +137,7 @@ export const getUserByFirebaseId = async (firebase_id, JWT_token) => {
       },
     });
     console.log(response);
-    
+
     if (!response.ok) {
       throw new Error(`Server returned ${response.status}`);
     }
@@ -125,6 +152,7 @@ export const getUserByFirebaseId = async (firebase_id, JWT_token) => {
 };
 
 
+// LOOK INTO NEW USER AUTHORIZATION FLOW
 
 // Create new user in 
 export const postNewUser = async (firebase_id, first_name, last_name, birth_date, role_id = 1) => {
@@ -151,9 +179,10 @@ export const postNewUser = async (firebase_id, first_name, last_name, birth_date
 };
 
 // Update existing user
+/*
 export const updateUser = async (firebase_id, updates) => {
   try {
-    const response = await fetch(`${BASE_URL}/users/update`, {
+    const response = await fetch(`${BASE_URL}/user`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ firebase_id, updates }),
@@ -167,6 +196,7 @@ export const updateUser = async (firebase_id, updates) => {
     throw error;
   }
 };
+*/
 
 /**
  * --------------------------
@@ -175,11 +205,13 @@ export const updateUser = async (firebase_id, updates) => {
  */
 
 // Post a new location/marker
-export const postNewLocation = async (firebase_id, latitude, longitude, name, description) => {
+export const postNewLocation = async (firebase_id, latitude, longitude, name, description, JWT_token) => {
   try {
     const response = await fetch(`${BASE_URL}/location`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json',
+                 'Authorization': `Bearer ${JWT_token}`
+       },
       body: JSON.stringify({
         firebase_id,
         latitude,
@@ -199,9 +231,15 @@ export const postNewLocation = async (firebase_id, latitude, longitude, name, de
 };
 
 // Get a single bar location by id
-export const getBars = async () => {
+export const getBars = async (JWT_token) => {
   try {
-    const response = await fetch(`${BASE_URL}/location/bar`);
+    const response = await fetch(`${BASE_URL}/location/bar`, {
+      method: 'GET',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${JWT_token}`
+      },
+    });
     const bars = await response.json();
     return bars || null;
   } catch (error) {
