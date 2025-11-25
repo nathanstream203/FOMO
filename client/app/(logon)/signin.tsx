@@ -16,7 +16,7 @@ import {
 } from "react-native";
 import { auth } from "../../src/firebaseConfig";
 import { Colors } from "../../src/styles/colors";
-import { saveAToken, getAToken, clearAToken } from "../../src/tokenStorage.js";
+import { saveAToken, clearAToken, verifyToken } from "../../src/tokenStorage.js";
 import BASE_URL from '../../src/_base_url';
 
 export default function SignInScreen() {
@@ -53,9 +53,9 @@ export default function SignInScreen() {
 
     const JWT_accessToken = await res.json();
     await saveAToken(JWT_accessToken.token);
-    const verifiedToken = await getAToken(); // ADD BACKEND VERIFICATION FOR HERE
+    const data = await verifyToken();
 
-    if (verifiedToken) {
+    if (data.valid) {
       setUser(user);
       router.replace("/(tabs)");
     } else {
