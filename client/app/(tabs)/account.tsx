@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import { auth } from "../../src/firebaseConfig";
 import { getUserByFirebaseId } from "../../src/api/databaseOperations";
-import { getAToken, clearAToken } from "../../src/tokenStorage";
+import { getAToken, clearAToken  } from "../../src/tokenStorage";
 
 interface DatabaseUser {
   firebase_id: string;

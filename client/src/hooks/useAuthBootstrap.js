@@ -1,8 +1,6 @@
 // client/app/hooks/useAuthBootstrap.js
-// Hook to bootstrap authentication state on app launch - checks for valid refresh token
-// Maintains loading and loggedIn state across app relaunching.
 import { useEffect, useState } from "react";
-import { getAToken } from "../../src/tokenStorage";
+import { clearAToken, getAToken, verifyToken } from "../../src/tokenStorage";
 
 export function useAuthBootstrap() {
   const [loading, setLoading] = useState(true);
@@ -15,13 +13,26 @@ export function useAuthBootstrap() {
       const accessToken = await getAToken();
       console.log("Retrieved access token from storage");
 
-      // Currently, we just check if the access token exists. -> NEED BACKEN TOKEN VERIFICATION
       if (!accessToken) {
         setLoading(false);
         setLoggedIn(false);
         return;
       } else {
-        setLoggedIn(true);
+
+        const data = await verifyToken();
+        if (!data.valid) {
+          if (data.error === "Token expired") {
+            console.error(data.error);
+          } else if (data.error === "Token invalid") {
+            console.error(data.error);
+          } else {
+            console.error("Unknown token verification error");
+          }
+
+          clearAToken();
+        }
+
+        setLoggedIn(data.valid);
         setLoading(false);
         return;
       }
