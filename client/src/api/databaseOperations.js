@@ -41,7 +41,7 @@ export const testConnection = async () => {
  */
 
 // Create new post in database
-export const postNewPost = async (firebase_id, bar_id, content, timestamp, JWT_token) => {
+export const postNewPost = async (user_id, bar_id, content, timestamp, JWT_token) => {
   try {
     const response = await fetch(`${BASE_URL}/post`, {
       method: 'POST',
@@ -49,7 +49,7 @@ export const postNewPost = async (firebase_id, bar_id, content, timestamp, JWT_t
                  'Authorization': `Bearer ${JWT_token}`
        },
       body: JSON.stringify({
-        firebase_id,
+        user_id,
         bar_id,
         content,
         timestamp

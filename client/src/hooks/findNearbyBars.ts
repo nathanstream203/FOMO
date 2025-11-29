@@ -23,6 +23,11 @@ export function findNearbyBar(
         { latitude: location.latitude, longitude: location.longitude },
         { latitude: Number(bar.latitude), longitude: Number(bar.longitude) }
       );
+      // Debug log
+      console.log(
+        `User is ${distance} meters from bar "${bar.name}"`
+      );
+
       return distance <= radius;
     }) || null
   );

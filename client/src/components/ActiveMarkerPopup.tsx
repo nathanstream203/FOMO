@@ -58,7 +58,7 @@ export default function ActiveMarkerPopup({
           styles={popupStyles}
         />
       ) : (
-        <LiveFeedTab isCheckedIn={isCheckedIn} />
+        <LiveFeedTab isCheckedIn={isCheckedIn} barId={activeMarker.id} />
       )}
     </View>
   );
