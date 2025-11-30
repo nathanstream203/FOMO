@@ -30,4 +30,44 @@ router.post("/login", async (req, res) => {
     }
 })
 
+router.post("/verify", async (req, res) => {
+    try {
+        const header = req.headers.authorization;
+        if(!header) { return res.status(401).json({ 
+            valid: false,
+            error: "Not authorized" })
+        }
+
+        const token = header.split(" ")[1];
+        const decoded = verifyToken(token); // If verification fails, it will throw an error and be caught below
+
+        if (decoded.type !== "access") {
+            return res.status(403).json({ 
+                valid: false,
+                error: "Invalid token" });
+        }
+
+        return res.json({
+            valid: true,
+            message: "Token is valid",
+            firebase_id: decoded.firebase_id
+        }); 
+    } catch (err) {
+        if (err.name === "TokenExpiredError") {
+            return res.status(401).json({
+                valid: false,
+                error: "Token expired",
+                expiredAt: err.expiredAt
+            });
+        }
+
+        if (err.name === "JsonWebTokenError") {
+            return res.status(401).json({
+                valid: false,
+                error: "Token invalid"
+            });
+        }
+    } 
+})
+
 export default router;

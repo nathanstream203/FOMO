@@ -4,6 +4,7 @@ import { View, Text, StyleSheet } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Tabs } from "expo-router";
 import { Colors } from "../../src/styles/colors";
+import { useValidateToken } from "../../src/hooks/useValidateToken";
 
 const HeaderPoints = () => {
   const userPoints = 1234;
@@ -21,6 +22,8 @@ const HeaderPoints = () => {
 };
 
 export default function TabLayout() {
+  useValidateToken();
+  
   return (
     <Tabs
       screenOptions={{
