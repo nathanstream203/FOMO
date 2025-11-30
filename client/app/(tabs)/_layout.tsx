@@ -21,6 +21,21 @@ const HeaderPoints = () => {
   );
 };
 
+const HeaderPoints = () => {
+  const userPoints = 1234;
+  return (
+  <View style={styles.pointsBubble}>
+    <Ionicons
+    name="server"
+    size={16}
+    color={Colors.secondaryLight}
+    style={{ marginRight: 4}}
+    />
+    <Text style={styles.pointsText}>{userPoints}</Text>
+  </View>
+  );
+};
+
 export default function TabLayout() {
   useValidateToken();
   
