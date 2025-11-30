@@ -178,14 +178,15 @@ export const postNewUser = async (firebase_id, first_name, last_name, birth_date
   }
 };
 
-// Update existing user
-/*
-export const updateUser = async (firebase_id, updates) => {
+// Update existing user info in database based off firebase_id
+export const updateUser = async (userData, JWT_token) => {
   try {
     const response = await fetch(`${BASE_URL}/user`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ firebase_id, updates }),
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json',
+                 'Authorization': `Bearer ${JWT_token}`
+       },
+      body: JSON.stringify(userData),
     });
 
     const data = await response.json();
@@ -196,7 +197,6 @@ export const updateUser = async (firebase_id, updates) => {
     throw error;
   }
 };
-*/
 
 /**
  * --------------------------
