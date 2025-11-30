@@ -48,6 +48,7 @@ export default function MapSection({
       minZoomLevel={14}
       maxZoomLevel={18}
       toolbarEnabled={false}
+      showsMyLocationButton={false}
     >
       {/* Example circle around a fixed location */}
       <Circle
@@ -75,7 +76,11 @@ export default function MapSection({
           >
             <View
               style={{
-                backgroundColor: isActive ? Colors.secondary : Colors.primary,
+                backgroundColor: isActive
+                  ? Colors.secondary
+                  : marker.type === "party"
+                  ? Colors.party // some color for party
+                  : Colors.bar, // some color for bar
                 borderRadius: 20,
                 borderColor: "#fff",
                 borderWidth: 1,
@@ -84,7 +89,11 @@ export default function MapSection({
                 alignItems: "center",
               }}
             >
-              <Ionicons name="beer-outline" size={18} color="white" />
+              <Ionicons
+                name={marker.type === "party" ? "home-outline" : "beer-outline"}
+                size={18}
+                color="white"
+              />
             </View>
           </Marker>
         );

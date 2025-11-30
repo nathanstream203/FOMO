@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, Image, ScrollView, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Bar } from "../types"; // optional: your marker type
+import { Colors } from "../styles/colors";
 
 interface BarDetailsTabProps {
   activeMarker: Bar;
@@ -69,15 +70,27 @@ const BarDetailsTab: React.FC<BarDetailsTabProps> = ({
           <TouchableOpacity
             style={[
               styles.checkInButton,
-              canCheckIn ? styles.buttonEnabled : styles.buttonDisabled,
+              {
+                backgroundColor: isCheckedIn
+                  ? Colors.green
+                  : canCheckIn
+                  ? styles.buttonEnabled.backgroundColor
+                  : styles.buttonDisabled.backgroundColor,
+              },
             ]}
-            disabled={!canCheckIn}
+            disabled={isCheckedIn || !canCheckIn}
             onPress={handleCheckIn}
           >
             <Text
               style={[
                 styles.buttonText,
-                !canCheckIn && styles.buttonTextDisabled,
+                {
+                  color: isCheckedIn
+                    ? styles.buttonTextCheckedIn.color // text on green button
+                    : canCheckIn
+                    ? styles.buttonText.color // text on blue button
+                    : styles.buttonTextDisabled.color, // text on disabled button
+                },
               ]}
             >
               {isCheckedIn

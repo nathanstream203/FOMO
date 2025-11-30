@@ -1,6 +1,6 @@
 // utils/findNearbyBar.ts
 import { getDistance } from "geolib";
-import { BarLocation } from "../types"; // make sure you have this type
+import { Marker } from "../types"; // make sure you have this type
 
 interface LocationCoords {
   latitude: number;
@@ -12,9 +12,9 @@ interface LocationCoords {
  */
 export function findNearbyBar(
   location: LocationCoords | null,
-  markers: BarLocation[],
+  markers: Marker[],
   radius = 10
-): BarLocation | null {
+): Marker | null {
   if (!location) return null;
 
   return (

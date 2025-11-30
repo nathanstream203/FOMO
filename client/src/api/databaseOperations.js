@@ -1,7 +1,7 @@
 // databaseOperations.js
 // Centralized API helper for your React Native frontend
 
-import BASE_URL from '../../src/_base_url.js';
+import BASE_URL from "../../src/_base_url.js";
 
 /**
  * --------------------------
@@ -22,14 +22,17 @@ export const testConnection = async () => {
     });
 
     if (response.ok) {
-      console.log('Connection successful:', BASE_URL);
+      console.log("Connection successful:", BASE_URL);
       return true;
     } else {
-      console.warn('Server responded but some problems were found:', response.status);
+      console.warn(
+        "Server responded but some problems were found:",
+        response.status
+      );
       return false;
     }
   } catch (error) {
-    console.error('Cannot connect to server:', error.message);
+    console.error("Cannot connect to server:", error.message);
     return false;
   }
 };
@@ -52,15 +55,15 @@ export const postNewPost = async (firebase_id, bar_id, content, timestamp, JWT_t
         firebase_id,
         bar_id,
         content,
-        timestamp
+        timestamp,
       }),
     });
 
     const data = await response.json();
-    if (!response.ok) throw new Error(data.Error || 'Failed to create user');
+    if (!response.ok) throw new Error(data.Error || "Failed to create user");
     return data;
   } catch (error) {
-    console.error('Error posting new post in database:', error);
+    console.error("Error posting new post in database:", error);
     throw error;
   }
 };
@@ -78,7 +81,7 @@ export const getAllPosts = async (JWT_token) => {
     if (!response.ok) throw new Error(`Failed to fetch users: ${response.status}`);
     return await response.json();
   } catch (error) {
-    console.error('Error fetching users:', error);
+    console.error("Error fetching users:", error);
     throw error;
   }
 };
@@ -121,7 +124,7 @@ export const getAllUsers = async (JWT_token) => {
     if (!response.ok) throw new Error(`Failed to fetch users: ${response.status}`);
     return await response.json();
   } catch (error) {
-    console.error('Error fetching users:', error);
+    console.error("Error fetching users:", error);
     throw error;
   }
 };
@@ -146,7 +149,7 @@ export const getUserByFirebaseId = async (firebase_id, JWT_token) => {
     return users.find((u) => u.firebase_id === firebase_id) || null;
 
   } catch (error) {
-    console.error('Error fetching user by Firebase ID:', error);
+    console.error("Error fetching user by Firebase ID:", error);
     throw error;
   }
 };
@@ -158,22 +161,22 @@ export const getUserByFirebaseId = async (firebase_id, JWT_token) => {
 export const postNewUser = async (firebase_id, first_name, last_name, birth_date, role_id = 1) => {
   try {
     const response = await fetch(`${BASE_URL}/user`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         firebase_id,
         first_name,
         last_name,
         birth_date,
-        role_id
+        role_id,
       }),
     });
 
     const data = await response.json();
-    if (!response.ok) throw new Error(data.Error || 'Failed to create user');
+    if (!response.ok) throw new Error(data.Error || "Failed to create user");
     return data;
   } catch (error) {
-    console.error('Error posting new user:', error);
+    console.error("Error posting new user:", error);
     throw error;
   }
 };
@@ -190,10 +193,10 @@ export const updateUser = async (userData, JWT_token) => {
     });
 
     const data = await response.json();
-    if (!response.ok) throw new Error(data.Error || 'Failed to update user');
+    if (!response.ok) throw new Error(data.Error || "Failed to update user");
     return data;
   } catch (error) {
-    console.error('Error updating user:', error);
+    console.error("Error updating user:", error);
     throw error;
   }
 };
@@ -213,19 +216,33 @@ export const postNewLocation = async (firebase_id, latitude, longitude, name, de
                  'Authorization': `Bearer ${JWT_token}`
        },
       body: JSON.stringify({
-        firebase_id,
-        latitude,
-        longitude,
         name,
         description,
+        address,
+        start_time,
+        end_time,
+        user_id,
+        longitude,
+        latitude,
       }),
     });
 
+    console.log("Response status:", response.status);
+    console.log("Response ok:", response.ok);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Error response:", errorText);
+      throw new Error(
+        `Failed to create party: ${response.status} - ${errorText}`
+      );
+    }
+
     const data = await response.json();
-    if (!response.ok) throw new Error(data.Error || 'Failed to post new location');
+    console.log("Success response:", data);
     return data;
   } catch (error) {
-    console.error('Error posting new location:', error);
+    console.error("postNewParty error:", error);
     throw error;
   }
 };
@@ -243,7 +260,19 @@ export const getBars = async (JWT_token) => {
     const bars = await response.json();
     return bars || null;
   } catch (error) {
-    console.error('Error fetching bars', error);
+    console.error("Error fetching bars", error);
+    throw error;
+  }
+};
+
+// Get a single bar location by id
+export const getParties = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/location/party`);
+    const parties = await response.json();
+    return parties || null;
+  } catch (error) {
+    console.error("Error fetching parties", error);
     throw error;
   }
 };
