@@ -16,8 +16,7 @@ import { mapStyle } from "../../src/styles/mapStyles";
 import { useLocation } from "../../src/hooks/useLocation";
 import { useMarkers } from "../../src/hooks/useMarkers";
 import { findNearbyBar } from "../../src/hooks/findNearbyBars";
-import Modal from "react-native-modal";
-import { Ionicons } from "@expo/vector-icons";
+import { getAToken } from "../../src/tokenStorage";
 
 export default function HomeScreen() {
   const [activeMarker, setActiveMarker] = useState<any | null>(null);
@@ -40,17 +39,22 @@ export default function HomeScreen() {
 
   // Fetch bar and party locations from the database
   useEffect(() => {
-    // Fetch initially
-    fetchMarkers();
+    const fetchBars = async () => {
+      setLoading(true);
+      try {
+        const JWT_token = await getAToken();
+        const data = await getBars(JWT_token);
+        setMarkers(data);
 
-    // Set up interval to fetch every 1 minutes
-    const interval = setInterval(() => {
-      console.log("Refreshing locations...");
-      fetchMarkers();
-    }, 60 * 1000); // 1 minutes in milliseconds
+        console.log("Fetched bars:", data);
+      } catch (err) {
+        console.error("Error fetching bars:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    // Clean up interval on unmount
-    return () => clearInterval(interval);
+    fetchBars();
   }, []);
 
   // Check for nearby bars

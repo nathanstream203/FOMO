@@ -8,7 +8,7 @@ export async function authenticateToken(req, res, next) {
             return next();
         }
 
-        const header = req.header.authorization;
+        const header = req.headers.authorization;
         if(!header) { return res.status(401).json({ error: "Not authorized" })};
 
         const token = header.split(" ")[1];

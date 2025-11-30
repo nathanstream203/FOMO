@@ -13,12 +13,18 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+// Public routes
+app.use('/auth', authRouter); 
+
+// Apply authentication middleware to all routes below
 app.use('/', authenticateToken);
+
+// Protected routes
 app.use('/user', userRouter);
 app.use('/location', locationRouter);
 app.use('/post', postRouter);
 app.use('/points', pointsRouter);
-app.use('/auth', authRouter);
 
 // Default route
 app.get('/', (req,res) => {
