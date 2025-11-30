@@ -1,6 +1,6 @@
 # FOMO
 
-## Setting up local dev invironment
+## Setting up local dev environment
 
 This repository functions as a mono repo. The client and server directories function as two separate projects. You must run commands from the respective directory. 
 

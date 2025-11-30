@@ -12,8 +12,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { auth } from "../(logon)/firebaseConfig";
-import { getUserByFirebaseId } from "../api/databaseOperations";
+import { auth } from "../../src/firebaseConfig";
+import { getUserByFirebaseId } from "../../src/api/databaseOperations";
+import { getAToken, clearAToken, verifyToken  } from "../../src/tokenStorage";
+import { sendPasswordResetEmail } from "firebase/auth";
+import { Alert } from "react-native";
+
 
 interface DatabaseUser {
   firebase_id: string;
@@ -31,12 +35,44 @@ export default function AccountScreen() {
 
   const signOutUser = async () => {
     try {
+      await clearAToken();
       await signOut(auth);
       router.replace("/signin");
     } catch (error) {
       console.error("Error signing out: ", error);
     }
   };
+
+  // Function to send password reset email through firebase
+  const resetUserPassword = async () => {
+  try {
+    if (!user?.email) {
+      return Alert.alert("Error", "No email address found for this account.");
+    }
+    await sendPasswordResetEmail(auth, user.email);
+
+    Alert.alert(
+      "Password Reset Email Sent",
+      `A reset link has been sent to:\n\n${user.email} \n You will now be redirected to sign in.`,
+      [{ text: "OK",
+        onPress: () => { 
+          signOutUser();
+        }
+       }]
+    );
+
+  } catch (error: any) {
+    console.error("Password reset error:", error);
+    let message = "An error occurred while sending the reset email.";
+    if (error.code === "auth/invalid-email") {
+      message = "The email address is invalid.";
+    } else if (error.code === "auth/user-not-found") {
+      message = "No user exists with this email.";
+    }
+
+    Alert.alert("Error", message);
+  }
+};
 
   const reloadUserData = async () => {
     if (auth.currentUser) {
@@ -45,26 +81,42 @@ export default function AccountScreen() {
     }
   };
 
-  React.useEffect(() => {
-    if (user?.uid) {
-      reloadUserData();
-    }
+  const fetchDatabaseUser = async () => {
+  if (!user?.uid) return;
 
-    const fetchUserData = async () => {
-      if (user?.uid) {
-        setDbLoading(true);
-        try {
-          const userData = await getUserByFirebaseId(user.uid);
-          setDbUser(userData);
-        } catch (err) {
-          console.error("Error fetching user from DB:", err);
-        } finally {
-          setDbLoading(false);
-        }
-      }
-    };
-    fetchUserData();
-  }, [user]);
+  setDbLoading(true);
+  try {
+    const token = await getAToken();
+    const data = await verifyToken();
+    const userData = await getUserByFirebaseId(data.firebase_id, token);
+    setDbUser(userData);
+    console.log("DB User refreshed:", userData);
+  } catch (err) {
+    console.error("Error fetching user from DB:", err);
+  } finally {
+    setDbLoading(false);
+  }
+};
+
+  React.useEffect(() => {
+  if (!user?.uid) return;
+
+  // Load data immediately
+  reloadUserData();
+  fetchDatabaseUser();
+
+  // Auto-refresh every 60 seconds
+  const interval = setInterval(() => {
+    console.log("Auto refreshing user data...");
+    reloadUserData();
+    fetchDatabaseUser();
+  }, 60000);
+
+  // Cleanup interval on unmount
+  return () => clearInterval(interval);
+}, [user]);
+
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -137,17 +189,28 @@ export default function AccountScreen() {
 
       {/* Buttons */}
       <TouchableOpacity
-        style={[styles.button, { backgroundColor: "#299c63ff" }]}
-        onPress={reloadUserData}
+        style={[styles.button, { backgroundColor: "#4e9af1" }]}
+        onPress={async () => {
+          await reloadUserData();    // Reload Firebase user
+          await fetchDatabaseUser(); // Reload DB user
+        }}
       >
-        <Text style={styles.buttonText}>Update User Info</Text>
+        <Text style={styles.buttonText}>Refresh</Text>
+      </TouchableOpacity>
+
+
+      <TouchableOpacity
+        style={[styles.button, { backgroundColor: "#251682ff" }]}
+        onPress={() => router.push("../updateUser")}
+      >
+        <Text style={styles.buttonText}>Update Account</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={[styles.button, { backgroundColor: "#4e9af1" }]}
-        onPress={reloadUserData}
+        style={[styles.button, { backgroundColor: "#251682ff" }]}
+        onPress={resetUserPassword}
       >
-        <Text style={styles.buttonText}>Refresh</Text>
+        <Text style={styles.buttonText}>Reset Password</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -251,11 +314,5 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#4e9af1",
     paddingBottom: 5,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#fff",
-    marginBottom: 15,
   },
 });

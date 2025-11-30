@@ -14,8 +14,10 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { auth } from "./firebaseConfig";
-import { Colors } from "../styles/colors";
+import { auth } from "../../src/firebaseConfig";
+import { Colors } from "../../src/styles/colors";
+import { saveAToken, clearAToken, verifyToken } from "../../src/tokenStorage.js";
+import BASE_URL from '../../src/_base_url';
 
 export default function SignInScreen() {
   const [email, setEmail] = React.useState("");
@@ -26,38 +28,52 @@ export default function SignInScreen() {
   const [focusedField, setFocusedField] = React.useState<string | null>(null);
 
   const signIn = async () => {
-    try {
-      setError(null);
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const user = userCredential.user;
+  try {
+    setError(null);
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
 
-      if (!user.emailVerified) {
-        // If not verified, block login and sign out
-        await signOut(auth);
-        Alert.alert(
-          "Email Not Verified",
-          "Please verify your email before logging in. Check your inbox for the verification link."
-        );
-        return;
-      }
-      // If verified, allow access to the app
+    if (!user.emailVerified) {
+      await signOut(auth);
+      Alert.alert("Email Not Verified", "Please verify your email before logging in. Check your inbox for the verification link.");
+      return;
+    }
+
+    const firebase_token = await user.getIdToken();
+    const res = await fetch(`${BASE_URL}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ firebase_token }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || "Login failed on server");
+    }
+
+    const JWT_accessToken = await res.json();
+    await saveAToken(JWT_accessToken.token);
+    const data = await verifyToken();
+
+    if (data.valid) {
       setUser(user);
       router.replace("/(tabs)");
-    } catch (error: any) {
-      console.error(error);
-      Alert.alert("Login Error", error.message);
+    } else {
+      throw new Error("Failed to store access token");
     }
-  };
+
+  } catch (error: any) {
+    console.error(error);
+    Alert.alert("Login Error", error.message || "Could not sign in");
+  }
+};
 
   const byPass = async () => {
     router.replace("/(tabs)");
   };
 
   return (
+
     <KeyboardAvoidingView
       style={{ flex: 1 }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -122,6 +138,10 @@ export default function SignInScreen() {
 
           <Pressable style={styles.buttonPrimary} onPress={byPass}>
             <Text style={styles.buttonText}>Sign In - BYPASS</Text>
+          </Pressable>
+
+          <Pressable style={styles.buttonPrimary} onPress={clearAToken}>
+            <Text style={styles.buttonText}>Clear Stored Tokens</Text>
           </Pressable>
 
           <View style={styles.buttonSecondary}>

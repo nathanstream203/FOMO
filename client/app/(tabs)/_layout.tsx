@@ -3,7 +3,23 @@
 import { View, Text, StyleSheet } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Tabs } from "expo-router";
-import { Colors } from "../styles/colors";
+import { Colors } from "../../src/styles/colors";
+import { useValidateToken } from "../../src/hooks/useValidateToken";
+
+const HeaderPoints = () => {
+  const userPoints = 1234;
+  return (
+  <View style={styles.pointsBubble}>
+    <Ionicons
+    name="server"
+    size={16}
+    color={Colors.secondaryLight}
+    style={{ marginRight: 4}}
+    />
+    <Text style={styles.pointsText}>{userPoints}</Text>
+  </View>
+  );
+};
 
 const HeaderPoints = () => {
   const userPoints = 1234;
@@ -21,10 +37,13 @@ const HeaderPoints = () => {
 };
 
 export default function TabLayout() {
+  useValidateToken();
+  
   return (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors.secondaryLight,
+        tabBarInactiveTintColor: "#ccc",
         headerStyle: {
           backgroundColor: Colors.primary,
         },
@@ -65,7 +84,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="account"
         options={{
-          title: "Account",
+          title: "Profile",
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? "person-circle" : "person-circle-outline"}
