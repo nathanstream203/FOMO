@@ -28,6 +28,7 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors.secondaryLight,
+        tabBarInactiveTintColor: "#ccc",
         headerStyle: {
           backgroundColor: Colors.primary,
         },
@@ -68,7 +69,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="account"
         options={{
-          title: "Account",
+          title: "Profile",
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? "person-circle" : "person-circle-outline"}

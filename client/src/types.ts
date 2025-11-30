@@ -20,6 +20,7 @@ export interface MapSectionProps {
     latitude: number | string;
     longitude: number | string;
     name?: string;
+    type?: "bar" | "party";
   }>;
   activeMarker: any;
   setActiveMarker: (marker: any) => void;
@@ -30,11 +31,10 @@ export interface MapSectionProps {
   setActiveTab?: (tab: "details" | "live") => void; // add this
 }
 
-export interface BarLocation {
-  id: string;
+export interface Marker {
+  id: string | number;
   name: string;
-  address: string;
   latitude: number;
   longitude: number;
-  events?: Event[]; // optional if you track events per bar
+  type: "bar" | "party";
 }

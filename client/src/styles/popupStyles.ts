@@ -94,7 +94,9 @@ export const popupStyles = StyleSheet.create({
     paddingHorizontal: 24,
     alignItems: "center",
   },
-  checkedInButton: { opacity: 0.6 },
+  checkedInButton: {
+    backgroundColor: Colors.green,
+  },
   shareButton: {
     flex: 1,
     borderWidth: 1,
@@ -131,5 +133,8 @@ export const popupStyles = StyleSheet.create({
   },
   buttonTextDisabled: {
     color: "#000",
+  },
+  buttonTextCheckedIn: {
+    color: "#ffffffc8",
   },
 });
