@@ -3,9 +3,12 @@ import { setCustomText, setCustomTextInput } from "react-native-global-props";
 import React, { useState, useEffect } from "react";
 import * as Font from "expo-font";
 import { Stack } from "expo-router";
+import { useAuthBootstrap } from "../src/hooks/useAuthBootstrap";
+import { Redirect } from "expo-router";
 
 export default function RootLayout() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
+  //const { loading, loggedIn } = useAuthBootstrap();
 
   useEffect(() => {
     async function loadFonts() {
@@ -30,7 +33,10 @@ export default function RootLayout() {
 
   if (!fontsLoaded) return null; // show loading if needed
   return (
-    <Stack
+
+    <Stack screenOptions={{ headerShown: false }} />
+
+    /*<Stack
       screenOptions={{
         headerShown: false,
         headerTitleStyle: {
@@ -39,11 +45,7 @@ export default function RootLayout() {
         },
       }}
     >
-      {/* First screen is Logon */}
-      <Stack.Screen name="(logon)/signin" />
-
-      {/* Tabs (home, about, account) live inside a folder `(tabs)` */}
       <Stack.Screen name="(tabs)" />
-    </Stack>
+    </Stack> */
   );
 }

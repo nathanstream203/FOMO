@@ -2,6 +2,7 @@
 // Centralized API helper for your React Native frontend
 
 import BASE_URL from "../../src/_base_url.js";
+console.log("Using BASE_URL:", BASE_URL);
 
 /**
  * --------------------------
