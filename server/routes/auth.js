@@ -6,68 +6,72 @@ import { verifyFirebaseToken } from "../utils/firebase.js";
 const router = express.Router();
 
 router.post("/login", async (req, res) => {
-    try {
-        const { firebase_token } = req.body;
-        if(!firebase_token) { 
-            return res.status(400).json({ error: "Token required"});
-        }
-
-        const decoded = await verifyFirebaseToken(firebase_token);
-
-        const user = await prisma.user.findUnique({
-            where: { firebase_id: decoded.uid }
-        });
-
-        const token = createToken(user.firebase_id);
-
-        return res.json({
-            message: "Login successful",
-            token
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "Server error" });
+  try {
+    const { firebase_token } = req.body;
+    if (!firebase_token) {
+      return res.status(400).json({ error: "Token required" });
     }
-})
+
+    const decoded = await verifyFirebaseToken(firebase_token);
+
+    // 1. Try to find user in local DB
+    const user = await prisma.user.findUnique({
+      where: { firebase_id: decoded.uid },
+    });
+
+    const token = createToken(user.firebase_id);
+
+    return res.json({
+      message: "Login successful",
+      token,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
 router.post("/verify", async (req, res) => {
-    try {
-        const header = req.headers.authorization;
-        if(!header) { return res.status(401).json({ 
-            valid: false,
-            error: "Not authorized" })
-        }
+  try {
+    const header = req.headers.authorization;
+    if (!header) {
+      return res.status(401).json({
+        valid: false,
+        error: "Not authorized",
+      });
+    }
 
-        const token = header.split(" ")[1];
-        const decoded = verifyToken(token); // If verification fails, it will throw an error and be caught below
+    const token = header.split(" ")[1];
+    const decoded = verifyToken(token); // If verification fails, it will throw an error and be caught below
 
-        if (decoded.type !== "access") {
-            return res.status(403).json({ 
-                valid: false,
-                error: "Invalid token" });
-        }
+    if (decoded.type !== "access") {
+      return res.status(403).json({
+        valid: false,
+        error: "Invalid token",
+      });
+    }
 
-        return res.json({
-            valid: true,
-            message: "Token is valid",
-            firebase_id: decoded.firebase_id
-        }); 
-    } catch (err) {
-        if (err.name === "TokenExpiredError") {
-            return res.status(401).json({
-                valid: false,
-                error: "Token expired",
-                expiredAt: err.expiredAt
-            });
-        }
+    return res.json({
+      valid: true,
+      message: "Token is valid",
+      firebase_id: decoded.firebase_id,
+    });
+  } catch (err) {
+    if (err.name === "TokenExpiredError") {
+      return res.status(401).json({
+        valid: false,
+        error: "Token expired",
+        expiredAt: err.expiredAt,
+      });
+    }
 
-        if (err.name === "JsonWebTokenError") {
-            return res.status(401).json({
-                valid: false,
-                error: "Token invalid"
-            });
-        }
-    } 
-})
+    if (err.name === "JsonWebTokenError") {
+      return res.status(401).json({
+        valid: false,
+        error: "Token invalid",
+      });
+    }
+  }
+});
 
 export default router;
