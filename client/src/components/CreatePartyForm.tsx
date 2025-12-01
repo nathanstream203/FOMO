@@ -178,7 +178,6 @@ export default function CreatePartyForm({ onClose, onSubmit }: Props) {
 
       console.log("Party data being sent:", JSON.stringify(partyData, null, 2));
 
-      const token = await getAToken();
       const dbParty = await postNewLocation(partyData, token);
 
       console.log("Party stored in database:", dbParty);
