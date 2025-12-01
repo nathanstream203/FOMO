@@ -17,9 +17,10 @@ import { useLocation } from "../hooks/useLocation";
 import { auth } from "../../src/firebaseConfig";
 import {
   getUserByFirebaseId,
-  postNewParty,
+  postNewLocation,
   testConnection,
 } from "../api/databaseOperations";
+import { getAToken } from "../tokenStorage";
 
 type Props = {
   onClose: () => void;
@@ -172,12 +173,13 @@ export default function CreatePartyForm({ onClose, onSubmit }: Props) {
 
       console.log("Party data being sent:", JSON.stringify(partyData, null, 2));
 
-      const dbParty = await postNewParty(partyData);
+      const token = await getAToken();
+      const dbParty = await postNewLocation(partyData, token);
 
       console.log("Party stored in database:", dbParty);
       Alert.alert("Success", "Party created successfully!");
 
-      // ✅ CALL onSubmit to notify parent component
+      // CALL onSubmit to notify parent component
       // This triggers handlePartyCreated in HomeScreen
       onSubmit(partyData);
 
