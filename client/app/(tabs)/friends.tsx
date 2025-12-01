@@ -287,12 +287,10 @@ export default function FriendsScreen() {
                 },
               ]}
             />
-            {/* FIX 1: Wrap "3 friends are out right now" in <Text> */}
             <Text style={styles.bannerText}>
               {dataLength} friends are out right now
             </Text>
           </View>
-          {/* FIX 2: Wrap "Join them and earn bonus FOMO points!" in <Text> */}
           <Text style={styles.bannerSubtext}>
             Join them and earn bonus FOMO points!
           </Text>
@@ -301,7 +299,6 @@ export default function FriendsScreen() {
     } // Header for Suggestions tab
 
     if (activeTab === "Suggestions") {
-      // FIX 3: Wrap the suggestion header text in <Text>
       return (
         <Text style={styles.suggestionHeader}>
           People you might know based on mutual friends and activity
@@ -335,7 +332,6 @@ export default function FriendsScreen() {
           />
           <Text style={componentStyles.actionButtonText}>Scan Friend Code</Text>
         </TouchableOpacity>
-        {/* FIX 4: Wrap the "-- OR --" text in <Text> */}
         <Text style={[componentStyles.modalSubtitle, { marginBottom: 15 }]}>
           -- OR --
         </Text>
@@ -382,7 +378,7 @@ export default function FriendsScreen() {
           onPress={() => setModalVisible(true)} // Opens modal with both scan/type options
         >
           <Ionicons name="camera-outline" size={20} color={Colors.text} />
-          {/* FIX 5: Wrap "Scan" text in <Text> */}
+          {}
           <Text style={styles.scanButtonText}>Scan</Text>
         </TouchableOpacity>
       </View>
@@ -433,7 +429,7 @@ export default function FriendsScreen() {
   );
 }
 
-// --- Component Styles (For reusable elements like cards and tabs) ---
+// --- Component Styles ---
 
 const componentStyles = StyleSheet.create({
   cardContainer: {
@@ -510,7 +506,7 @@ const componentStyles = StyleSheet.create({
     backgroundColor: Colors.primary,
   },
   joinButton: {
-    backgroundColor: Colors.onlineDot, // Use the online color for 'Join' for emphasis
+    backgroundColor: Colors.onlineDot,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
@@ -524,7 +520,7 @@ const componentStyles = StyleSheet.create({
   },
   tabActive: { backgroundColor: Colors.activeTabBackground },
   tabText: { color: Colors.textFaded, fontSize: 14, fontWeight: "600" },
-  tabTextActive: { color: Colors.text }, // Modal Styles
+  tabTextActive: { color: Colors.text },
   modalOverlay: {
     position: "absolute",
     top: 0,
