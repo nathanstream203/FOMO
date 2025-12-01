@@ -174,12 +174,11 @@ export default function CreatePartyForm({ onClose, onSubmit }: Props) {
         user_id: userDbId,
         longitude: finalLocation.longitude,
         latitude: finalLocation.latitude,
-        JWT_token: token,
       };
 
       console.log("Party data being sent:", JSON.stringify(partyData, null, 2));
 
-      const dbParty = await postNewLocation(partyData);
+      const dbParty = await postNewLocation(partyData, token);
 
       console.log("Party stored in database:", dbParty);
       Alert.alert("Success", "Party created successfully!");
@@ -280,7 +279,7 @@ export default function CreatePartyForm({ onClose, onSubmit }: Props) {
               <TextInput
                 keyboardType="numbers-and-punctuation"
                 onChangeText={setPartyEndTime}
-                placeholder="24:00"
+                placeholder="00:00"
                 style={styles.input}
                 placeholderTextColor="#a388f6"
               />
