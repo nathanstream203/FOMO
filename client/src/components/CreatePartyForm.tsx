@@ -178,12 +178,13 @@ export default function CreatePartyForm({ onClose, onSubmit }: Props) {
 
       console.log("Party data being sent:", JSON.stringify(partyData, null, 2));
 
+      const token = await getAToken();
       const dbParty = await postNewLocation(partyData, token);
 
       console.log("Party stored in database:", dbParty);
       Alert.alert("Success", "Party created successfully!");
 
-      // ✅ CALL onSubmit to notify parent component
+      // CALL onSubmit to notify parent component
       // This triggers handlePartyCreated in HomeScreen
       onSubmit(partyData);
       fetchMarkers();

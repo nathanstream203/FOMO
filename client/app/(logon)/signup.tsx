@@ -19,9 +19,10 @@ import {
   View,
 } from "react-native";
 import { auth } from "../../src/firebaseConfig";
-import { postNewUser, testConnection } from "../../src/api/databaseOperations";
+import { postNewUser } from "../../src/api/databaseOperations";
 import { Colors } from "../../src/styles/colors";
-
+import BASE_URL from "@/src/_base_url";
+import { saveAToken, verifyToken } from "../../src/tokenStorage";
 export default function signUpScreen() {
   const [firstName, setFirstName] = React.useState("");
   const [lastName, setLastName] = React.useState("");
@@ -30,20 +31,6 @@ export default function signUpScreen() {
   const [password, setPassword] = React.useState("");
   const router = useRouter();
 
-  React.useEffect(() => {
-    const checkConnection = async () => {
-      const isConnected = await testConnection();
-      if (!isConnected) {
-        Alert.alert(
-          "Connection Error",
-          "Cannot reach the server. Please check your internet or try again later."
-        );
-      } else {
-        console.log("Server connection verified.");
-      }
-    };
-    checkConnection();
-  }, []);
 
   const signUp = async () => {
     if (!firstName || !lastName || !dateOfBirth || !email || !password) {
@@ -71,28 +58,47 @@ export default function signUpScreen() {
       );
 
       const user = userCredential?.user;
-      const formattedDOB = dateOfBirth.split("/").reverse().join("-"); // "MM/DD/YYYY" -> "YYYY-MM-DD"
       console.log("Creating account for:", user?.email);
 
       if (user) {
-        //POST to database
-        // 2000-01-01T01:01:00.000Z
-        const firebaseUID = user?.uid;
+        const firebaseUID = user.uid;
+        const firebase_token = await user.getIdToken();
+
         const dbDateOfBirth = dateOfBirth + "T00:00:00.000Z";
         await postNewUser(firebaseUID, firstName, lastName, dbDateOfBirth, 1)
           .then((dbUser) => console.log("User stored in database:", dbUser))
-          .catch((err) => console.error("DB Error:", err));
-      }
+          .catch((err) => {
+            console.error("DB Error:", err);
+            throw new Error("Failed to create database user");
+          });
 
-      await sendEmailVerification(user); //send verification email after account created
-      console.log("Verification email sent to:", user.email);
-      await signOut(auth); //sign user out after sending verfication email
-      Alert.alert(
-        "Please Verify Your Email",
-        "A verification email has been sent to your email. Please verify your email"
-      );
+  // 2. THEN log in to get JWT
+  const res = await fetch(`${BASE_URL}/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ firebase_token }),
+  });
 
-      router.replace("/signin");
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || "Login failed on server");
+  }
+
+  const JWT_accessToken = await res.json();
+  await saveAToken(JWT_accessToken.token);
+
+  // 3. Verify token
+  const data = await verifyToken();
+  if (!data.valid) throw new Error("Invalid JWT token after signup");
+
+  // 4. Send email verification
+  await sendEmailVerification(user);
+  await signOut(auth);
+
+  Alert.alert("Please Verify Your Email", "A verification email has been sent.");
+  router.replace("/signin");
+}
+
     } catch (error: any) {
       console.error("Error signing up:", error.message);
       Alert.alert("Error", error.message);

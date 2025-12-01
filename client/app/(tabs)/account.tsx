@@ -32,7 +32,6 @@ export default function AccountScreen() {
   const [dbUser, setDbUser] = React.useState<DatabaseUser | null>(null);
   const [dbLoading, setDbLoading] = React.useState(false);
   const router = useRouter();
-
   const signOutUser = async () => {
     try {
       await clearAToken();

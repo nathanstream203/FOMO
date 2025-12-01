@@ -10,7 +10,7 @@ import BASE_URL from "../../src/_base_url.js";
  */
 
 //Tests if the backend server is reachable. Returns true if connection succeeds, false otherwise.
-export const testConnection = async () => {
+export const testConnection = async (JWT_token) => {
   try {
     console.log("Testing connection to:", BASE_URL);
     const response = await fetch(`${BASE_URL}/`, {
@@ -19,7 +19,7 @@ export const testConnection = async () => {
         "Content-Type": "application/json",
         Authorization: `Bearer ${JWT_token}`,
       },
-    });
+    }); 
 
     if (response.ok) {
       console.log("Connection successful:", BASE_URL);
@@ -162,16 +162,8 @@ export const getUserByFirebaseId = async (firebase_id, JWT_token) => {
   }
 };
 
-// LOOK INTO NEW USER AUTHORIZATION FLOW
-
-// Create new user in
-export const postNewUser = async (
-  firebase_id,
-  first_name,
-  last_name,
-  birth_date,
-  role_id = 1
-) => {
+// Create new user in 
+export const postNewUser = async (firebase_id, first_name, last_name, birth_date, role_id = 1) => {
   try {
     const response = await fetch(`${BASE_URL}/user`, {
       method: "POST",
