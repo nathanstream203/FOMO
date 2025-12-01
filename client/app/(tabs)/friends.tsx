@@ -253,6 +253,249 @@ const TabButton: React.FC<{
 
 // --- Main Screen Component ---
 
+// const Colors = {
+//   background: "#12002f",
+//   primary: "#7C4DFF",
+//   secondary: "#C77DFF",
+//   text: "#FFFFFF",
+//   lightWhite: "#bbbbbb",
+//   tabBackground: "#3e0078",
+//   activeTabBackground: "#5e00b8",
+//   onlineDot: "#4CAF50",
+//   shadowNeon: "rgba(255, 0, 255, 0.4)",
+// };
+
+type TabType = "All Friends" | "Active Now" | "Suggestions";
+
+/**
+ * Interface defining the expected data structure for a User/Friend
+ * once fetched from the database.
+ */
+interface Friend {
+  id: string;
+  name: string;
+  username: string;
+  points: number;
+  statusText: string;
+  action: "View" | "Join" | "Add"; // Determines button text and logic
+  isOnline: boolean;
+  avatarPlaceholder: string; // Used for a simple avatar display
+}
+
+// Mock Data Definition
+const MOCK_FRIENDS_DATA: Record<TabType, Friend[]> = {
+  "All Friends": [
+    {
+      id: "1",
+      name: "Sarah Wilson",
+      username: "@sarahw",
+      points: 3421,
+      statusText: "At The Arena",
+      action: "View",
+      isOnline: true,
+      avatarPlaceholder: "SC",
+    },
+    {
+      id: "2",
+      name: "Mike Torres",
+      username: "@miket",
+      points: 2847,
+      statusText: "At The Arena",
+      action: "View",
+      isOnline: true,
+      avatarPlaceholder: "MT",
+    },
+    {
+      id: "3",
+      name: "Emma Rodriguez",
+      username: "@emmar",
+      points: 4102,
+      statusText: "2h ago",
+      action: "View",
+      isOnline: false,
+      avatarPlaceholder: "ER",
+    },
+    {
+      id: "4",
+      name: "Liam O'Connell",
+      username: "@liamo",
+      points: 1560,
+      statusText: "Yesterday",
+      action: "View",
+      isOnline: false,
+      avatarPlaceholder: "LO",
+    },
+    {
+      id: "5",
+      name: "Chloe Dupont",
+      username: "@chloed",
+      points: 520,
+      statusText: "3d ago",
+      action: "View",
+      isOnline: false,
+      avatarPlaceholder: "CD",
+    },
+  ],
+  "Active Now": [
+    {
+      id: "1",
+      name: "Sarah Wilson",
+      username: "@sarahw",
+      points: 3421,
+      statusText: "At Silver Dollar",
+      action: "Join",
+      isOnline: true,
+      avatarPlaceholder: "SC",
+    },
+    {
+      id: "2",
+      name: "Mike Torres",
+      username: "@miket",
+      points: 2847,
+      statusText: "At The Market",
+      action: "Join",
+      isOnline: true,
+      avatarPlaceholder: "MT",
+    },
+  ],
+  Suggestions: [
+    {
+      id: "7",
+      name: "Alex Kim",
+      username: "@alexk",
+      points: 2134,
+      statusText: "5 mutual friends",
+      action: "Add",
+      isOnline: false,
+      avatarPlaceholder: "AK",
+    },
+    {
+      id: "8",
+      name: "Jordan Lee",
+      username: "@jordanl",
+      points: 1876,
+      statusText: "3 mutual friends",
+      action: "Add",
+      isOnline: false,
+      avatarPlaceholder: "JL",
+    },
+  ],
+};
+
+// Update data references
+const friendsData = MOCK_FRIENDS_DATA;
+
+const TAB_COUNTS: Record<TabType, number> = {
+  "All Friends": friendsData["All Friends"].length, // Should be 5
+  "Active Now": friendsData["Active Now"].length, // Should be 2
+  Suggestions: friendsData["Suggestions"].length, // Should be 2
+};
+
+const AvatarPlaceholder = ({ letter }: { letter: string }) => (
+  <View style={componentStyles.avatar}>
+    <Text style={componentStyles.avatarText}>{letter}</Text>
+  </View>
+);
+
+const FriendCard: React.FC<{ friend: Friend }> = ({ friend }) => {
+  const isSuggestion = friend.action === "Add";
+  const isJoinButton = friend.action === "Join";
+
+  return (
+    <View style={componentStyles.cardContainer}>
+      <View style={componentStyles.avatarWrapper}>
+        <AvatarPlaceholder letter={friend.avatarPlaceholder} />
+        {/* Only show online dot if isOnline is true AND action is not 'Add' (suggestions are usually not 'online') */}
+        {friend.isOnline && !isSuggestion && (
+          <View style={componentStyles.onlineDot} />
+        )}
+      </View>
+      <View style={componentStyles.cardContent}>
+        <View style={componentStyles.nameRow}>
+          <Text style={componentStyles.friendName}>{friend.name}</Text>
+          {/* Fire Icon for points/activity */}
+          <View style={componentStyles.pointsContent}>
+            <MaterialCommunityIcons
+              name="fire"
+              size={16}
+              color={Colors.secondary}
+            />
+            <Text style={componentStyles.points}>{friend.points}</Text>
+          </View>
+        </View>
+        <Text style={componentStyles.friendUsername}>{friend.username}</Text>
+        <View style={componentStyles.statusRow}>
+          {isSuggestion ? (
+            // Mutual Friends Icon for suggestions
+            <MaterialCommunityIcons
+              name="account-multiple"
+              size={12}
+              color={Colors.lightWhite}
+              style={{ marginRight: 4 }}
+            />
+          ) : (
+            // Location Icon for status (Only for View/Join, not for time status)
+            // Check if statusText is a location (starts with 'At' or 'Near')
+            (friend.statusText.startsWith("At") ||
+              friend.statusText.startsWith("Near")) && (
+              <Ionicons
+                name="location-sharp"
+                size={12}
+                color={Colors.secondary}
+                style={{ marginRight: 4 }}
+              />
+            )
+          )}
+          <Text style={componentStyles.statusText}>{friend.statusText}</Text>
+        </View>
+      </View>
+      <TouchableOpacity
+        style={[
+          componentStyles.actionButton,
+          isSuggestion && componentStyles.addButton,
+          isJoinButton && componentStyles.joinButton, // Optionally customize Join button
+        ]}
+        onPress={() => console.log(`${friend.action} ${friend.name}`)}
+      >
+        <Text style={componentStyles.actionButtonText}>{friend.action}</Text>
+        {isSuggestion && ( // Add Person Icon for Suggestions
+          <Ionicons
+            name="person-add-outline"
+            size={16}
+            color={Colors.white}
+            style={{ marginLeft: 4 }}
+          />
+        )}
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+const TabButton: React.FC<{
+  tab: TabType;
+  isActive: boolean;
+  onPress: (tab: TabType) => void;
+}> = ({ tab, isActive, onPress }) => {
+  const text = `${tab} (${TAB_COUNTS[tab]})`;
+  return (
+    <TouchableOpacity
+      style={[componentStyles.tabButton, isActive && componentStyles.tabActive]}
+      onPress={() => onPress(tab)}
+    >
+      <Text
+        style={[
+          componentStyles.tabText,
+          isActive && componentStyles.tabTextActive,
+        ]}
+      >
+        {text}
+      </Text>
+    </TouchableOpacity>
+  );
+};
+
+// --- Main Screen Component ---
+
 export default function FriendsScreen() {
   const [activeTab, setActiveTab] = useState<TabType>("All Friends");
 

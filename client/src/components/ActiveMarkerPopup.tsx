@@ -3,6 +3,7 @@ import { View, TouchableOpacity, Text, Image, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import LiveFeedTab from "./LiveFeedTab";
 import BarDetailsTab from "./BarDetailsTab";
+import BarEventsTab from "./BarEventsTab";
 import { popupStyles } from "../styles/popupStyles";
 import { barImages } from "../barImages.js";
 
@@ -46,6 +47,16 @@ export default function ActiveMarkerPopup({
         >
           <Text style={popupStyles.tabText}>Live Feed</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            popupStyles.tabButton,
+            activeTab === "events" && popupStyles.activeTab,
+          ]}
+          onPress={() => setActiveTab("events")}
+          >
+            <Text style={popupStyles.tabText}>Events</Text>
+          </TouchableOpacity>
       </View>
 
       {activeTab === "details" ? (
@@ -57,8 +68,12 @@ export default function ActiveMarkerPopup({
           barImages={barImages}
           styles={popupStyles}
         />
+      ) : activeTab === "live" ? (
+        <LiveFeedTab 
+        barId={activeMarker.id} 
+        isCheckedIn={isCheckedIn} />
       ) : (
-        <LiveFeedTab isCheckedIn={isCheckedIn} barId={activeMarker.id} />
+        <BarEventsTab />
       )}
     </View>
   );

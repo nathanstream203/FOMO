@@ -1,33 +1,34 @@
 // app/(tabs)/_layout.tsx
 
 import { View, Text, StyleSheet } from "react-native";
-import Ionicons from "@expo/vector-icons/Ionicons";
 import { Tabs } from "expo-router";
 import { Colors } from "../../src/styles/colors";
 import { useValidateToken } from "../../src/hooks/useValidateToken";
+import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 
 const HeaderPoints = () => {
   const userPoints = 1234;
   return (
-  <View style={styles.pointsBubble}>
-    <Ionicons
-    name="server"
-    size={16}
-    color={Colors.secondaryLight}
-    style={{ marginRight: 4}}
-    />
-    <Text style={styles.pointsText}>{userPoints}</Text>
-  </View>
+    <View style={styles.pointsBubble}>
+      <MaterialCommunityIcons
+        name="fire"
+        size={16}
+        color={Colors.secondaryLight}
+        marginRight={4}
+      />
+      <Text style={styles.pointsText}>{userPoints}</Text>
+    </View>
   );
 };
 
 export default function TabLayout() {
   useValidateToken();
-  
+
   return (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors.secondaryLight,
+        tabBarInactiveTintColor: "#ccc",
         headerStyle: {
           backgroundColor: Colors.primary,
         },
@@ -42,7 +43,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index" // Home page
         options={{
-          title: "Map",
+          headerTitle: "FOMO",
+          tabBarLabel: "Map",
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? "map" : "map-outline"}
@@ -55,7 +57,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="friends"
         options={{
-          title: "Friends",
+          headerTitle: "FOMO",
+          tabBarLabel: "Friends",
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? "people-circle" : "people-circle-outline"}
@@ -68,7 +71,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="account"
         options={{
-          title: "Account",
+          headerTitle: "FOMO",
+          tabBarLabel: "Profile",
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? "person-circle" : "person-circle-outline"}
@@ -81,7 +85,6 @@ export default function TabLayout() {
     </Tabs>
   );
 }
-
 
 const styles = StyleSheet.create({
   pointsBubble: {
@@ -96,7 +99,7 @@ const styles = StyleSheet.create({
     marginRight: 15,
 
     shadowColor: Colors.secondary,
-    shadowOffset: { width: 0, height: 0},
+    shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.8,
     shadowRadius: 6,
     elevation: 10,
@@ -106,7 +109,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     textShadowColor: Colors.secondaryLight,
-    textShadowOffset: { width: 0, height: 0},
+    textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 10,
-  }
+  },
 });

@@ -14,13 +14,13 @@ interface DatabaseUser {
 
 export const useCurrentUserId = () => {
   const [user, loadingAuth] = useAuthState(auth);
-  const [currentUserId, setCurrentUserId] = React.useState<number | null>(null); 
+  const [currentUserId, setCurrentUserId] = React.useState<number | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
     if (loadingAuth) {
       setIsLoading(true);
-      return; 
+      return;
     }
 
     const fetchUserId = async () => {
@@ -55,7 +55,7 @@ export const useCurrentUserId = () => {
     };
 
     fetchUserId();
-  }, [user, loadingAuth]); 
+  }, [user, loadingAuth]);
 
   return { currentUserId, isUserIdLoading: isLoading };
 };
@@ -93,7 +93,7 @@ export function useCurrentFirstName() {
     }
     // Handle the initial loading state (while loadingAuth is true)
     else if (loadingAuth) {
-        setLoadingDb(true); // Treat auth loading as database loading until resolved
+      setLoadingDb(true); // Treat auth loading as database loading until resolved
     }
   }, [user, loadingAuth]);
 

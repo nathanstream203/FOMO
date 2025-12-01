@@ -13,9 +13,14 @@ interface Region extends LocationCoords {
   longitudeDelta: number;
 }
 
+export type Coordinates = { latitude: number; longitude: number };
+
 export function useLocation() {
   const [location, setLocation] = useState<LocationCoords | null>(null);
   const [region, setRegion] = useState<Region | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<Coordinates | null>(
+    null
+  ); // marker picked
 
   useEffect(() => {
     const getInitialLocation = async () => {
@@ -58,5 +63,11 @@ export function useLocation() {
     return () => subscription?.remove();
   }, []);
 
-  return { location, region };
+  return {
+    location,
+    region,
+    setLocation,
+    selectedLocation,
+    setSelectedLocation,
+  };
 }

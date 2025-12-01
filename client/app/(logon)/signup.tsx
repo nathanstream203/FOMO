@@ -19,9 +19,10 @@ import {
   View,
 } from "react-native";
 import { auth } from "../../src/firebaseConfig";
-import { postNewUser, testConnection } from "../../src/api/databaseOperations";
+import { postNewUser } from "../../src/api/databaseOperations";
 import { Colors } from "../../src/styles/colors";
-
+import BASE_URL from "@/src/_base_url";
+import { saveAToken, verifyToken } from "../../src/tokenStorage";
 export default function signUpScreen() {
   const [firstName, setFirstName] = React.useState("");
   const [lastName, setLastName] = React.useState("");
@@ -30,20 +31,6 @@ export default function signUpScreen() {
   const [password, setPassword] = React.useState("");
   const router = useRouter();
 
-  React.useEffect(() => {
-    const checkConnection = async () => {
-      const isConnected = await testConnection();
-      if (!isConnected) {
-        Alert.alert(
-          "Connection Error",
-          "Cannot reach the server. Please check your internet or try again later."
-        );
-      } else {
-        console.log("Server connection verified.");
-      }
-    };
-    checkConnection();
-  }, []);
 
   const signUp = async () => {
     if (!firstName || !lastName || !dateOfBirth || !email || !password) {
@@ -79,7 +66,8 @@ export default function signUpScreen() {
         // 2000-01-01T01:01:00.000Z
         const firebaseUID = user?.uid;
         const dbDateOfBirth = dateOfBirth + "T00:00:00.000Z";
-        await postNewUser(firebaseUID, firstName, lastName, dbDateOfBirth, 1)
+        console.warn("Posting new user to database - FRONTEND:", { firebaseUID, firstName, lastName, dbDateOfBirth });
+        await postNewUser(firebaseUID, firstName, lastName, dbDateOfBirth)
           .then((dbUser) => console.log("User stored in database:", dbUser))
           .catch((err) => console.error("DB Error:", err));
       }
@@ -98,6 +86,7 @@ export default function signUpScreen() {
       Alert.alert("Error", error.message);
     }
   };
+
 
   return (
     <KeyboardAvoidingView
