@@ -117,6 +117,8 @@ export default function CreatePartyForm({ onClose, onSubmit }: Props) {
       const token = await getAToken();
       console.log("Token:", token);
       console.log("Firebase UID:", user?.uid);
+      console.log("getting user from database...");
+
 
       // Get the database user object using the Firebase UID
       const dbUser = await getUserByFirebaseId(user?.uid, token);
@@ -177,8 +179,8 @@ export default function CreatePartyForm({ onClose, onSubmit }: Props) {
       };
 
       console.log("Party data being sent:", JSON.stringify(partyData, null, 2));
-
-      const token = await getAToken();
+      console.warn("Using token:", token);
+      console.log("postNewLocation() called");
       const dbParty = await postNewLocation(partyData, token);
 
       console.log("Party stored in database:", dbParty);
