@@ -10,10 +10,8 @@ import {
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { feedStyles } from "../styles/feedStyles";
-import {
-  useCurrentFirstName,
-  useCurrentUserId,
-} from "../hooks/useCurrentUserInfo";
+import { useCurrentFirstName } from "../hooks/useCurrentUserInfo";
+import { useCurrentUserId } from "../hooks/useCurrentUserInfo";
 import { getPostsByBarId, postNewPost } from "../../src/api/databaseOperations";
 import { getAToken } from "../../src/tokenStorage";
 import { auth } from "../../src/firebaseConfig";
