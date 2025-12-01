@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  StyleSheet, 
-  TouchableOpacity, 
-  ScrollView, 
-  Alert 
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -128,7 +128,10 @@ export default function UpdateUserTab() {
         <Text style={styles.saveButtonText}>Save Changes</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.cancelButton} onPress={() => router.back()}>
+      <TouchableOpacity
+        style={styles.cancelButton}
+        onPress={() => router.back()}
+      >
         <Text style={styles.cancelButtonText}>Cancel</Text>
       </TouchableOpacity>
     </ScrollView>
