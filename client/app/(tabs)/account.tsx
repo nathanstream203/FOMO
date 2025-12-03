@@ -18,7 +18,7 @@ import { getAToken, clearAToken, verifyToken } from "../../src/tokenStorage";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { Alert } from "react-native";
 import { Colors } from "../../src/styles/colors";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 
 interface DatabaseUser {
   firebase_id: string;
@@ -128,33 +128,161 @@ export default function AccountScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* Firebase Profile */}
-      <View style={styles.profileCard}>
-        <Image
-          source={{
-            uri:
-              user?.photoURL ||
-              "https://cdn-icons-png.flaticon.com/512/149/149071.png",
-          }}
-          style={styles.avatar}
-        />
-        <Text style={styles.nameText}>
-          {user?.displayName || `Welcome ${dbUser?.first_name || "User"}!`}
-        </Text>
-        <Text style={styles.emailText}>{user?.email}</Text>
+      {/* Profile Header Container */}
+      <View style={styles.profileContainerCard}>
+        {/* Firebase Profile */}
+        <View style={styles.profileCard}>
+          <Image
+            source={{
+              uri:
+                user?.photoURL ||
+                "https://cdn-icons-png.flaticon.com/512/149/149071.png",
+            }}
+            style={styles.avatar}
+          />
+          <Text style={styles.nameText}>
+            {user?.displayName || `Welcome ${dbUser?.first_name || "User"}!`}
+          </Text>
+          <Text style={styles.emailText}>{user?.email}</Text>
+        </View>
+
+        <View style={styles.pointsCard}>
+          <MaterialCommunityIcons
+            name="fire"
+            size={30}
+            color={Colors.secondary}
+          />
+          <Text style={styles.infoLabel}>1234</Text>
+          <Text style={styles.infoValue}>FOMO Points</Text>
+        </View>
+
+        <View style={styles.codeButtons}>
+          <View style={{ width: "48%" }}>
+            <TouchableOpacity
+              style={[styles.button, { backgroundColor: Colors.secondary }]}
+            >
+              <Ionicons
+                name="qr-code-outline"
+                size={20}
+                color={Colors.white}
+                style={{ marginRight: 1 }}
+              />
+              <Text style={styles.buttonText}>My QR Code</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={{ width: "48%" }}>
+            <TouchableOpacity
+              style={[
+                styles.button,
+                {
+                  backgroundColor: Colors.black,
+                  borderColor: Colors.secondaryLight,
+                  borderWidth: 0.5,
+                },
+              ]}
+            >
+              <Ionicons
+                name="camera-outline"
+                size={20}
+                color={Colors.white}
+                style={{ marginRight: 1 }}
+              />
+              <Text style={styles.buttonText}>Scan Code</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
 
-      <View style={styles.pointsCard}>
-        <MaterialCommunityIcons
-          name="fire"
-          size={30}
-          color={Colors.secondary}
-        />
-        <Text style={styles.infoLabel}>1234</Text>
-        <Text style={styles.infoValue}>FOMO Points</Text>
+      {/* Level Progress */}
+      <View style={styles.levelCard}>
+        <View style={styles.levelHeader}>
+          <View style={styles.levelTitleRow}>
+            <Ionicons
+              name="trending-up-outline"
+              size={20}
+              color={Colors.secondary}
+              style={{ marginRight: 6 }}
+            />
+            <Text style={styles.levelTitle}>Level Progress</Text>
+          </View>
+        </View>
+        <View style={styles.levelDescription}>
+          <Text style={styles.levelSubtitle}>Nightlife Explorer</Text>
+          <Text style={styles.levelNextText}>153 points to next level</Text>
+        </View>
+
+        {/* Progress Bar */}
+        <View style={styles.progressBackground}>
+          <View style={[styles.progressFill, { width: "78%" }]} />
+        </View>
       </View>
 
-      <View style={styles.infoCard}>
+      {/* Stats Section */}
+      <View style={styles.statsRow}>
+        <View style={styles.statCard}>
+          <Text style={styles.statNumber}>47</Text>
+          <Text style={styles.statLabel}>Bars Visited</Text>
+        </View>
+
+        <View style={styles.statCard}>
+          <Text style={styles.statNumber}>89</Text>
+          <Text style={styles.statLabel}>Check-ins</Text>
+        </View>
+
+        <View style={styles.statCard}>
+          <Text style={styles.statNumber}>4</Text>
+          <Text style={styles.statLabel}>Achievements</Text>
+        </View>
+      </View>
+
+      {/* Achievements */}
+      <View style={styles.achievementsCard}>
+        <View style={styles.achievementsHeader}>
+          <Ionicons
+            name="ribbon-outline"
+            size={20}
+            color={Colors.secondary}
+            style={{ marginRight: 6 }}
+          />
+          <Text style={styles.achievementsTitle}>Achievements</Text>
+        </View>
+
+        {/* Achievement Item */}
+        <View style={styles.achievementItem}>
+          <Text style={styles.achievementIcon}>🍻</Text>
+          <View>
+            <Text style={styles.achievementName}>Bar Hopper</Text>
+            <Text style={styles.achievementDesc}>Visited 25+ bars</Text>
+          </View>
+        </View>
+
+        <View style={styles.achievementItem}>
+          <Text style={styles.achievementIcon}>⭐</Text>
+          <View>
+            <Text style={styles.achievementName}>Social Star</Text>
+            <Text style={styles.achievementDesc}>50+ friends</Text>
+          </View>
+        </View>
+
+        <View style={styles.achievementItem}>
+          <Text style={styles.achievementIcon}>🐦</Text>
+          <View>
+            <Text style={styles.achievementName}>Early Bird</Text>
+            <Text style={styles.achievementDesc}>10 check-ins before 9PM</Text>
+          </View>
+        </View>
+
+        <View style={styles.achievementItem}>
+          <Text style={styles.achievementIcon}>🦉</Text>
+          <View>
+            <Text style={styles.achievementName}>Night Owl</Text>
+            <Text style={styles.achievementDesc}>10 check-ins after 1AM</Text>
+          </View>
+        </View>
+      </View>
+
+      {/* <View style={styles.infoCard}>
         <Text style={styles.sectionTitle}>Account Information</Text>
 
         <View style={styles.infoRow}>
@@ -196,11 +324,11 @@ export default function AccountScreen() {
             )}
           </Text>
         </View>
-      </View>
+      </View> */}
 
       {/* Buttons */}
       <View style={styles.buttonsContainer}>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={[styles.button]}
           onPress={async () => {
             await reloadUserData(); // Reload Firebase user
@@ -208,7 +336,7 @@ export default function AccountScreen() {
           }}
         >
           <Text style={styles.buttonText}>Refresh</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         <View style={styles.profileButtons}>
           <View style={{ width: "48%" }}>
@@ -216,7 +344,7 @@ export default function AccountScreen() {
               style={[styles.button]}
               onPress={() => router.push("../updateUser")}
             >
-              <Text style={styles.buttonText}>Update Account</Text>
+              <Text style={styles.buttonText}>Edit Profile</Text>
             </TouchableOpacity>
           </View>
 
@@ -258,6 +386,22 @@ const styles = StyleSheet.create({
     color: "#fff",
     marginTop: 10,
   },
+  profileContainerCard: {
+    backgroundColor: Colors.primary,
+    padding: 16,
+    borderRadius: 12,
+    borderColor: Colors.secondary,
+    borderWidth: 0.2,
+    width: "100%",
+    alignItems: "center",
+    gap: 15,
+    shadowColor: Colors.secondary,
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 5,
+  },
+
   profileCard: {
     alignItems: "center",
   },
@@ -269,10 +413,10 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: Colors.secondary,
     shadowColor: Colors.secondary,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
+    shadowOpacity: 0.15,
     shadowRadius: 6,
-    elevation: 10, // for Android glow effect
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 5,
   },
   nameText: {
     fontSize: 20,
@@ -283,11 +427,194 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#ccc",
   },
+  codeButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  pointsCard: {
+    alignItems: "center",
+    backgroundColor: Colors.primaryLight,
+    padding: 20,
+    borderRadius: 15,
+    width: "100%",
+    shadowColor: Colors.secondary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 6,
+    elevation: 10, // for Android glow effect
+  },
+  dbSection: {
+    marginTop: 20,
+    padding: 15,
+    borderRadius: 8,
+    backgroundColor: "#333842",
+    width: "100%",
+  },
+  levelCard: {
+    width: "100%",
+    backgroundColor: Colors.primary,
+    padding: 20,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: Colors.primaryLight,
+    shadowColor: Colors.secondary,
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 5,
+  },
+
+  levelHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 15,
+  },
+
+  levelTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  levelTitle: {
+    color: Colors.white,
+    fontSize: 18,
+    fontWeight: "600",
+  },
+
+  levelDescription: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+
+  levelNextText: {
+    color: Colors.white,
+    opacity: 0.75,
+    fontSize: 14,
+  },
+
+  levelSubtitle: {
+    color: Colors.white,
+    fontSize: 14,
+    opacity: 0.9,
+    marginBottom: 12,
+  },
+
+  progressBackground: {
+    width: "100%",
+    height: 12,
+    backgroundColor: Colors.primaryLight,
+    borderRadius: 12,
+    overflow: "hidden",
+  },
+
+  progressFill: {
+    height: "100%",
+    backgroundColor: Colors.secondary,
+    borderRadius: 12,
+  },
+
+  statsRow: {
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+
+  statCard: {
+    width: "32%",
+    backgroundColor: Colors.primary,
+    paddingVertical: 18,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: Colors.primaryLight,
+    alignItems: "center",
+    shadowColor: Colors.secondary,
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 5,
+  },
+
+  statNumber: {
+    color: Colors.white,
+    fontSize: 24,
+    fontWeight: "700",
+
+    // Subtle glow behind number
+    textShadowColor: Colors.secondaryLight,
+    textShadowRadius: 8,
+  },
+
+  statLabel: {
+    color: Colors.white,
+    opacity: 0.75,
+    marginTop: 6,
+    fontSize: 14,
+  },
+
+  achievementsCard: {
+    width: "100%",
+    backgroundColor: Colors.primary,
+    padding: 18,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: Colors.primaryLight,
+    shadowColor: Colors.secondary,
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 5,
+  },
+
+  achievementsHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+
+  achievementsTitle: {
+    color: Colors.white,
+    fontSize: 18,
+    fontWeight: "600",
+  },
+
+  achievementItem: {
+    backgroundColor: Colors.primaryLight,
+    padding: 16,
+    borderRadius: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: Colors.darkPrimary,
+  },
+
+  achievementIcon: {
+    fontSize: 28,
+    marginRight: 14,
+  },
+
+  achievementName: {
+    color: Colors.white,
+    fontSize: 16,
+    fontWeight: "600",
+  },
+
+  achievementDesc: {
+    color: Colors.white,
+    opacity: 0.7,
+    fontSize: 14,
+    marginTop: 2,
+  },
+
   infoCard: {
     backgroundColor: Colors.primary,
     padding: 20,
     borderRadius: 15,
     width: "100%",
+    borderColor: Colors.secondary,
+    borderWidth: 0.2,
     shadowColor: Colors.secondary,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.8,
@@ -309,25 +636,7 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     textAlign: "right",
   },
-  pointsCard: {
-    alignItems: "center",
-    backgroundColor: Colors.primaryLight,
-    padding: 20,
-    borderRadius: 15,
-    width: "100%",
-    shadowColor: Colors.secondary,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 6,
-    elevation: 10, // for Android glow effect
-  },
-  dbSection: {
-    marginTop: 20,
-    padding: 15,
-    borderRadius: 8,
-    backgroundColor: "#333842",
-    width: "100%",
-  },
+
   buttonsContainer: {
     width: "100%",
     gap: 15,
