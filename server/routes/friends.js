@@ -43,6 +43,19 @@ router.get('/requests', async (req, res) => {
     }
 });
 
-
+// create a friend request 
+router.post('/new', async (req, res) => {
+    try {
+        const data = req.body;
+        const newFriendRequest = await prisma.friends.create({
+            data: {
+                requestor_id: data.requestor_id,
+                reciever_id: data.reciever_id
+            }
+        })
+    }catch(e){
+        res.json({'Error': e}).status(500);
+    }
+});
 
 export default router;
