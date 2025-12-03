@@ -52,7 +52,8 @@ router.post('/new', async (req, res) => {
                 requestor_id: data.requestor_id,
                 reciever_id: data.reciever_id
             }
-        })
+        });
+        res.json(newFriendRequest).status(200);
     }catch(e){
         res.json({'Error': e}).status(500);
     }
