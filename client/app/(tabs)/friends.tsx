@@ -13,7 +13,7 @@ import { auth } from "../../src/firebaseConfig";
 import NotVerified from "../notverified";
 
 const Colors = {
-  background: "#12002f",
+  background: "#110124ff",
   primary: "#7C4DFF",
   secondary: "#C77DFF",
   text: "#FFFFFF",
