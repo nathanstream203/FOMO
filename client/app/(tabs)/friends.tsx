@@ -11,19 +11,18 @@ import {
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { auth } from "../../src/firebaseConfig";
 import NotVerified from "../notverified";
-import { Colors } from "../../src/styles/colors";
 
-// const Colors = {
-//   background: "#12002f",
-//   primary: "#7C4DFF",
-//   secondary: "#C77DFF",
-//   text: "#FFFFFF",
-//   lightWhite: "#bbbbbb",
-//   tabBackground: "#3e0078",
-//   activeTabBackground: "#5e00b8",
-//   onlineDot: "#4CAF50",
-//   shadowNeon: "rgba(255, 0, 255, 0.4)",
-// };
+const Colors = {
+  background: "#12002f",
+  primary: "#7C4DFF",
+  secondary: "#C77DFF",
+  text: "#FFFFFF",
+  textFaded: "#bbbbbb",
+  tabBackground: "#3e0078",
+  activeTabBackground: "#5e00b8",
+  onlineDot: "#4CAF50",
+  shadowNeon: "rgba(255, 0, 255, 0.4)",
+};
 
 type TabType = "All Friends" | "Active Now" | "Suggestions";
 
@@ -174,14 +173,12 @@ const FriendCard: React.FC<{ friend: Friend }> = ({ friend }) => {
         <View style={componentStyles.nameRow}>
           <Text style={componentStyles.friendName}>{friend.name}</Text>
           {/* Fire Icon for points/activity */}
-          <View style={componentStyles.pointsContent}>
-            <MaterialCommunityIcons
-              name="fire"
-              size={16}
-              color={Colors.secondary}
-            />
-            <Text style={componentStyles.points}>{friend.points}</Text>
-          </View>
+          <MaterialCommunityIcons
+            name="fire"
+            size={16}
+            color={Colors.secondary}
+          />
+          <Text style={componentStyles.points}>{friend.points}</Text>
         </View>
         <Text style={componentStyles.friendUsername}>{friend.username}</Text>
         <View style={componentStyles.statusRow}>
@@ -190,7 +187,7 @@ const FriendCard: React.FC<{ friend: Friend }> = ({ friend }) => {
             <MaterialCommunityIcons
               name="account-multiple"
               size={12}
-              color={Colors.lightWhite}
+              color={Colors.textFaded}
               style={{ marginRight: 4 }}
             />
           ) : (
@@ -222,7 +219,7 @@ const FriendCard: React.FC<{ friend: Friend }> = ({ friend }) => {
           <Ionicons
             name="person-add-outline"
             size={16}
-            color={Colors.white}
+            color={Colors.text}
             style={{ marginLeft: 4 }}
           />
         )}
@@ -283,7 +280,7 @@ export default function FriendsScreen() {
                 {
                   marginHorizontal: 0,
                   marginRight: 8,
-                  backgroundColor: Colors.green,
+                  backgroundColor: Colors.onlineDot,
                   position: "relative",
                   top: 0,
                   right: 0,
@@ -330,7 +327,7 @@ export default function FriendsScreen() {
           <Ionicons
             name="camera-outline"
             size={20}
-            color={Colors.white}
+            color={Colors.text}
             style={{ marginRight: 8 }}
           />
           <Text style={componentStyles.actionButtonText}>Scan Friend Code</Text>
@@ -342,7 +339,7 @@ export default function FriendsScreen() {
         <TextInput
           style={componentStyles.modalInput}
           placeholder="Enter Username or Code (e.g., @user / ABCD-1234)"
-          placeholderTextColor={Colors.lightWhite}
+          placeholderTextColor={Colors.textFaded}
           value={friendCodeInput}
           onChangeText={setFriendCodeInput}
         />
@@ -380,18 +377,18 @@ export default function FriendsScreen() {
           style={styles.scanButton}
           onPress={() => setModalVisible(true)} // Opens modal with both scan/type options
         >
-          <Ionicons name="camera-outline" size={20} color={Colors.white} />
+          <Ionicons name="camera-outline" size={20} color={Colors.text} />
           {}
           <Text style={styles.scanButtonText}>Scan</Text>
         </TouchableOpacity>
       </View>
       {/* Search Bar */}
       <View style={styles.searchContainer}>
-        <Ionicons name="search-outline" size={20} color={Colors.lightWhite} />
+        <Ionicons name="search-outline" size={20} color={Colors.textFaded} />
         <TextInput
           style={styles.searchInput}
           placeholder="Search friends..."
-          placeholderTextColor={Colors.lightWhite}
+          placeholderTextColor={Colors.textFaded}
           value={searchText}
           onChangeText={setSearchText}
         />
@@ -438,18 +435,18 @@ const componentStyles = StyleSheet.create({
   cardContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.tabBackground,
     padding: 12,
     marginHorizontal: 16,
     marginVertical: 6,
     borderRadius: 12,
-    shadowColor: Colors.secondaryLight,
+    shadowColor: Colors.shadowNeon,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.8,
     shadowRadius: 5,
     elevation: 8,
-    borderWidth: 0.2,
-    borderColor: Colors.secondaryLight,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.1)",
   },
   avatarWrapper: {
     marginRight: 12,
@@ -465,7 +462,7 @@ const componentStyles = StyleSheet.create({
     borderWidth: 2,
     borderColor: Colors.secondary,
   },
-  avatarText: { color: Colors.white, fontSize: 18, fontWeight: "bold" },
+  avatarText: { color: Colors.text, fontSize: 18, fontWeight: "bold" },
   onlineDot: {
     position: "absolute",
     bottom: 0,
@@ -473,36 +470,27 @@ const componentStyles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: Colors.green,
+    backgroundColor: Colors.onlineDot,
     borderWidth: 2,
-    borderColor: Colors.primary,
+    borderColor: Colors.tabBackground,
   },
   cardContent: { flex: 1 },
   nameRow: { flexDirection: "row", alignItems: "center" },
   friendName: {
-    color: Colors.white,
+    color: Colors.text,
     fontSize: 16,
     fontWeight: "600",
     marginRight: 8,
   },
   points: {
-    color: Colors.white,
+    color: Colors.secondary,
     fontSize: 14,
     fontWeight: "600",
     marginLeft: 4,
   },
-  pointsContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginLeft: 8,
-    backgroundColor: Colors.primaryLight,
-    borderRadius: 12,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-  },
-  friendUsername: { color: Colors.secondaryLight, fontSize: 12, marginTop: 2 },
+  friendUsername: { color: Colors.textFaded, fontSize: 12, marginTop: 2 },
   statusRow: { flexDirection: "row", alignItems: "center", marginTop: 4 },
-  statusText: { color: Colors.secondary, fontSize: 12 },
+  statusText: { color: Colors.textFaded, fontSize: 12 },
   actionButton: {
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -511,14 +499,14 @@ const componentStyles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
-  actionButtonText: { color: Colors.white, fontSize: 14, fontWeight: "bold" },
+  actionButtonText: { color: Colors.text, fontSize: 14, fontWeight: "bold" },
   addButton: {
     paddingHorizontal: 12,
     paddingVertical: 8,
-    backgroundColor: Colors.secondary,
+    backgroundColor: Colors.primary,
   },
   joinButton: {
-    backgroundColor: Colors.green,
+    backgroundColor: Colors.onlineDot,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
@@ -530,9 +518,9 @@ const componentStyles = StyleSheet.create({
     marginHorizontal: 4,
     alignItems: "center",
   },
-  tabActive: { backgroundColor: Colors.primaryLight },
-  tabText: { color: Colors.white, fontSize: 14, fontWeight: "600" },
-  tabTextActive: { color: Colors.white },
+  tabActive: { backgroundColor: Colors.activeTabBackground },
+  tabText: { color: Colors.textFaded, fontSize: 14, fontWeight: "600" },
+  tabTextActive: { color: Colors.text },
   modalOverlay: {
     position: "absolute",
     top: 0,
@@ -546,13 +534,13 @@ const componentStyles = StyleSheet.create({
   },
   modalContent: {
     width: "85%",
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.tabBackground,
     borderRadius: 16,
     padding: 20,
     alignItems: "center",
     borderWidth: 2,
     borderColor: Colors.primary,
-    shadowColor: Colors.secondaryLight,
+    shadowColor: Colors.shadowNeon,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 1,
     shadowRadius: 15,
@@ -561,17 +549,13 @@ const componentStyles = StyleSheet.create({
   modalTitle: {
     fontSize: 24,
     fontWeight: "bold",
-    color: Colors.white,
+    color: Colors.text,
     marginBottom: 8,
   },
-  modalSubtitle: {
-    fontSize: 14,
-    color: Colors.lightWhite,
-    textAlign: "center",
-  },
+  modalSubtitle: { fontSize: 14, color: Colors.textFaded, textAlign: "center" },
   modalInput: {
     width: "100%",
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.background,
     color: Colors.text,
     padding: 12,
     borderRadius: 8,
@@ -589,7 +573,7 @@ const componentStyles = StyleSheet.create({
     justifyContent: "center",
   },
   modalCloseButton: { marginTop: 10, padding: 10 },
-  modalCloseText: { color: Colors.white, fontSize: 16, fontWeight: "600" },
+  modalCloseText: { color: Colors.primary, fontSize: 16, fontWeight: "600" },
 });
 
 // --- Main Screen Styles ---
@@ -597,7 +581,7 @@ const componentStyles = StyleSheet.create({
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.black,
+    backgroundColor: Colors.background,
   },
   scrollView: {
     flex: 1,
@@ -613,86 +597,79 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 24,
     fontWeight: "bold",
-    color: Colors.white,
+    color: Colors.text,
   },
   subHeading: {
     fontSize: 12,
-    color: Colors.lightWhite,
+    color: Colors.textFaded,
   },
   scanButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Colors.secondary,
+    backgroundColor: Colors.primary,
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 8,
   },
   scanButtonText: {
-    color: Colors.white,
+    color: Colors.text,
     marginLeft: 6,
     fontWeight: "600",
   },
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.tabBackground,
     marginHorizontal: 16,
     marginVertical: 12,
     padding: 10,
     borderRadius: 12,
-    borderWidth: 0.2,
-    borderColor: Colors.secondaryLight,
-    shadowColor: Colors.secondaryLight,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.6,
-    shadowRadius: 12,
-    elevation: 8, // for Android glow effect
+    borderWidth: 1,
+    borderColor: Colors.primary,
   },
   searchInput: {
     flex: 1,
-    color: Colors.white,
+    color: Colors.text,
     marginLeft: 8,
     fontSize: 16,
   },
   tabBar: {
     flexDirection: "row",
     justifyContent: "space-around",
-    backgroundColor: Colors.primary,
-    borderWidth: 0.2,
-    borderColor: Colors.secondaryLight,
+    backgroundColor: Colors.tabBackground,
     marginHorizontal: 16,
     padding: 6,
-    borderRadius: 25,
+    borderRadius: 12,
     marginBottom: 12,
   },
   banner: {
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.tabBackground,
     marginHorizontal: 16,
     padding: 15,
     borderRadius: 12,
     marginBottom: 12,
     borderLeftWidth: 4,
-    borderLeftColor: Colors.green,
+    borderLeftColor: Colors.onlineDot,
   },
   bannerText: {
-    color: Colors.green,
+    color: Colors.onlineDot,
     fontSize: 16,
     fontWeight: "600",
     marginBottom: 4,
   },
   bannerSubtext: {
-    color: Colors.lightWhite,
+    color: Colors.textFaded,
     fontSize: 14,
   },
   suggestionHeader: {
-    color: Colors.lightWhite,
+    color: Colors.textFaded,
     fontSize: 12,
     marginHorizontal: 16,
     marginTop: 4,
     marginBottom: 8,
   },
   emptyText: {
-    color: Colors.lightWhite,
+    color: Colors.textFaded,
     textAlign: "center",
     marginTop: 40,
     fontSize: 16,

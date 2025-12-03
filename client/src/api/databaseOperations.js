@@ -2,6 +2,7 @@
 // Centralized API helper for your React Native frontend
 
 import BASE_URL from "../../src/_base_url.js";
+console.log("Using BASE_URL:", BASE_URL);
 
 /**
  * --------------------------
@@ -44,13 +45,7 @@ export const testConnection = async (JWT_token) => {
  */
 
 // Create new post in database
-export const postNewPost = async (
-  firebase_id,
-  bar_id,
-  content,
-  timestamp,
-  JWT_token
-) => {
+export const postNewPost = async (user_id, bar_id, content, timestamp, JWT_token) => {
   try {
     const response = await fetch(`${BASE_URL}/post`, {
       method: "POST",
@@ -59,7 +54,7 @@ export const postNewPost = async (
         Authorization: `Bearer ${JWT_token}`,
       },
       body: JSON.stringify({
-        firebase_id,
+        user_id,
         bar_id,
         content,
         timestamp,
@@ -163,7 +158,7 @@ export const getUserByFirebaseId = async (firebase_id, JWT_token) => {
 };
 
 // Create new user in 
-export const postNewUser = async (firebase_id, first_name, last_name, birth_date, role_id = 1) => {
+export const postNewUser = async (firebase_id, first_name, last_name, birth_date, role_id = "BASIC") => {
   try {
     const response = await fetch(`${BASE_URL}/user`, {
       method: "POST",
@@ -214,19 +209,20 @@ export const updateUser = async (userData, JWT_token) => {
  */
 
 // Post a new location/marker
-export const postNewLocation = async (
-  name,
-  description,
-  address,
-  start_time,
-  end_time,
-  user_id,
-  longitude,
-  latitude,
-  JWT_token
-) => {
+export const postNewLocation = async (partyData, JWT_token) => {
+  const {
+    name,
+    description,
+    address,
+    start_time,
+    end_time,
+    user_id,
+    longitude,
+    latitude,
+  } = partyData;
   try {
-    const response = await fetch(`${BASE_URL}/location`, {
+    console.warn(JWT_token);
+    const response = await fetch(`${BASE_URL}/location/party`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

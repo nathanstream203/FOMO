@@ -142,6 +142,7 @@ export default function SignInScreen() {
             <Text style={styles.buttonText}>Sign In</Text>
           </Pressable>
 
+          {/*
           <Pressable style={styles.buttonPrimary} onPress={byPass}>
             <Text style={styles.buttonText}>Sign In - BYPASS</Text>
           </Pressable>
@@ -149,6 +150,7 @@ export default function SignInScreen() {
           <Pressable style={styles.buttonPrimary} onPress={clearAToken}>
             <Text style={styles.buttonText}>Clear Stored Tokens</Text>
           </Pressable>
+          */}
 
           <View style={styles.buttonSecondary}>
             <Text style={{ color: "white", fontSize: 16 }}>
