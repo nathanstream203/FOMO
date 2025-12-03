@@ -400,11 +400,15 @@ export default function FriendsScreen() {
       </View>
       {/* Search Bar */}
       <View style={styles.searchContainer}>
-        <Ionicons name="search-outline" size={20} color={Colors.lightWhite} />
+        <Ionicons
+          name="search-outline"
+          size={20}
+          color={Colors.secondaryLight}
+        />
         <TextInput
           style={styles.searchInput}
           placeholder="Search friends..."
-          placeholderTextColor={Colors.lightWhite}
+          placeholderTextColor={Colors.secondaryLight}
           value={searchText}
           onChangeText={setSearchText}
         />
@@ -469,9 +473,9 @@ const componentStyles = StyleSheet.create({
     position: "absolute",
     bottom: 0,
     right: 0,
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+    width: 14,
+    height: 14,
+    borderRadius: 14,
     backgroundColor: Colors.green,
     borderWidth: 2,
     borderColor: Colors.primaryLight,
@@ -530,9 +534,8 @@ const componentStyles = StyleSheet.create({
     flex: 1,
     paddingVertical: 10,
     borderRadius: 10,
-    marginHorizontal: 4,
     alignItems: "center",
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: Colors.primary,
   },
   tabActive: {
     backgroundColor: Colors.secondary,
@@ -627,12 +630,12 @@ const styles = StyleSheet.create({
   },
   subHeading: {
     fontSize: 14,
-    color: Colors.lightWhite,
+    color: Colors.secondaryLight,
   },
   scanButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: Colors.secondary,
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 8,
@@ -668,6 +671,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     marginHorizontal: 16,
     marginBottom: 12,
+    backgroundColor: Colors.primary,
+    borderRadius: 12,
+    padding: 4,
+    borderColor: Colors.secondary,
+    borderWidth: 0.2,
+    shadowColor: Colors.secondaryLight,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 12,
+    elevation: 8, // for Android glow effect
   },
   banner: {
     backgroundColor: Colors.primaryLight,
@@ -675,17 +688,24 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginHorizontal: 16,
     marginBottom: 12,
+    borderWidth: 0.2,
+    borderColor: Colors.secondary,
+    shadowColor: Colors.secondary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 6,
+    elevation: 10, // for Android glow effect
   },
   bannerText: {
     color: Colors.white,
     fontWeight: "600",
   },
   bannerSubtext: {
-    color: Colors.lightWhite,
+    color: Colors.secondaryLighter,
     marginTop: 4,
   },
   suggestionHeader: {
-    color: Colors.lightWhite,
+    color: Colors.secondaryLight,
     marginHorizontal: 16,
     marginBottom: 12,
     fontSize: 14,
