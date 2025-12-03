@@ -4,7 +4,9 @@ import { Friend_Status } from '@prisma/client';
 
 const router = express.Router();
 
-
+// GET current friends of a user
+// Expects:
+// {id: (user id)}
 router.get('/', async (req, res) => {
     try{
         const user = req.body;
@@ -23,7 +25,9 @@ router.get('/', async (req, res) => {
     }
 });
 
-
+// GET pending requests the user has recieved
+// Expects:
+// {id: (user id)}
 router.get('/requests', async (req, res) => {
     try{
         const user = req.body;
@@ -38,5 +42,7 @@ router.get('/requests', async (req, res) => {
         res.json({'Error': e}).status(500);
     }
 });
+
+
 
 export default router;
