@@ -14,10 +14,11 @@ import {
 } from "react-native";
 import { auth } from "../../src/firebaseConfig";
 import { getUserByFirebaseId } from "../../src/api/databaseOperations";
-import { getAToken, clearAToken, verifyToken  } from "../../src/tokenStorage";
+import { getAToken, clearAToken, verifyToken } from "../../src/tokenStorage";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { Alert } from "react-native";
-
+import { Colors } from "../../src/styles/colors";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 interface DatabaseUser {
   firebase_id: string;
@@ -44,34 +45,36 @@ export default function AccountScreen() {
 
   // Function to send password reset email through firebase
   const resetUserPassword = async () => {
-  try {
-    if (!user?.email) {
-      return Alert.alert("Error", "No email address found for this account.");
+    try {
+      if (!user?.email) {
+        return Alert.alert("Error", "No email address found for this account.");
+      }
+      await sendPasswordResetEmail(auth, user.email);
+
+      Alert.alert(
+        "Password Reset Email Sent",
+        `A reset link has been sent to:\n\n${user.email} \n You will now be redirected to sign in.`,
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              signOutUser();
+            },
+          },
+        ]
+      );
+    } catch (error: any) {
+      console.error("Password reset error:", error);
+      let message = "An error occurred while sending the reset email.";
+      if (error.code === "auth/invalid-email") {
+        message = "The email address is invalid.";
+      } else if (error.code === "auth/user-not-found") {
+        message = "No user exists with this email.";
+      }
+
+      Alert.alert("Error", message);
     }
-    await sendPasswordResetEmail(auth, user.email);
-
-    Alert.alert(
-      "Password Reset Email Sent",
-      `A reset link has been sent to:\n\n${user.email} \n You will now be redirected to sign in.`,
-      [{ text: "OK",
-        onPress: () => { 
-          signOutUser();
-        }
-       }]
-    );
-
-  } catch (error: any) {
-    console.error("Password reset error:", error);
-    let message = "An error occurred while sending the reset email.";
-    if (error.code === "auth/invalid-email") {
-      message = "The email address is invalid.";
-    } else if (error.code === "auth/user-not-found") {
-      message = "No user exists with this email.";
-    }
-
-    Alert.alert("Error", message);
-  }
-};
+  };
 
   const reloadUserData = async () => {
     if (auth.currentUser) {
@@ -81,40 +84,39 @@ export default function AccountScreen() {
   };
 
   const fetchDatabaseUser = async () => {
-  if (!user?.uid) return;
+    if (!user?.uid) return;
 
-  setDbLoading(true);
-  try {
-    const token = await getAToken();
-    const data = await verifyToken();
-    const userData = await getUserByFirebaseId(data.firebase_id, token);
-    setDbUser(userData);
-    console.log("DB User refreshed:", userData);
-  } catch (err) {
-    console.error("Error fetching user from DB:", err);
-  } finally {
-    setDbLoading(false);
-  }
-};
+    setDbLoading(true);
+    try {
+      const token = await getAToken();
+      const data = await verifyToken();
+      const userData = await getUserByFirebaseId(data.firebase_id, token);
+      setDbUser(userData);
+      console.log("DB User refreshed:", userData);
+    } catch (err) {
+      console.error("Error fetching user from DB:", err);
+    } finally {
+      setDbLoading(false);
+    }
+  };
 
   React.useEffect(() => {
-  if (!user?.uid) return;
+    if (!user?.uid) return;
 
-  // Load data immediately
-  reloadUserData();
-  fetchDatabaseUser();
-
-  // Auto-refresh every 60 seconds
-  const interval = setInterval(() => {
-    console.log("Auto refreshing user data...");
+    // Load data immediately
     reloadUserData();
     fetchDatabaseUser();
-  }, 60000);
 
-  // Cleanup interval on unmount
-  return () => clearInterval(interval);
-}, [user]);
+    // Auto-refresh every 60 seconds
+    const interval = setInterval(() => {
+      console.log("Auto refreshing user data...");
+      reloadUserData();
+      fetchDatabaseUser();
+    }, 60000);
 
+    // Cleanup interval on unmount
+    return () => clearInterval(interval);
+  }, [user]);
 
   if (loading) {
     return (
@@ -140,6 +142,16 @@ export default function AccountScreen() {
           {user?.displayName || `Welcome ${dbUser?.first_name || "User"}!`}
         </Text>
         <Text style={styles.emailText}>{user?.email}</Text>
+      </View>
+
+      <View style={styles.pointsCard}>
+        <MaterialCommunityIcons
+          name="fire"
+          size={30}
+          color={Colors.secondary}
+        />
+        <Text style={styles.infoLabel}>1234</Text>
+        <Text style={styles.infoValue}>FOMO Points</Text>
       </View>
 
       <View style={styles.infoCard}>
@@ -187,51 +199,57 @@ export default function AccountScreen() {
       </View>
 
       {/* Buttons */}
-      <TouchableOpacity
-        style={[styles.button, { backgroundColor: "#4e9af1" }]}
-        onPress={async () => {
-          await reloadUserData();    // Reload Firebase user
-          await fetchDatabaseUser(); // Reload DB user
-        }}
-      >
-        <Text style={styles.buttonText}>Refresh</Text>
-      </TouchableOpacity>
+      <View style={styles.buttonsContainer}>
+        <TouchableOpacity
+          style={[styles.button]}
+          onPress={async () => {
+            await reloadUserData(); // Reload Firebase user
+            await fetchDatabaseUser(); // Reload DB user
+          }}
+        >
+          <Text style={styles.buttonText}>Refresh</Text>
+        </TouchableOpacity>
 
+        <View style={styles.profileButtons}>
+          <View style={{ width: "48%" }}>
+            <TouchableOpacity
+              style={[styles.button]}
+              onPress={() => router.push("../updateUser")}
+            >
+              <Text style={styles.buttonText}>Update Account</Text>
+            </TouchableOpacity>
+          </View>
 
-      <TouchableOpacity
-        style={[styles.button, { backgroundColor: "#251682ff" }]}
-        onPress={() => router.push("../updateUser")}
-      >
-        <Text style={styles.buttonText}>Update Account</Text>
-      </TouchableOpacity>
+          <View style={{ width: "48%" }}>
+            <TouchableOpacity
+              style={[styles.button]}
+              onPress={resetUserPassword}
+            >
+              <Text style={styles.buttonText}>Reset Password</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
 
-      <TouchableOpacity
-        style={[styles.button, { backgroundColor: "#251682ff" }]}
-        onPress={resetUserPassword}
-      >
-        <Text style={styles.buttonText}>Reset Password</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={[styles.button, { backgroundColor: "#e63946" }]}
-        onPress={signOutUser}
-      >
-        <Text style={styles.buttonText}>Sign Out</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={[styles.signoutButton]} onPress={signOutUser}>
+          <Text style={styles.signoutButtonText}>Sign Out</Text>
+        </TouchableOpacity>
+      </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    width: "100%",
+    padding: 20,
     flexGrow: 1,
-    paddingVertical: 40,
     alignItems: "center",
-    backgroundColor: "#1b1d1f",
+    backgroundColor: Colors.darkPrimary,
+    gap: 20,
   },
   loadingContainer: {
     flex: 1,
-    backgroundColor: "#25292e",
+    backgroundColor: Colors.primary,
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
@@ -242,7 +260,6 @@ const styles = StyleSheet.create({
   },
   profileCard: {
     alignItems: "center",
-    marginBottom: 25,
   },
   avatar: {
     width: 100,
@@ -250,7 +267,12 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     marginBottom: 10,
     borderWidth: 2,
-    borderColor: "#4e9af1",
+    borderColor: Colors.secondary,
+    shadowColor: Colors.secondary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 6,
+    elevation: 10, // for Android glow effect
   },
   nameText: {
     fontSize: 20,
@@ -262,14 +284,15 @@ const styles = StyleSheet.create({
     color: "#ccc",
   },
   infoCard: {
-    backgroundColor: "#2a2d31",
+    backgroundColor: Colors.primary,
     padding: 20,
     borderRadius: 15,
-    width: "90%",
-    shadowColor: "#000",
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 4,
+    width: "100%",
+    shadowColor: Colors.secondary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 6,
+    elevation: 10, // for Android glow effect
   },
   infoRow: {
     flexDirection: "row",
@@ -277,14 +300,26 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   infoLabel: {
-    color: "#aaa",
+    color: "#fff",
     fontSize: 14,
   },
   infoValue: {
-    color: "#fff",
+    color: Colors.secondaryLight,
     fontSize: 14,
     flexShrink: 1,
     textAlign: "right",
+  },
+  pointsCard: {
+    alignItems: "center",
+    backgroundColor: Colors.primaryLight,
+    padding: 20,
+    borderRadius: 15,
+    width: "100%",
+    shadowColor: Colors.secondary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 6,
+    elevation: 10, // for Android glow effect
   },
   dbSection: {
     marginTop: 20,
@@ -293,8 +328,30 @@ const styles = StyleSheet.create({
     backgroundColor: "#333842",
     width: "100%",
   },
+  buttonsContainer: {
+    width: "100%",
+    gap: 15,
+  },
+  profileButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  signoutButton: {
+    borderColor: "#ff4d4d",
+    borderWidth: 0.5,
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  signoutButtonText: {
+    color: "#ff4d4d",
+    fontWeight: "600",
+    width: 200,
+    textAlign: "center",
+  },
   button: {
-    marginTop: 15,
+    borderColor: Colors.secondary,
+    borderWidth: 0.5,
     paddingVertical: 12,
     borderRadius: 10,
     alignItems: "center",
@@ -311,7 +368,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     marginBottom: 15,
     borderBottomWidth: 1,
-    borderBottomColor: "#4e9af1",
+    borderBottomColor: Colors.secondary,
     paddingBottom: 5,
   },
 });

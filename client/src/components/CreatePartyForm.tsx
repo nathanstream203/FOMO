@@ -18,7 +18,6 @@ import { auth } from "../../src/firebaseConfig";
 import {
   getUserByFirebaseId,
   postNewLocation,
-  testConnection,
 } from "../api/databaseOperations";
 import { getAToken, verifyToken } from "../tokenStorage";
 import { useMarkers } from "../hooks/useMarkers";
@@ -511,7 +510,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginTop: 6,
   },
-
   valueText: {
     color: Colors.secondaryLight,
     fontSize: 14,
