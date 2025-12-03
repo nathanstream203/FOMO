@@ -152,8 +152,10 @@ export default function AccountScreen() {
             size={30}
             color={Colors.secondary}
           />
-          <Text style={styles.infoLabel}>1234</Text>
-          <Text style={styles.infoValue}>FOMO Points</Text>
+          <View style={{ alignItems: "center" }}>
+            <Text style={styles.infoLabel}>1234</Text>
+            <Text style={styles.infoValue}>FOMO Points</Text>
+          </View>
         </View>
 
         <View style={styles.codeButtons}>
@@ -425,7 +427,7 @@ const styles = StyleSheet.create({
   },
   emailText: {
     fontSize: 14,
-    color: "#ccc",
+    color: Colors.secondaryLight,
   },
   codeButtons: {
     flexDirection: "row",
@@ -435,9 +437,12 @@ const styles = StyleSheet.create({
   pointsCard: {
     alignItems: "center",
     backgroundColor: Colors.primaryLight,
-    padding: 20,
+    padding: 14,
     borderRadius: 15,
+    gap: 6,
     width: "100%",
+    borderColor: Colors.secondary,
+    borderWidth: 0.2,
     shadowColor: Colors.secondary,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.8,
@@ -543,7 +548,7 @@ const styles = StyleSheet.create({
 
     // Subtle glow behind number
     textShadowColor: Colors.secondaryLight,
-    textShadowRadius: 8,
+    textShadowRadius: 2,
   },
 
   statLabel: {
@@ -628,7 +633,10 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     color: "#fff",
-    fontSize: 14,
+    fontSize: 18,
+    // Subtle glow behind number
+    textShadowColor: Colors.secondaryLight,
+    textShadowRadius: 8,
   },
   infoValue: {
     color: Colors.secondaryLight,
