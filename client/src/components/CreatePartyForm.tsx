@@ -119,7 +119,6 @@ export default function CreatePartyForm({ onClose, onSubmit }: Props) {
       console.log("Firebase UID:", user?.uid);
       console.log("getting user from database...");
 
-
       // Get the database user object using the Firebase UID
       const dbUser = await getUserByFirebaseId(user?.uid, token);
 
