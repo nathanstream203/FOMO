@@ -39,13 +39,17 @@ model User {
 }
 
 model Post {
-  id Int @id @default(autoincrement())
-  user_id Int
-  bar_id Int
-  user User @relation(fields: [user_id], references: [id])
-  bar Bar @relation(fields: [bar_id], references: [id])
-  content String
-  timestamp DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  bar_id     Int?
+  party_id   Int?     
+
+  user       User     @relation(fields: [user_id], references: [id])
+  bar        Bar?     @relation(fields: [bar_id], references: [id])
+  party      Party?   @relation(fields: [party_id], references: [id])
+
+  content    String
+  timestamp  DateTime @default(now())
 }
 
 // Stores locations as latitude and longitude coordinates
@@ -60,6 +64,7 @@ model Party {
   longitude Decimal
   latitude Decimal
 
+  posts Post[]
   user User @relation(fields: [user_id], references: [id])
 }
 

@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.8,
     shadowRadius: 6,
-    elevation: 10, // for Android glow effect
+    elevation: 8, // for Android glow effect
   },
   inputContainerFocused: {
     borderWidth: 0.4,

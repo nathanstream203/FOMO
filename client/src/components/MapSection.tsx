@@ -20,20 +20,12 @@ export default function MapSection({
   const mapRef = useRef<MapView | null>(null);
 
   const handleMarkerPress = (marker: any) => {
-    setActiveMarker(marker);
-    setIsCheckedIn(false);
-    setActiveTab?.("details");
-
-    if (mapRef.current) {
-      mapRef.current.animateToRegion(
-        {
-          latitude: marker.latitude,
-          longitude: marker.longitude,
-          latitudeDelta: 0.02,
-          longitudeDelta: 0.02,
-        },
-        500 // 500ms animation
-      );
+    try {
+      setActiveMarker(marker);
+      setIsCheckedIn(false);
+      setActiveTab?.("details");
+    } catch (error) {
+      console.error("Error handling marker press:", error);
     }
   };
 
@@ -63,13 +55,21 @@ export default function MapSection({
 
       {/* Render markers */}
       {markers.map((marker, index) => {
-        const isActive = activeMarker?.id === marker?.id; // use optional chaining
+        if (!marker.latitude || !marker.longitude) return null;
+
+        const lat = Number(marker.latitude);
+        const lng = Number(marker.longitude);
+
+        if (isNaN(lat) || isNaN(lng)) return null;
+
+        const isActive = activeMarker?.id === marker?.id; // still works
+
         return (
           <Marker
             key={index}
             coordinate={{
-              latitude: Number(marker.latitude),
-              longitude: Number(marker.longitude),
+              latitude: lat,
+              longitude: lng,
             }}
             anchor={{ x: 0.5, y: 0.5 }}
             onPress={() => handleMarkerPress(marker)}

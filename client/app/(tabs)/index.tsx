@@ -114,7 +114,6 @@ export default function HomeScreen() {
         mapStyle={mapStyle}
         setActiveTab={setActiveTab}
       />
-
       {/* Active marker popup */}
       {activeMarker && (
         <ActiveMarkerPopup
@@ -128,7 +127,6 @@ export default function HomeScreen() {
           barImages={barImages}
         />
       )}
-
       {/* Create Party Button and Modal*/}
       <View style={styles.createPartyContainer}>
         <TouchableOpacity
