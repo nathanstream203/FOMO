@@ -69,7 +69,9 @@ export default function ActiveMarkerPopup({
           styles={popupStyles}
         />
       ) : activeTab === "live" ? (
-        <LiveFeedTab isCheckedIn={isCheckedIn} />
+        <LiveFeedTab 
+        barId={activeMarker.id} 
+        isCheckedIn={isCheckedIn} />
       ) : (
         <BarEventsTab />
       )}

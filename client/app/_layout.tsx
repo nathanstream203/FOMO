@@ -1,14 +1,24 @@
 // client/app/_layout.tsx
+import React, { useState, useEffect } from "react";
 import { Stack } from "expo-router";
 
 export default function RootLayout() {
-  return (
-    <Stack screenOptions={{ headerShown: false }}>
-      {/* First screen is Logon */}
-      <Stack.Screen name="(logon)/signin" />
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+  //const { loading, loggedIn } = useAuthBootstrap();
 
-      {/* Tabs (home, about, account) live inside a folder `(tabs)` */}
+  return (
+    <Stack screenOptions={{ headerShown: false }} />
+
+    /*<Stack
+      screenOptions={{
+        headerShown: false,
+        headerTitleStyle: {
+          fontFamily: "YourCustomFont",
+          fontSize: 20,
+        },
+      }}
+    >
       <Stack.Screen name="(tabs)" />
-    </Stack>
+    </Stack> */
   );
 }

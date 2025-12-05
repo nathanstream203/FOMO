@@ -17,9 +17,11 @@ import { useLocation } from "../hooks/useLocation";
 import { auth } from "../../src/firebaseConfig";
 import {
   getUserByFirebaseId,
-  postNewParty,
-  testConnection,
+  postNewLocation,
 } from "../api/databaseOperations";
+import { getAToken, verifyToken } from "../tokenStorage";
+import { useMarkers } from "../hooks/useMarkers";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 type Props = {
   onClose: () => void;
@@ -45,6 +47,8 @@ export default function CreatePartyForm({ onClose, onSubmit }: Props) {
   const [usingCustomLocation, setUsingCustomLocation] = useState(false);
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
+  const { fetchMarkers } = useMarkers();
+  const [user, loading, error] = useAuthState(auth);
 
   const handleCreate = async () => {
     // Validation
@@ -109,11 +113,13 @@ export default function CreatePartyForm({ onClose, onSubmit }: Props) {
         return;
       }
 
-      const firebaseUID = currentUser.uid;
-      console.log("Firebase UID:", firebaseUID);
+      const token = await getAToken();
+      console.log("Token:", token);
+      console.log("Firebase UID:", user?.uid);
+      console.log("getting user from database...");
 
       // Get the database user object using the Firebase UID
-      const dbUser = await getUserByFirebaseId(firebaseUID);
+      const dbUser = await getUserByFirebaseId(user?.uid, token);
 
       if (!dbUser) {
         Alert.alert(
@@ -171,15 +177,17 @@ export default function CreatePartyForm({ onClose, onSubmit }: Props) {
       };
 
       console.log("Party data being sent:", JSON.stringify(partyData, null, 2));
-
-      const dbParty = await postNewParty(partyData);
+      console.warn("Using token:", token);
+      console.log("postNewLocation() called");
+      const dbParty = await postNewLocation(partyData, token);
 
       console.log("Party stored in database:", dbParty);
       Alert.alert("Success", "Party created successfully!");
 
-      // ✅ CALL onSubmit to notify parent component
+      // CALL onSubmit to notify parent component
       // This triggers handlePartyCreated in HomeScreen
       onSubmit(partyData);
+      fetchMarkers();
 
       onClose();
 
@@ -272,7 +280,7 @@ export default function CreatePartyForm({ onClose, onSubmit }: Props) {
               <TextInput
                 keyboardType="numbers-and-punctuation"
                 onChangeText={setPartyEndTime}
-                placeholder="24:00"
+                placeholder="00:00"
                 style={styles.input}
                 placeholderTextColor="#a388f6"
               />
@@ -461,9 +469,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     shadowColor: Colors.secondaryLight,
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 10, // for Android glow effect
+    shadowOpacity: 0.6,
+    shadowRadius: 12,
+    elevation: 8, // for Android glow effect
   },
   currentLocationBox: {
     flexDirection: "row",
@@ -502,7 +510,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginTop: 6,
   },
-
   valueText: {
     color: Colors.secondaryLight,
     fontSize: 14,

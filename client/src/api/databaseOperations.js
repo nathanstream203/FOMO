@@ -2,6 +2,7 @@
 // Centralized API helper for your React Native frontend
 
 import BASE_URL from "../../src/_base_url.js";
+console.log("Using BASE_URL:", BASE_URL);
 
 /**
  * --------------------------
@@ -10,16 +11,16 @@ import BASE_URL from "../../src/_base_url.js";
  */
 
 //Tests if the backend server is reachable. Returns true if connection succeeds, false otherwise.
-export const testConnection = async () => {
+export const testConnection = async (JWT_token) => {
   try {
-    console.log('Testing connection to:', BASE_URL);
+    console.log("Testing connection to:", BASE_URL);
     const response = await fetch(`${BASE_URL}/`, {
-      method: 'GET',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${JWT_token}`
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${JWT_token}`,
       },
-    });
+    }); 
 
     if (response.ok) {
       console.log("Connection successful:", BASE_URL);
@@ -44,15 +45,16 @@ export const testConnection = async () => {
  */
 
 // Create new post in database
-export const postNewPost = async (firebase_id, bar_id, content, timestamp, JWT_token) => {
+export const postNewPost = async (user_id, bar_id, content, timestamp, JWT_token) => {
   try {
     const response = await fetch(`${BASE_URL}/post`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json',
-                 'Authorization': `Bearer ${JWT_token}`
-       },
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${JWT_token}`,
+      },
       body: JSON.stringify({
-        firebase_id,
+        user_id,
         bar_id,
         content,
         timestamp,
@@ -72,13 +74,14 @@ export const postNewPost = async (firebase_id, bar_id, content, timestamp, JWT_t
 export const getAllPosts = async (JWT_token) => {
   try {
     const response = await fetch(`${BASE_URL}/post`, {
-      method: 'GET',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${JWT_token}`
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${JWT_token}`,
       },
     });
-    if (!response.ok) throw new Error(`Failed to fetch users: ${response.status}`);
+    if (!response.ok)
+      throw new Error(`Failed to fetch users: ${response.status}`);
     return await response.json();
   } catch (error) {
     console.error("Error fetching users:", error);
@@ -90,10 +93,10 @@ export const getAllPosts = async (JWT_token) => {
 export const getPostsByBarId = async (bar_id, JWT_token) => {
   try {
     const response = await fetch(`${BASE_URL}/post`, {
-      method: 'GET',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${JWT_token}`
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${JWT_token}`,
       },
     });
     const posts = await response.json();
@@ -114,14 +117,15 @@ export const getPostsByBarId = async (bar_id, JWT_token) => {
 export const getAllUsers = async (JWT_token) => {
   try {
     const response = await fetch(`${BASE_URL}/user`, {
-      method: 'GET',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${JWT_token}`
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${JWT_token}`,
       },
     });
     console.log(response);
-    if (!response.ok) throw new Error(`Failed to fetch users: ${response.status}`);
+    if (!response.ok)
+      throw new Error(`Failed to fetch users: ${response.status}`);
     return await response.json();
   } catch (error) {
     console.error("Error fetching users:", error);
@@ -133,10 +137,10 @@ export const getAllUsers = async (JWT_token) => {
 export const getUserByFirebaseId = async (firebase_id, JWT_token) => {
   try {
     const response = await fetch(`${BASE_URL}/user`, {
-      method: 'GET',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${JWT_token}`
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${JWT_token}`,
       },
     });
     console.log(response);
@@ -147,18 +151,14 @@ export const getUserByFirebaseId = async (firebase_id, JWT_token) => {
 
     const users = await response.json();
     return users.find((u) => u.firebase_id === firebase_id) || null;
-
   } catch (error) {
     console.error("Error fetching user by Firebase ID:", error);
     throw error;
   }
 };
 
-
-// LOOK INTO NEW USER AUTHORIZATION FLOW
-
 // Create new user in 
-export const postNewUser = async (firebase_id, first_name, last_name, birth_date, role_id = 1) => {
+export const postNewUser = async (firebase_id, first_name, last_name, birth_date, role_id = "BASIC") => {
   try {
     const response = await fetch(`${BASE_URL}/user`, {
       method: "POST",
@@ -185,10 +185,11 @@ export const postNewUser = async (firebase_id, first_name, last_name, birth_date
 export const updateUser = async (userData, JWT_token) => {
   try {
     const response = await fetch(`${BASE_URL}/user`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json',
-                 'Authorization': `Bearer ${JWT_token}`
-       },
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${JWT_token}`,
+      },
       body: JSON.stringify(userData),
     });
 
@@ -208,13 +209,25 @@ export const updateUser = async (userData, JWT_token) => {
  */
 
 // Post a new location/marker
-export const postNewLocation = async (firebase_id, latitude, longitude, name, description, JWT_token) => {
+export const postNewLocation = async (partyData, JWT_token) => {
+  const {
+    name,
+    description,
+    address,
+    start_time,
+    end_time,
+    user_id,
+    longitude,
+    latitude,
+  } = partyData;
   try {
-    const response = await fetch(`${BASE_URL}/location`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json',
-                 'Authorization': `Bearer ${JWT_token}`
-       },
+    console.warn(JWT_token);
+    const response = await fetch(`${BASE_URL}/location/party`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${JWT_token}`,
+      },
       body: JSON.stringify({
         name,
         description,
@@ -229,6 +242,7 @@ export const postNewLocation = async (firebase_id, latitude, longitude, name, de
 
     console.log("Response status:", response.status);
     console.log("Response ok:", response.ok);
+    console.log("Sending JWT Token:", JWT_token);
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -251,10 +265,10 @@ export const postNewLocation = async (firebase_id, latitude, longitude, name, de
 export const getBars = async (JWT_token) => {
   try {
     const response = await fetch(`${BASE_URL}/location/bar`, {
-      method: 'GET',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${JWT_token}`
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${JWT_token}`,
       },
     });
     const bars = await response.json();
@@ -266,9 +280,15 @@ export const getBars = async (JWT_token) => {
 };
 
 // Get a single bar location by id
-export const getParties = async () => {
+export const getParties = async (JWT_token) => {
   try {
-    const response = await fetch(`${BASE_URL}/location/party`);
+    const response = await fetch(`${BASE_URL}/location/party`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${JWT_token}`,
+      },
+    });
     const parties = await response.json();
     return parties || null;
   } catch (error) {

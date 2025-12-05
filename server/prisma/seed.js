@@ -11,8 +11,8 @@ async function main() {
       first_name: "dummy",
       last_name: "bob",
       birth_date: "2000-01-01T01:01:00Z",
-      role: 'BASIC',
-      points: 500
+      role: "BASIC",
+      points: 500,
     },
   });
   await prisma.user.upsert({
@@ -23,30 +23,30 @@ async function main() {
       first_name: "dummy2",
       last_name: "bob2",
       birth_date: "2002-01-01T01:01:00Z",
-      role: 'MANAGER'
+      role: "MANAGER",
     },
   });
   // Bar seeding
   await prisma.bar.upsert({
-    where: { name: 'Test Bar 1' },
+    where: { name: "The Arena" },
     update: {},
     create: {
-      name: 'Test Bar 1',
-      address: '123 Main St',
-      latitude: 44.876503,
-      longitude: -91.926781
-    }
-  })
+      name: "The Arena",
+      address: "619 Broadway St S",
+      latitude: 44.877597,
+      longitude: -91.930157,
+    },
+  });
   await prisma.bar.upsert({
-    where: { name: 'Test Bar 2' },
+    where: { name: "The Abbey Pub and Grub" },
     update: {},
     create: {
-      name: 'Test Bar 2',
-      address: '456 Main St',
-      latitude: 44.876311,
-      longitude: -91.929753
-    }
-  })
+      name: "The Abbey Pub and Grub",
+      address: "402 Main St E",
+      latitude: 44.8766,
+      longitude: -91.925509,
+    },
+  });
 }
 
 main()

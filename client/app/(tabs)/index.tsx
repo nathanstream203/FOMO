@@ -16,7 +16,9 @@ import { mapStyle } from "../../src/styles/mapStyles";
 import { useLocation } from "../../src/hooks/useLocation";
 import { useMarkers } from "../../src/hooks/useMarkers";
 import { findNearbyBar } from "../../src/hooks/findNearbyBars";
-import { getAToken } from "../../src/tokenStorage";
+import Modal from "react-native-modal";
+import { Ionicons } from "@expo/vector-icons";
+import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 
 export default function HomeScreen() {
   const [activeMarker, setActiveMarker] = useState<any | null>(null);
@@ -39,23 +41,18 @@ export default function HomeScreen() {
 
   // Fetch bar and party locations from the database
   useEffect(() => {
-    const fetchBars = async () => {
-      setLoading(true);
-      try {
-        const JWT_token = await getAToken();
-        const data = await getBars(JWT_token);
-        setMarkers(data);
-
-        console.log("Fetched bars:", data);
-      } catch (err) {
-        console.error("Error fetching bars:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchBars();
+    fetchMarkers();
   }, []);
+
+  // Auto-refresh every 2 minutes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log("Refreshing markers at", new Date().toLocaleTimeString());
+      fetchMarkers();
+    }, 2 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, [fetchMarkers]);
 
   // Check for nearby bars
   useEffect(() => {
@@ -133,17 +130,16 @@ export default function HomeScreen() {
       )}
 
       {/* Create Party Button and Modal*/}
-      <TouchableOpacity
-        style={styles.fab}
-        onPress={() => setModalVisible(true)}
-      >
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-          <Ionicons name="home-outline" size={18} color="white" />
-          <Text style={{ color: "white", fontWeight: "700" }}>
-            Create Party
-          </Text>
-        </View>
-      </TouchableOpacity>
+      <View style={styles.createPartyContainer}>
+        <TouchableOpacity
+          style={styles.fab}
+          onPress={() => setModalVisible(true)}
+        >
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+            <Ionicons name="menu-outline" size={28} color="white" />
+          </View>
+        </TouchableOpacity>
+      </View>
 
       <Modal
         isVisible={isModalVisible}
@@ -200,13 +196,14 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontWeight: "bold",
   },
-
-  fab: {
-    overflow: "visible",
+  createPartyContainer: {
     position: "absolute",
     top: 10,
-    right: 10,
-    backgroundColor: Colors.secondary,
+    left: 10,
+  },
+  fab: {
+    overflow: "visible",
+    backgroundColor: Colors.primaryLight,
     paddingVertical: 10,
     paddingHorizontal: 10,
     borderRadius: 12,
