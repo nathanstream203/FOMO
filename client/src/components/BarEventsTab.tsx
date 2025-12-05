@@ -3,7 +3,6 @@ import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView, } from "rea
 import { feedStyles } from "../styles/feedStyles";
 import { eventStyles } from "../styles/eventStyles";
 
-const BACKEND_URL = ""
 
 interface EventItem {
     id: number;
