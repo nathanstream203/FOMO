@@ -57,11 +57,11 @@ model Party {
   user_id Int
   name String
   description String?
-  start_time DateTime @default(now())
-  end_time DateTime
+  address String
+  start_time String 
+  end_time String
   longitude Decimal
   latitude Decimal
-  address String
 
   user User @relation(fields: [user_id], references: [id])
 }

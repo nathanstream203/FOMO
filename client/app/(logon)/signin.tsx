@@ -14,8 +14,14 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { auth } from "./firebaseConfig";
-import { Colors } from "../styles/colors";
+import { auth } from "../../src/firebaseConfig";
+import { Colors } from "../../src/styles/colors";
+import {
+  saveAToken,
+  clearAToken,
+  verifyToken,
+} from "../../src/tokenStorage.js";
+import BASE_URL from "../../src/_base_url";
 
 export default function SignInScreen() {
   const [email, setEmail] = React.useState("");
@@ -36,7 +42,6 @@ export default function SignInScreen() {
       const user = userCredential.user;
 
       if (!user.emailVerified) {
-        // If not verified, block login and sign out
         await signOut(auth);
         Alert.alert(
           "Email Not Verified",
@@ -44,12 +49,29 @@ export default function SignInScreen() {
         );
         return;
       }
-      // If verified, allow access to the app
+
+      const firebase_token = await user.getIdToken();
+      const res = await fetch(`${BASE_URL}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ firebase_token }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Login failed on server");
+      }
+
+      const JWT_accessToken = await res.json();
+      await saveAToken(JWT_accessToken.token);
+      //const data = await verifyToken();
+
+      await saveAToken(JWT_accessToken.token);
       setUser(user);
       router.replace("/(tabs)");
     } catch (error: any) {
       console.error(error);
-      Alert.alert("Login Error", error.message);
+      Alert.alert("Login Error", error.message || "Could not sign in");
     }
   };
 
@@ -120,9 +142,15 @@ export default function SignInScreen() {
             <Text style={styles.buttonText}>Sign In</Text>
           </Pressable>
 
+          {/*
           <Pressable style={styles.buttonPrimary} onPress={byPass}>
             <Text style={styles.buttonText}>Sign In - BYPASS</Text>
           </Pressable>
+
+          <Pressable style={styles.buttonPrimary} onPress={clearAToken}>
+            <Text style={styles.buttonText}>Clear Stored Tokens</Text>
+          </Pressable>
+          */}
 
           <View style={styles.buttonSecondary}>
             <Text style={{ color: "white", fontSize: 16 }}>

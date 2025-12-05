@@ -6,11 +6,23 @@ import postRouter from './routes/post.js';
 import userRouter from './routes/user.js';
 import pointsRouter from './routes/points.js';
 import friendsRouter from './routes/friends.js';
+import pointsRouter from './routes/points.js'
+import authRouter from './routes/auth.js'
+
+import { authenticateToken } from './middleware/authenticateToken.js';
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+// Public routes
+app.use('/auth', authRouter); 
+
+// Apply authentication middleware to all routes below
+app.use('/', authenticateToken);
+
+// Protected routes
 app.use('/user', userRouter);
 app.use('/location', locationRouter);
 app.use('/post', postRouter);

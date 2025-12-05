@@ -1,49 +1,58 @@
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, StyleSheet, Text, View } from "react-native";
-import { getBars } from "../api/databaseOperations";
-import { Colors } from "../styles/colors";
-import MapSection from "../components/MapSection";
-import ActiveMarkerPopup from "../components/ActiveMarkerPopup";
-import { barImages } from "../barImages.js";
-import { mapStyle } from "../styles/mapStyles";
-import { useLocation } from "../hooks/useLocation";
-import { findNearbyBar } from "../hooks/findNearbyBars";
+import {
+  ActivityIndicator,
+  Alert,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { Colors } from "../../src/styles/colors";
+import MapSection from "../../src/components/MapSection";
+import ActiveMarkerPopup from "../../src/components/ActiveMarkerPopup";
+import CreatePartyForm from "../../src/components/CreatePartyForm";
+import { barImages } from "../../src/barImages.js";
+import { mapStyle } from "../../src/styles/mapStyles";
+import { useLocation } from "../../src/hooks/useLocation";
+import { useMarkers } from "../../src/hooks/useMarkers";
+import { findNearbyBar } from "../../src/hooks/findNearbyBars";
+import Modal from "react-native-modal";
+import { Ionicons } from "@expo/vector-icons";
+import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 
-interface BarLocation {
-  id: string;
-  name: string;
-  address: string;
-  longitude: number;
-  latitude: number;
-  events: Event[];
-}
 export default function HomeScreen() {
   const [activeMarker, setActiveMarker] = useState<any | null>(null);
   const [nearbyBar, setNearbyBar] = useState<any>(null);
-  const [markers, setMarkers] = useState<BarLocation[]>([]);
-  const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("details");
   const [isCheckedIn, setIsCheckedIn] = useState(false);
   const { location, region } = useLocation();
+  const [isModalVisible, setModalVisible] = useState(false);
 
   // Fetch bar locations from the database
+  const { markers, loading, error, fetchMarkers, setMarkers, setLoading } =
+    useMarkers();
+
+  // Handle party creation and refresh markers
+  const handlePartyCreated = async (partyData: any) => {
+    // Party is already created in CreatePartyForm
+    // Just refresh the markers to show the new party
+    await fetchMarkers();
+  };
+
+  // Fetch bar and party locations from the database
   useEffect(() => {
-    const fetchBars = async () => {
-      setLoading(true);
-      try {
-        const data = await getBars();
-        setMarkers(data);
-
-        console.log("Fetched bars:", data);
-      } catch (err) {
-        console.error("Error fetching bars:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchBars();
+    fetchMarkers();
   }, []);
+
+  // Auto-refresh every 2 minutes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log("Refreshing markers at", new Date().toLocaleTimeString());
+      fetchMarkers();
+    }, 2 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, [fetchMarkers]);
 
   // Check for nearby bars
   useEffect(() => {
@@ -53,10 +62,10 @@ export default function HomeScreen() {
 
   // Handle Check-In Logic
   const handleCheckIn = () => {
+    if (!activeMarker) return;
     if (nearbyBar?.id === activeMarker.id) {
       Alert.alert("Checked in!", `You are at ${activeMarker.name}`);
       setIsCheckedIn(true);
-      setActiveTab("live");
     }
   };
 
@@ -66,6 +75,28 @@ export default function HomeScreen() {
       <View style={styles.loader}>
         <ActivityIndicator size="large" />
         <Text style={styles.loadingText}>Hang Tight, Your Night Awaits…</Text>
+      </View>
+    );
+  }
+
+  // Show loading state
+  if (loading && markers.length === 0) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#8B5CF6" />
+        <Text style={{ color: "#fff", marginTop: 10 }}>Loading markers...</Text>
+      </View>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text style={{ color: "#ff4444", fontSize: 16 }}>
+          Error loading markers
+        </Text>
+        <Text style={{ color: "#aaa", marginTop: 8 }}>{error.message}</Text>
       </View>
     );
   }
@@ -97,6 +128,43 @@ export default function HomeScreen() {
           barImages={barImages}
         />
       )}
+
+      {/* Create Party Button and Modal*/}
+      <View style={styles.createPartyContainer}>
+        <TouchableOpacity
+          style={styles.fab}
+          onPress={() => setModalVisible(true)}
+        >
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+            <Ionicons name="menu-outline" size={28} color="white" />
+          </View>
+        </TouchableOpacity>
+      </View>
+
+      <Modal
+        isVisible={isModalVisible}
+        onBackdropPress={() => setModalVisible(false)}
+        swipeDirection="down"
+        onSwipeComplete={() => setModalVisible(false)}
+        animationIn="slideInUp"
+        animationOut="slideOutDown"
+        backdropOpacity={0.5} // makes background greyed out
+        style={{ justifyContent: "flex-end", margin: 0 }}
+      >
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "flex-end",
+          }}
+        >
+          <View style={styles.modalContent}>
+            <CreatePartyForm
+              onClose={() => setModalVisible(false)}
+              onSubmit={handlePartyCreated}
+            />
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -122,10 +190,40 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 18,
     color: "#FFF", // or any color you like
-    textShadowColor: "#a388f6", // Glow color
+    textShadowColor: Colors.secondaryLight, // Glow color
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 20,
     textAlign: "center",
     fontWeight: "bold",
+  },
+  createPartyContainer: {
+    position: "absolute",
+    top: 10,
+    left: 10,
+  },
+  fab: {
+    overflow: "visible",
+    backgroundColor: Colors.primaryLight,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    borderRadius: 12,
+    alignItems: "center",
+    shadowColor: Colors.secondary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 6,
+    elevation: 10, // for Android glow effect
+  },
+  modal: {
+    justifyContent: "flex-end",
+    margin: 0,
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalContent: {
+    height: "80%",
+    backgroundColor: Colors.primary,
+    padding: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
   },
 });
