@@ -54,9 +54,9 @@ export default function ActiveMarkerPopup({
             activeTab === "events" && popupStyles.activeTab,
           ]}
           onPress={() => setActiveTab("events")}
-          >
-            <Text style={popupStyles.tabText}>Events</Text>
-          </TouchableOpacity>
+        >
+          <Text style={popupStyles.tabText}>Events</Text>
+        </TouchableOpacity>
       </View>
 
       {activeTab === "details" ? (
@@ -69,9 +69,15 @@ export default function ActiveMarkerPopup({
           styles={popupStyles}
         />
       ) : activeTab === "live" ? (
-        <LiveFeedTab 
-        barId={activeMarker.id} 
-        isCheckedIn={isCheckedIn} />
+        <LiveFeedTab
+          barId={
+            activeMarker.type === "bar" ? activeMarker.numericId : undefined
+          }
+          partyId={
+            activeMarker.type === "party" ? activeMarker.numericId : undefined
+          }
+          isCheckedIn={isCheckedIn}
+        />
       ) : (
         <BarEventsTab />
       )}

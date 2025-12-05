@@ -31,7 +31,6 @@ export default function signUpScreen() {
   const [password, setPassword] = React.useState("");
   const router = useRouter();
 
-
   const signUp = async () => {
     if (!firstName || !lastName || !dateOfBirth || !email || !password) {
       Alert.alert("Error", "Please enter all fields. All fields are required.");
@@ -66,7 +65,12 @@ export default function signUpScreen() {
         // 2000-01-01T01:01:00.000Z
         const firebaseUID = user?.uid;
         const dbDateOfBirth = dateOfBirth + "T00:00:00.000Z";
-        console.warn("Posting new user to database - FRONTEND:", { firebaseUID, firstName, lastName, dbDateOfBirth });
+        console.warn("Posting new user to database - FRONTEND:", {
+          firebaseUID,
+          firstName,
+          lastName,
+          dbDateOfBirth,
+        });
         await postNewUser(firebaseUID, firstName, lastName, dbDateOfBirth)
           .then((dbUser) => console.log("User stored in database:", dbUser))
           .catch((err) => console.error("DB Error:", err));
@@ -86,7 +90,6 @@ export default function signUpScreen() {
       Alert.alert("Error", error.message);
     }
   };
-
 
   return (
     <KeyboardAvoidingView
@@ -260,7 +263,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.8,
     shadowRadius: 6,
-    elevation: 10, // for Android glow effect
+    elevation: 8, // for Android glow effect
   },
   icon: {
     marginRight: 8,
