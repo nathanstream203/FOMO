@@ -8,6 +8,7 @@ import pointsRouter from './routes/points.js';
 import friendsRouter from './routes/friends.js';
 import pointsRouter from './routes/points.js'
 import authRouter from './routes/auth.js'
+import eventRouter from './routes/events.js';
 
 import { authenticateToken } from './middleware/authenticateToken.js';
 
@@ -28,6 +29,7 @@ app.use('/location', locationRouter);
 app.use('/post', postRouter);
 app.use('/points', pointsRouter);
 app.use('/friends', friendsRouter);
+app.use('/event', eventRouter);
 
 // Default route
 app.get('/', (req,res) => {
