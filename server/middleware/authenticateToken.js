@@ -8,6 +8,7 @@ export async function authenticateToken(req, res, next) {
             return next();
         }
 
+<<<<<<< HEAD
         const header = req.header.authorization;
         if(!header) { 
             console.log(header);

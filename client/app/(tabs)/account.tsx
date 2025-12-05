@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import { auth } from "../../src/firebaseConfig";
 import { getUserByFirebaseId } from "../../src/api/databaseOperations";
-import { clearAToken } from "../../src/tokenStorage";
+import { getAToken, clearAToken  } from "../../src/tokenStorage";
 
 interface DatabaseUser {
   firebase_id: string;
@@ -56,7 +56,8 @@ export default function AccountScreen() {
       if (user?.uid) {
         setDbLoading(true);
         try {
-          const userData = await getUserByFirebaseId(user.uid);
+          const JWT_token = await getAToken();
+          const userData = await getUserByFirebaseId(user.uid, JWT_token);
           setDbUser(userData);
         } catch (err) {
           console.error("Error fetching user from DB:", err);
