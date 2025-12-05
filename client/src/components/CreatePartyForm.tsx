@@ -18,7 +18,6 @@ import { auth } from "../../src/firebaseConfig";
 import {
   getUserByFirebaseId,
   postNewLocation,
-  testConnection,
 } from "../api/databaseOperations";
 import { getAToken, verifyToken } from "../tokenStorage";
 import { useMarkers } from "../hooks/useMarkers";
@@ -118,7 +117,6 @@ export default function CreatePartyForm({ onClose, onSubmit }: Props) {
       console.log("Token:", token);
       console.log("Firebase UID:", user?.uid);
       console.log("getting user from database...");
-
 
       // Get the database user object using the Firebase UID
       const dbUser = await getUserByFirebaseId(user?.uid, token);
@@ -512,7 +510,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginTop: 6,
   },
-
   valueText: {
     color: Colors.secondaryLight,
     fontSize: 14,

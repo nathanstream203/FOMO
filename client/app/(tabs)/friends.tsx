@@ -9,20 +9,9 @@ import {
   ScrollView,
 } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Colors } from "../../src/styles/colors";
 import { auth } from "../../src/firebaseConfig";
 import NotVerified from "../notverified";
-
-const Colors = {
-  background: "#12002f",
-  primary: "#7C4DFF",
-  secondary: "#C77DFF",
-  text: "#FFFFFF",
-  textFaded: "#bbbbbb",
-  tabBackground: "#3e0078",
-  activeTabBackground: "#5e00b8",
-  onlineDot: "#4CAF50",
-  shadowNeon: "rgba(255, 0, 255, 0.4)",
-};
 
 type TabType = "All Friends" | "Active Now" | "Suggestions";
 
@@ -173,12 +162,23 @@ const FriendCard: React.FC<{ friend: Friend }> = ({ friend }) => {
         <View style={componentStyles.nameRow}>
           <Text style={componentStyles.friendName}>{friend.name}</Text>
           {/* Fire Icon for points/activity */}
-          <MaterialCommunityIcons
-            name="fire"
-            size={16}
-            color={Colors.secondary}
-          />
-          <Text style={componentStyles.points}>{friend.points}</Text>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              backgroundColor: Colors.primaryLight,
+              paddingHorizontal: 6,
+              paddingVertical: 2,
+              borderRadius: 12,
+            }}
+          >
+            <MaterialCommunityIcons
+              name="fire"
+              size={16}
+              color={Colors.secondaryLight}
+            />
+            <Text style={componentStyles.points}>{friend.points}</Text>
+          </View>
         </View>
         <Text style={componentStyles.friendUsername}>{friend.username}</Text>
         <View style={componentStyles.statusRow}>
@@ -187,7 +187,7 @@ const FriendCard: React.FC<{ friend: Friend }> = ({ friend }) => {
             <MaterialCommunityIcons
               name="account-multiple"
               size={12}
-              color={Colors.textFaded}
+              color={Colors.secondary}
               style={{ marginRight: 4 }}
             />
           ) : (
@@ -207,22 +207,18 @@ const FriendCard: React.FC<{ friend: Friend }> = ({ friend }) => {
         </View>
       </View>
       <TouchableOpacity
-        style={[
-          componentStyles.actionButton,
-          isSuggestion && componentStyles.addButton,
-          isJoinButton && componentStyles.joinButton, // Optionally customize Join button
-        ]}
+        style={[componentStyles.actionButton]}
         onPress={() => console.log(`${friend.action} ${friend.name}`)}
       >
-        <Text style={componentStyles.actionButtonText}>{friend.action}</Text>
         {isSuggestion && ( // Add Person Icon for Suggestions
           <Ionicons
             name="person-add-outline"
             size={16}
-            color={Colors.text}
-            style={{ marginLeft: 4 }}
+            color={Colors.white}
+            style={{ marginRight: 4 }}
           />
         )}
+        <Text style={componentStyles.actionButtonText}>{friend.action}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -280,7 +276,7 @@ export default function FriendsScreen() {
                 {
                   marginHorizontal: 0,
                   marginRight: 8,
-                  backgroundColor: Colors.onlineDot,
+                  backgroundColor: Colors.green,
                   position: "relative",
                   top: 0,
                   right: 0,
@@ -314,7 +310,7 @@ export default function FriendsScreen() {
       <View style={componentStyles.modalContent}>
         <Text style={componentStyles.modalTitle}>Add Friend</Text>
         <Text style={componentStyles.modalSubtitle}>
-          Scan their code or enter their username/friend code.
+          Scan or enter their unique friend code to send a friend request.
         </Text>
         {/* Option 1: Scan Code */}
         <TouchableOpacity
@@ -327,19 +323,24 @@ export default function FriendsScreen() {
           <Ionicons
             name="camera-outline"
             size={20}
-            color={Colors.text}
+            color={Colors.white}
             style={{ marginRight: 8 }}
           />
-          <Text style={componentStyles.actionButtonText}>Scan Friend Code</Text>
+          <Text style={componentStyles.actionButtonText}>Scan QR Code</Text>
         </TouchableOpacity>
-        <Text style={[componentStyles.modalSubtitle, { marginBottom: 15 }]}>
-          -- OR --
+        <Text
+          style={[
+            componentStyles.modalSubtitle,
+            { marginBottom: 15, color: Colors.white, fontWeight: "600" },
+          ]}
+        >
+          OR
         </Text>
         {/* Option 2: Input Option (Typing) */}
         <TextInput
           style={componentStyles.modalInput}
-          placeholder="Enter Username or Code (e.g., @user / ABCD-1234)"
-          placeholderTextColor={Colors.textFaded}
+          placeholder="@ABCD1234"
+          placeholderTextColor={Colors.lightWhite}
           value={friendCodeInput}
           onChangeText={setFriendCodeInput}
         />
@@ -351,7 +352,7 @@ export default function FriendsScreen() {
             setFriendCodeInput("");
           }}
         >
-          <Text style={componentStyles.actionButtonText}>Search & Add</Text>
+          <Text style={componentStyles.actionButtonText}>Send Request</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={componentStyles.modalCloseButton}
@@ -377,22 +378,12 @@ export default function FriendsScreen() {
           style={styles.scanButton}
           onPress={() => setModalVisible(true)} // Opens modal with both scan/type options
         >
-          <Ionicons name="camera-outline" size={20} color={Colors.text} />
+          <Ionicons name="person-add-outline" size={15} color={Colors.white} />
           {}
-          <Text style={styles.scanButtonText}>Scan</Text>
+          <Text style={styles.scanButtonText}>Add Friend</Text>
         </TouchableOpacity>
       </View>
-      {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <Ionicons name="search-outline" size={20} color={Colors.textFaded} />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search friends..."
-          placeholderTextColor={Colors.textFaded}
-          value={searchText}
-          onChangeText={setSearchText}
-        />
-      </View>
+
       {/* Tab Navigation */}
       <View style={styles.tabBar}>
         {Object.keys(MOCK_FRIENDS_DATA).map((tabKey) => {
@@ -407,8 +398,23 @@ export default function FriendsScreen() {
           );
         })}
       </View>
+      {/* Search Bar */}
+      <View style={styles.searchContainer}>
+        <Ionicons
+          name="search-outline"
+          size={20}
+          color={Colors.secondaryLight}
+        />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search friends..."
+          placeholderTextColor={Colors.secondaryLight}
+          value={searchText}
+          onChangeText={setSearchText}
+        />
+      </View>
 
-      <ScrollView style={styles.scrollView}>
+      <ScrollView style={{ flex: 1 }}>
         {/* Conditional Content (Banner / Suggestions Header) */}
         {renderActiveContent(currentFriendsData.length)}
         {/* Friend List */}
@@ -435,18 +441,18 @@ const componentStyles = StyleSheet.create({
   cardContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Colors.tabBackground,
+    backgroundColor: Colors.primary,
     padding: 12,
     marginHorizontal: 16,
     marginVertical: 6,
     borderRadius: 12,
-    shadowColor: Colors.shadowNeon,
+    borderColor: Colors.secondary,
+    borderWidth: 0.2,
+    shadowColor: Colors.secondary,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.8,
-    shadowRadius: 5,
-    elevation: 8,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
+    shadowRadius: 6,
+    elevation: 6, // for Android glow effect
   },
   avatarWrapper: {
     marginRight: 12,
@@ -462,65 +468,88 @@ const componentStyles = StyleSheet.create({
     borderWidth: 2,
     borderColor: Colors.secondary,
   },
-  avatarText: { color: Colors.text, fontSize: 18, fontWeight: "bold" },
+  avatarText: { color: Colors.white, fontSize: 18, fontWeight: "bold" },
   onlineDot: {
     position: "absolute",
     bottom: 0,
     right: 0,
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: Colors.onlineDot,
+    width: 14,
+    height: 14,
+    borderRadius: 14,
+    backgroundColor: Colors.green,
     borderWidth: 2,
-    borderColor: Colors.tabBackground,
+    borderColor: Colors.primaryLight,
   },
+
   cardContent: { flex: 1 },
+
   nameRow: { flexDirection: "row", alignItems: "center" },
+
   friendName: {
-    color: Colors.text,
+    color: Colors.white,
     fontSize: 16,
     fontWeight: "600",
     marginRight: 8,
   },
+
   points: {
-    color: Colors.secondary,
+    color: Colors.white,
     fontSize: 14,
     fontWeight: "600",
     marginLeft: 4,
   },
-  friendUsername: { color: Colors.textFaded, fontSize: 12, marginTop: 2 },
+
+  friendUsername: {
+    color: Colors.secondaryLight,
+    fontSize: 12,
+    marginTop: 2,
+  },
+
   statusRow: { flexDirection: "row", alignItems: "center", marginTop: 4 },
-  statusText: { color: Colors.textFaded, fontSize: 12 },
+
+  statusText: { color: Colors.secondary, fontSize: 12, fontWeight: "500" },
+
   actionButton: {
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 20,
+    borderRadius: 10,
     backgroundColor: Colors.secondary,
     flexDirection: "row",
     alignItems: "center",
+    shadowColor: Colors.secondary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 6,
+    elevation: 6, // for Android glow effect
   },
-  actionButtonText: { color: Colors.text, fontSize: 14, fontWeight: "bold" },
-  addButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    backgroundColor: Colors.primary,
+
+  actionButtonText: {
+    color: Colors.white,
+    fontSize: 14,
+    fontWeight: "bold",
   },
-  joinButton: {
-    backgroundColor: Colors.onlineDot,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-  }, // Tab Styles
+
+  // Tabs
   tabButton: {
     flex: 1,
     paddingVertical: 10,
-    borderRadius: 20,
-    marginHorizontal: 4,
+    borderRadius: 10,
     alignItems: "center",
+    backgroundColor: Colors.primary,
   },
-  tabActive: { backgroundColor: Colors.activeTabBackground },
-  tabText: { color: Colors.textFaded, fontSize: 14, fontWeight: "600" },
-  tabTextActive: { color: Colors.text },
+  tabActive: {
+    backgroundColor: Colors.secondary,
+  },
+  tabText: {
+    color: Colors.lightWhite,
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  tabTextActive: {
+    color: Colors.white,
+  },
+
+  // Modal
   modalOverlay: {
     position: "absolute",
     top: 0,
@@ -534,46 +563,51 @@ const componentStyles = StyleSheet.create({
   },
   modalContent: {
     width: "85%",
-    backgroundColor: Colors.tabBackground,
+    backgroundColor: Colors.primary,
     borderRadius: 16,
     padding: 20,
     alignItems: "center",
     borderWidth: 2,
     borderColor: Colors.primary,
-    shadowColor: Colors.shadowNeon,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 1,
-    shadowRadius: 15,
-    elevation: 20,
   },
   modalTitle: {
     fontSize: 24,
     fontWeight: "bold",
-    color: Colors.text,
+    color: Colors.white,
     marginBottom: 8,
   },
-  modalSubtitle: { fontSize: 14, color: Colors.textFaded, textAlign: "center" },
+  modalSubtitle: {
+    fontSize: 14,
+    color: Colors.lightWhite,
+    textAlign: "center",
+    marginBottom: 8,
+  },
   modalInput: {
     width: "100%",
-    backgroundColor: Colors.background,
-    color: Colors.text,
+    backgroundColor: Colors.primary,
+    color: Colors.white,
     padding: 12,
     borderRadius: 8,
     marginBottom: 15,
-    borderWidth: 1,
+    borderWidth: 0.2,
     borderColor: Colors.secondary,
+    shadowColor: Colors.secondaryLight,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 12,
+    elevation: 8, // for Android glow effect
   },
   modalButton: {
     width: "100%",
     padding: 12,
-    borderRadius: 25,
+    borderRadius: 12,
     backgroundColor: Colors.secondary,
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "center",
   },
   modalCloseButton: { marginTop: 10, padding: 10 },
-  modalCloseText: { color: Colors.primary, fontSize: 16, fontWeight: "600" },
+  modalCloseText: { color: Colors.secondaryLight, fontSize: 16 },
 });
 
 // --- Main Screen Styles ---
@@ -581,98 +615,104 @@ const componentStyles = StyleSheet.create({
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.background,
-  },
-  scrollView: {
-    flex: 1,
+    backgroundColor: Colors.darkPrimary,
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     padding: 16,
-    paddingTop: 50,
-    paddingBottom: 8,
   },
   heading: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "bold",
-    color: Colors.text,
+    color: Colors.white,
   },
   subHeading: {
-    fontSize: 12,
-    color: Colors.textFaded,
+    fontSize: 14,
+    color: Colors.secondaryLight,
   },
   scanButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Colors.primary,
-    paddingVertical: 8,
+    backgroundColor: Colors.secondary,
+    borderRadius: 10,
     paddingHorizontal: 12,
-    borderRadius: 8,
+    paddingVertical: 8,
   },
   scanButtonText: {
-    color: Colors.text,
     marginLeft: 6,
+    color: Colors.white,
     fontWeight: "600",
   },
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Colors.tabBackground,
+    backgroundColor: Colors.primary,
+    borderWidth: 0.2,
+    borderColor: Colors.secondaryLight,
     marginHorizontal: 16,
-    marginVertical: 12,
-    padding: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
     borderRadius: 12,
-    borderWidth: 1,
-    borderColor: Colors.primary,
+    marginBottom: 12,
+    shadowColor: Colors.secondaryLight,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 12,
+    elevation: 8, // for Android glow effect
   },
   searchInput: {
-    flex: 1,
-    color: Colors.text,
     marginLeft: 8,
-    fontSize: 16,
+    flex: 1,
+    color: Colors.white,
   },
   tabBar: {
     flexDirection: "row",
-    justifyContent: "space-around",
-    backgroundColor: Colors.tabBackground,
     marginHorizontal: 16,
-    padding: 6,
-    borderRadius: 12,
     marginBottom: 12,
+    backgroundColor: Colors.primary,
+    borderRadius: 12,
+    padding: 4,
+    borderColor: Colors.secondary,
+    borderWidth: 0.2,
+    shadowColor: Colors.secondaryLight,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 12,
+    elevation: 8, // for Android glow effect
   },
   banner: {
-    backgroundColor: Colors.tabBackground,
-    marginHorizontal: 16,
-    padding: 15,
+    backgroundColor: Colors.primaryLight,
+    padding: 12,
     borderRadius: 12,
+    marginHorizontal: 16,
     marginBottom: 12,
-    borderLeftWidth: 4,
-    borderLeftColor: Colors.onlineDot,
+    borderWidth: 0.2,
+    borderColor: Colors.secondary,
+    shadowColor: Colors.secondary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 6,
+    elevation: 10, // for Android glow effect
   },
   bannerText: {
-    color: Colors.onlineDot,
-    fontSize: 16,
+    color: Colors.white,
     fontWeight: "600",
-    marginBottom: 4,
   },
   bannerSubtext: {
-    color: Colors.textFaded,
-    fontSize: 14,
+    color: Colors.secondaryLighter,
+    marginTop: 4,
   },
   suggestionHeader: {
-    color: Colors.textFaded,
-    fontSize: 12,
+    color: Colors.secondaryLight,
     marginHorizontal: 16,
-    marginTop: 4,
-    marginBottom: 8,
+    marginBottom: 12,
+    fontSize: 14,
   },
   emptyText: {
-    color: Colors.textFaded,
+    color: Colors.lightWhite,
     textAlign: "center",
     marginTop: 40,
-    fontSize: 16,
-    paddingHorizontal: 20,
   },
 });
