@@ -15,7 +15,7 @@ router.post("/login", async (req, res) => {
         const decoded = await verifyFirebaseToken(firebase_token);
 
         const user = await prisma.user.findUnique({
-            where: { firebase_id: decoded.uid }
+            where: { firebase_id: decoded.firebase_id }
         });
 
         const token = createToken(user.firebase_id);

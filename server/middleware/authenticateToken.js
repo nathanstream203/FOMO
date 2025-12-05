@@ -9,7 +9,9 @@ export async function authenticateToken(req, res, next) {
         }
 
         const header = req.header.authorization;
-        if(!header) { return res.status(401).json({ error: "Not authorized" })};
+        if(!header) { 
+            console.log(header);
+            return res.status(401).json({ error: "Not authorized" })};
 
         const token = header.split(" ")[1];
         const decoded = verifyToken(token);
