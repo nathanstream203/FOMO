@@ -63,3 +63,50 @@ Fix migration errors
 ```bash
 npx prisma migrate reset
 ```
+
+## Product Deployment
+
+To create a new production build to deploy to physcial android devices:
+
+Open a new Terminal in FOMO/client/
+
+install eas 
+```bash
+npm install
+```
+
+log into expo
+```bash
+npx expo login
+```
+(Use Gabe's Expo account! The Project and Android Keystore are already set up there. Credentials posted in teams)
+
+run/rerun this cmd to build the product
+```bash
+npx eas build --profile production --platform android
+```
+
+When finished, the terminal will show a link where you can download the project
+
+### Installing on mobile device
+
+Enter/Paste the download link into browser, once loaded the file should automatically download
+
+*IF THE DEVICE ASKS*
+Allow Samsung to access photos, media, and files? : Allow
+Download file? : Download
+
+Navigate to the device's download files (Files app > downloads )
+
+Look for the install file, the file will be named "download-***.apk"
+
+*IF THE DEVICE ASKS*
+For your security, your phone is not allows to install unknown apps from this source : Settings
+Allow from this source : Yes
+
+Go back to the install file, click install
+
+*IF THE DEVICE ASKS*
+App scan recommended : Install without Scanning
+
+Once installed, you can choose to open the app directly. Additionally, the FOMO app will now be seen as a mobile app on the device!
