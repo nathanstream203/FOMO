@@ -79,7 +79,7 @@ log into expo
 ```bash
 npx expo login
 ```
-(Use Gabe's Expo account! The Project and Android Keystore are already set up there. Credentials posted in teams)
+(Use Gabe's Expo account! The Project and Android Keystore are already set up there. <br> Credentials posted in teams)
 
 run/rerun this cmd to build the product
 ```bash
@@ -92,21 +92,20 @@ When finished, the terminal will show a link where you can download the project
 
 Enter/Paste the download link into browser, once loaded the file should automatically download
 
-*IF THE DEVICE ASKS*
-Allow Samsung to access photos, media, and files? : Allow
-Download file? : Download
+*IF THE DEVICE ASKS*<br>
+Allow Samsung to access photos, media, and files? : Allow<br>
+Download file? : Download<br>
 
-Navigate to the device's download files (Files app > downloads )
+Navigate to the device's download files (Files app > downloads )<br>
+Look for the install file, the file will be named "download-***.apk"<br>
 
-Look for the install file, the file will be named "download-***.apk"
+*IF THE DEVICE ASKS*<br>
+For your security, your phone is not allows to install unknown apps from this source : Settings<br>
+Allow from this source : Yes<br>
 
-*IF THE DEVICE ASKS*
-For your security, your phone is not allows to install unknown apps from this source : Settings
-Allow from this source : Yes
+Go back to the install file, click install<br>
 
-Go back to the install file, click install
-
-*IF THE DEVICE ASKS*
-App scan recommended : Install without Scanning
+*IF THE DEVICE ASKS*<br>
+App scan recommended : Install without Scanning<br>
 
 Once installed, you can choose to open the app directly. Additionally, the FOMO app will now be seen as a mobile app on the device!
