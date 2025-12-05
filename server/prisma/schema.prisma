@@ -77,11 +77,12 @@ model Bar {
 
 model Event {
   id Int @id @default(autoincrement())
-  name String
+  bar_id Int
+  title String
   description String?
+  event_date String
   start_time DateTime @default(now())
   end_time DateTime
-  bar_id Int
   bar Bar @relation(fields: [bar_id], references: [id])
 }
 

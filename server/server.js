@@ -4,8 +4,9 @@ import express from "express";
 import locationRouter from './routes/location.js';
 import postRouter from './routes/post.js';
 import userRouter from './routes/user.js';
-import pointsRouter from './routes/points.js'
-import authRouter from './routes/auth.js'
+import pointsRouter from './routes/points.js';
+import authRouter from './routes/auth.js';
+import eventRouter from './routes/events.js';
 
 import { authenticateToken } from './middleware/authenticateToken.js';
 
@@ -25,6 +26,7 @@ app.use('/user', userRouter);
 app.use('/location', locationRouter);
 app.use('/post', postRouter);
 app.use('/points', pointsRouter);
+app.use('/event', eventRouter);
 
 // Default route
 app.get('/', (req,res) => {
