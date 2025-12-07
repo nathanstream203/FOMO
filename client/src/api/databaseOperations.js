@@ -20,7 +20,7 @@ export const testConnection = async (JWT_token) => {
         "Content-Type": "application/json",
         Authorization: `Bearer ${JWT_token}`,
       },
-    }); 
+    });
 
     if (response.ok) {
       console.log("Connection successful:", BASE_URL);
@@ -45,29 +45,29 @@ export const testConnection = async (JWT_token) => {
  */
 
 // Create new post in database
-export const postNewPost = async (user_id, bar_id, content, timestamp, JWT_token) => {
-  try {
-    const response = await fetch(`${BASE_URL}/post`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${JWT_token}`,
-      },
-      body: JSON.stringify({
-        user_id,
-        bar_id,
-        content,
-        timestamp,
-      }),
-    });
+export const postNewPost = async (
+  user_id,
+  bar_id,
+  party_id,
+  content,
+  timestamp,
+  JWT_token
+) => {
+  const postData = { user_id, content, timestamp };
+  if (bar_id) postData.bar_id = bar_id;
+  if (party_id) postData.party_id = party_id;
 
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.Error || "Failed to create user");
-    return data;
-  } catch (error) {
-    console.error("Error posting new post in database:", error);
-    throw error;
-  }
+  const response = await fetch(`${BASE_URL}/post`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${JWT_token}`,
+    },
+    body: JSON.stringify(postData),
+  });
+
+  if (!response.ok) throw new Error("Failed to create post");
+  return response.json();
 };
 
 // Get all posts
@@ -92,17 +92,37 @@ export const getAllPosts = async (JWT_token) => {
 // Get posts for a specific bar
 export const getPostsByBarId = async (bar_id, JWT_token) => {
   try {
-    const response = await fetch(`${BASE_URL}/post`, {
+    const response = await fetch(`${BASE_URL}/post/${bar_id}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${JWT_token}`,
       },
     });
-    const posts = await response.json();
-    return posts.filter((post) => post.bar_id === bar_id);
+    console.log(`${BASE_URL}/post/${bar_id}`);
+
+    return await response.json();
   } catch (error) {
     console.error(`Error fetching posts for bar ${bar_id}:`, error);
+    throw error;
+  }
+};
+
+// Get posts for a specific party
+export const getPostsByPartyId = async (party_id, JWT_token) => {
+  try {
+    const response = await fetch(`${BASE_URL}/post/${party_id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${JWT_token}`,
+      },
+    });
+    console.log(`${BASE_URL}/post/${party_id}`);
+
+    return await response.json();
+  } catch (error) {
+    console.error(`Error fetching posts for party ${party_id}:`, error);
     throw error;
   }
 };
@@ -157,8 +177,14 @@ export const getUserByFirebaseId = async (firebase_id, JWT_token) => {
   }
 };
 
-// Create new user in 
-export const postNewUser = async (firebase_id, first_name, last_name, birth_date, role_id = "BASIC") => {
+// Create new user in
+export const postNewUser = async (
+  firebase_id,
+  first_name,
+  last_name,
+  birth_date,
+  role_id = "BASIC"
+) => {
   try {
     const response = await fetch(`${BASE_URL}/user`, {
       method: "POST",

@@ -36,16 +36,23 @@ model User {
   post Post[]
   party Party[]
   attendance Attendance_log[]
+
+  friends_sent Friends[] @relation("sent")
+  friends_recieved Friends[] @relation("recieved")
 }
 
 model Post {
-  id Int @id @default(autoincrement())
-  user_id Int
-  bar_id Int
-  user User @relation(fields: [user_id], references: [id])
-  bar Bar @relation(fields: [bar_id], references: [id])
-  content String
-  timestamp DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  bar_id     Int?
+  party_id   Int?     
+
+  user       User     @relation(fields: [user_id], references: [id])
+  bar        Bar?     @relation(fields: [bar_id], references: [id])
+  party      Party?   @relation(fields: [party_id], references: [id])
+
+  content    String
+  timestamp  DateTime @default(now())
 }
 
 // Stores locations as latitude and longitude coordinates
@@ -60,6 +67,7 @@ model Party {
   longitude Decimal
   latitude Decimal
 
+  posts Post[]
   user User @relation(fields: [user_id], references: [id])
 }
 
@@ -77,11 +85,12 @@ model Bar {
 
 model Event {
   id Int @id @default(autoincrement())
-  name String
+  bar_id Int
+  title String
   description String?
+  event_date String
   start_time DateTime @default(now())
   end_time DateTime
-  bar_id Int
   bar Bar @relation(fields: [bar_id], references: [id])
 }
 
@@ -102,4 +111,23 @@ model Points_log {
   points_change Int
   source String?
   timestamp DateTime @default(now())
+}
+
+enum Friend_Status {
+  ACCEPTED
+  PENDING
+}
+
+model Friends {
+  id Int @id @default(autoincrement())
+  requestor_id Int
+  requestor User @relation("sent", fields: [requestor_id], references: [id])
+  reciever_id Int
+  reciever User @relation("recieved", fields: [reciever_id], references: [id])
+
+  status Friend_Status @default(PENDING)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([requestor_id, reciever_id])
 }

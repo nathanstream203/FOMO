@@ -12,7 +12,11 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { feedStyles } from "../styles/feedStyles";
 import { useCurrentFirstName } from "../hooks/useCurrentUserInfo";
 import { useCurrentUserId } from "../hooks/useCurrentUserInfo";
-import { getPostsByBarId, postNewPost } from "../../src/api/databaseOperations";
+import {
+  getPostsByBarId,
+  getPostsByPartyId,
+  postNewPost,
+} from "../../src/api/databaseOperations";
 import { getAToken } from "../../src/tokenStorage";
 import { auth } from "../../src/firebaseConfig";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -47,10 +51,15 @@ const getTimeAgo = (time: number) => {
 
 interface LiveFeedTabProps {
   isCheckedIn: boolean;
-  barId: number; // The ID of the currently active bar/event
+  barId?: number; // The ID of the currently active bar/event
+  partyId?: number; // The ID of the currently active party
 }
 
-const LiveFeedTab: React.FC<LiveFeedTabProps> = ({ isCheckedIn, barId }) => {
+const LiveFeedTab: React.FC<LiveFeedTabProps> = ({
+  isCheckedIn,
+  barId,
+  partyId,
+}) => {
   const { currentUserFirstName } = useCurrentFirstName();
   const { currentUserId, isUserIdLoading } = useCurrentUserId();
   const [firebaseUser] = useAuthState(auth); // Get current Firebase user
@@ -60,26 +69,43 @@ const LiveFeedTab: React.FC<LiveFeedTabProps> = ({ isCheckedIn, barId }) => {
   const [loading, setLoading] = useState(false);
   const [timeRefresh, setTimeRefresh] = useState(0);
 
-  const fetchPosts = async () => {
+  const fetchPosts = async (feedType: "bar" | "party", id: number) => {
     setLoading(true);
     try {
       const JWT_token = await getAToken();
-      const dbPosts = await getPostsByBarId(barId, JWT_token);
 
-      const formattedPosts: Post[] = dbPosts.map((dbPost: any) => ({
-        id: dbPost.id,
-        content: dbPost.content,
-        time: convertTimestampToMs(dbPost.timestamp), // Convert ISO timestamp to number
-        //likes: dbPost.like_count || 0,
-        username: dbPost.first_name || "User",
-      }));
+      // Call the appropriate backend function
+      const dbPosts =
+        feedType === "bar"
+          ? await getPostsByBarId(id, JWT_token)
+          : await getPostsByPartyId(id, JWT_token);
 
-      // Sort by time descending (newest first)
+      console.log(`${feedType.toUpperCase()} POSTS RESPONSE:`, dbPosts);
+
+      if (!Array.isArray(dbPosts)) {
+        setPosts([]);
+        return;
+      }
+
+      // Format posts
+      const formattedPosts = dbPosts
+        .filter((post) =>
+          feedType === "party" ? post.party_id != null : post.bar_id != null
+        )
+        .map((post) => ({
+          id: post.id,
+          content: post.content,
+          time: convertTimestampToMs(post.timestamp),
+          username: post.first_name || "User",
+          likes: post.likes ?? 0,
+          userReaction: post.userReaction ?? null,
+        }));
+
       formattedPosts.sort((a, b) => b.time - a.time);
 
       setPosts(formattedPosts);
     } catch (err) {
-      console.error("Error fetching live feed posts:", err);
+      console.error(`Error fetching ${feedType} feed posts:`, err);
       Alert.alert("Error", "Failed to load feed. Please try again.");
     } finally {
       setLoading(false);
@@ -88,12 +114,14 @@ const LiveFeedTab: React.FC<LiveFeedTabProps> = ({ isCheckedIn, barId }) => {
 
   // 1. Initial Data Fetch (on barId change)
   useEffect(() => {
-    if (barId) {
-      fetchPosts();
+    if (partyId) {
+      fetchPosts("party", partyId);
+    } else if (barId) {
+      fetchPosts("bar", barId);
     } else {
       setPosts([]);
     }
-  }, [barId]); // Re-fetch whenever the selected bar changes
+  }, [barId, partyId]);
 
   // 2. Time Refresh for '... ago' display
   useEffect(() => {
@@ -123,33 +151,34 @@ const LiveFeedTab: React.FC<LiveFeedTabProps> = ({ isCheckedIn, barId }) => {
 
   // 3. Post to Database
   const handlePost = async () => {
-    if (!newPost.trim()) {
-      Alert.alert("Empty Post", "Please enter some content.");
-      return;
-    }
+    if (!newPost.trim())
+      return Alert.alert("Empty Post", "Please enter some content.");
 
-    // Check required IDs
     const user_id = currentUserId;
-    if (!user_id || isUserIdLoading) {
-      Alert.alert(
-        "Error",
-        "User authentication data is not ready. Please try again."
-      );
-      return;
-    }
+    if (!user_id || isUserIdLoading)
+      return Alert.alert("Error", "User data not ready.");
+
     try {
       const JWT_token = await getAToken();
       const content = newPost.trim();
-      const timestamp = new Date().toISOString(); // Use ISO format for DB
+      const timestamp = new Date().toISOString();
 
-      await postNewPost(user_id, barId, content, timestamp, JWT_token);
+      // Send the right ID based on feed type
+      await postNewPost(
+        user_id,
+        barId ?? null,
+        partyId ?? null,
+        content,
+        timestamp,
+        JWT_token
+      );
 
-      // Clear input and close box
       setNewPost("");
       setShowCreateBox(false);
 
-      // Refresh the feed to show the new post from the database
-      await fetchPosts();
+      // Refresh feed
+      if (barId) await fetchPosts("bar", barId);
+      else if (partyId) await fetchPosts("party", partyId);
     } catch (error) {
       console.error("Failed to post:", error);
       Alert.alert("Post Failed", "Could not submit post to the server.");

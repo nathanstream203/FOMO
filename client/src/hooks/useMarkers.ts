@@ -22,8 +22,18 @@ export const useMarkers = () => {
       const parties = Array.isArray(partiesResponse) ? partiesResponse : [];
       console.log(barsResponse, partiesResponse);
       const combined = [
-        ...bars.map((b: any) => ({ ...b, type: "bar" })),
-        ...parties.map((p: any) => ({ ...p, type: "party" })),
+        ...bars.map((b: any) => ({
+          ...b,
+          type: "bar",
+          id: `bar-${b.id}`, // unique key for frontend
+          numericId: b.id, // actual ID to send to backend
+        })),
+        ...parties.map((p: any) => ({
+          ...p,
+          type: "party",
+          id: `party-${p.id}`, // unique key for frontend
+          numericId: p.id, // actual ID to send to backend
+        })),
       ];
 
       setMarkers(combined);
