@@ -72,4 +72,66 @@ router.post('/new', async (req, res) => {
   }
 });
 
+// accept a friend request
+// ACCEPT a friend request using two user IDs
+router.post('/accept', async (req, res) => {
+  try {
+    const { requestor_id, reciever_id } = req.body;
+
+    if (!requestor_id || !reciever_id) {
+      return res.status(400).json({ error: 'requestor_id and reciever_id are required.' });
+    }
+
+    // find the friendship in req/res or res/req direction
+    const friendship = await prisma.friends.findFirst({
+      where: {
+        status: Friend_Status.PENDING,
+        OR: [{ requestor_id, reciever_id}, { reciever_id, requestor_id }]
+      }
+    });
+
+    if (!friendship) {
+      return res.status(404).json({ error: 'Friend request does not exist' });
+    }
+
+    const updated = await prisma.friends.update({
+      where: { id: friendship.id },
+      data: { status: Friend_Status.ACCEPTED }
+    });
+
+    return res.status(200).json(updated);
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'Error accepting friend request.' });
+  }
+});
+
+
+// remove a friend or decline a request
+router.delete('/remove', async (req, res) => {
+  try {
+    const { requestor_id, reciever_id } = req.body;
+
+    if (!requestor_id || !reciever_id) {
+      return res.status(400).json({ error: 'requestor_id and reciever_id are required.' });
+    }
+
+    // delete regardless of direction
+    const deleted = await prisma.friends.deleteMany({
+      where: {
+        OR: [{ requestor_id, reciever_id }, { reciever_id, requestor_id }]
+      }
+    });
+
+    if (deleted.count === 0) {
+      return res.status(404).json({ error: 'No friendship found' });
+    }
+
+    return res.status(200).json({ message: 'Friendship removed' });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'Error removing friendship' });
+  }
+});
+
 export default router;
