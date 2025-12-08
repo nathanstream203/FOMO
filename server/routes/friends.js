@@ -4,9 +4,7 @@ import { Friend_Status } from '@prisma/client';
 
 const router = express.Router();
 
-// GET current friends of a user
-// Expects:
-// {id: (user id)}
+// GET current friends of a user by id
 router.get('/', async (req, res) => {
     try{
         const user = req.body;
@@ -19,9 +17,9 @@ router.get('/', async (req, res) => {
                 ]
             }
         });
-        res.json(friends).status(200);
+        res.status(200).json(friends);
     }catch(e){
-        res.json({'Error': e}).status(500);
+        res.status(500).json({'Error': e});
     }
 });
 
@@ -45,18 +43,33 @@ router.get('/requests', async (req, res) => {
 
 // create a friend request 
 router.post('/new', async (req, res) => {
-    try {
-        const data = req.body;
-        const newFriendRequest = await prisma.friends.create({
-            data: {
-                requestor_id: data.requestor_id,
-                reciever_id: data.reciever_id
-            }
-        });
-        res.json(newFriendRequest).status(200);
-    }catch(e){
-        res.json({'Error': e}).status(500);
+  try {
+    const { requestor_id, reciever_id } = req.body;
+
+    //validation
+    if (!requestor_id || !reciever_id) {
+      return res.status(400).json({ error: 'requestor_id and reciever_id required' });
     }
+
+    // check for self-request
+    if (requestor_id === reciever_id) {
+      return res.status(400).json({ error: 'Friend request is made to self' });
+    }
+
+    const newFriendRequest = await prisma.friends.create({
+      data: { requestor_id, reciever_id,},
+    });
+    return res.status(201).json(newFriendRequest);
+
+  } catch (e) {
+    // detect duplicates
+    if (e.code === 'P2002') { //this can be changes based on prisma error codes
+      return res.status(409).json({ error: 'Friend request already exists' });
+    }
+
+    console.error(e);
+    return res.status(500).json({ error: 'Route error.' });
+  }
 });
 
 export default router;
