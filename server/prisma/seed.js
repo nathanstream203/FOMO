@@ -26,12 +26,12 @@ async function main() {
       role: "MANAGER",
     },
   });
-  // sahling5225 test user seed
+  // gabesahlin@ test user seed
   await prisma.user.upsert({
-    where: { firebase_id: "ojSl9TtChFP6GGqtoxjPMhMF1pu1" },
+    where: { firebase_id: "B0C6Id52VmakCRNHRzQOTOgEMln1" }, 
     update: {},
     create: {
-      firebase_id: "ojSl9TtChFP6GGqtoxjPMhMF1pu1",
+      firebase_id: "B0C6Id52VmakCRNHRzQOTOgEMln1",
       first_name: "TestUser1",
       last_name: "TestUser1",
       birth_date: "2025-12-01T01:01:00Z",
