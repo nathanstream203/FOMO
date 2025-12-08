@@ -26,6 +26,19 @@ async function main() {
       role: "MANAGER",
     },
   });
+  // sahling5225 test user seed
+  await prisma.user.upsert({
+    where: { firebase_id: "ojSl9TtChFP6GGqtoxjPMhMF1pu1" },
+    update: {},
+    create: {
+      firebase_id: "ojSl9TtChFP6GGqtoxjPMhMF1pu1",
+      first_name: "TestUser1",
+      last_name: "TestUser1",
+      birth_date: "2025-12-01T01:01:00Z",
+      role: "BASIC",
+    },
+  });
+
   // Bar seeding
   await prisma.bar.upsert({
     where: { name: "The Arena" },
