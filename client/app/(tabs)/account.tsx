@@ -26,6 +26,7 @@ interface DatabaseUser {
   last_name: string;
   birth_date: string;
   role_id: number | string;
+  points: number;
 }
 
 export default function AccountScreen() {
@@ -153,7 +154,9 @@ export default function AccountScreen() {
             color={Colors.secondary}
           />
           <View style={{ alignItems: "center" }}>
-            <Text style={styles.infoLabel}>1234</Text>
+            <Text style={styles.infoLabel}>
+              {dbLoading ? "..." : dbUser?.points ?? 0}
+            </Text>
             <Text style={styles.infoValue}>FOMO Points</Text>
           </View>
         </View>
