@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import { feedStyles } from "../styles/feedStyles";
 import { useCurrentFirstName } from "../hooks/useCurrentUserInfo";
 import { useCurrentUserId } from "../hooks/useCurrentUserInfo";
 import {
+  deletePost,
   getPostsByBarId,
   getPostsByPartyId,
   postNewPost,
@@ -28,6 +29,7 @@ interface Post {
   likes: number;
   userReaction: "none" | "like";
   username: string;
+  user_id: number;
 }
 
 // Utility to convert ISO date string from DB to milliseconds
@@ -99,6 +101,7 @@ const LiveFeedTab: React.FC<LiveFeedTabProps> = ({
           username: post.first_name || "User",
           likes: post.likes ?? 0,
           userReaction: post.userReaction ?? null,
+          user_id: post.user_id,
         }));
 
       formattedPosts.sort((a, b) => b.time - a.time);
@@ -207,8 +210,15 @@ const LiveFeedTab: React.FC<LiveFeedTabProps> = ({
   };
 
   const handleDeletePost = (postId: number) => {
-    // Check if the user is the owner before showing the alert
-    // if (posts.find(p => p.id === postId)?.firebase_id !== firebaseUser?.uid) return;
+    // Find the post in state
+    const post = posts.find((p) => p.id === postId);
+    if (!post) return;
+
+    // Only allow deletion if current user owns the post
+    if (post.user_id !== currentUserId) {
+      Alert.alert("Unauthorized", "You can only delete your own posts.");
+      return;
+    }
 
     Alert.alert("Delete Post", "Are you sure you want to delete this post?", [
       { text: "Cancel", style: "cancel" },
@@ -216,12 +226,16 @@ const LiveFeedTab: React.FC<LiveFeedTabProps> = ({
         text: "Delete",
         style: "destructive",
         onPress: async () => {
-          // *** API CALL WOULD GO HERE ***
-          // await deletePost(postId, JWT_token);
-          // ******************************
+          try {
+            const token = await getAToken();
+            await deletePost(postId, currentUserId, token);
 
-          // Frontend update:
-          setPosts(posts.filter((post) => post.id !== postId));
+            // Remove from frontend state
+            setPosts((prev) => prev.filter((p) => p.id !== postId));
+          } catch (err: any) {
+            console.error("Failed to delete post:", err);
+            Alert.alert("Delete Failed", err.message);
+          }
         },
       },
     ]);
@@ -237,7 +251,10 @@ const LiveFeedTab: React.FC<LiveFeedTabProps> = ({
       {isCheckedIn && (
         <>
           <TouchableOpacity
-            style={feedStyles.createPostButton}
+            style={[
+              feedStyles.createPostButton,
+              { backgroundColor: showCreateBox ? "#FE4A49" : "#8b5cf6" },
+            ]}
             onPress={handleCreatePress}
             // Add visual indication if loading or posting
             disabled={loading}
@@ -326,8 +343,8 @@ const LiveFeedTab: React.FC<LiveFeedTabProps> = ({
                       item.userReaction === "like"
                         ? "#e63946"
                         : isCheckedIn
-                        ? "#aaa"
-                        : "#555" // Less visible if not checked in
+                        ? "#a388f6"
+                        : "#a488f640" // Less visible if not checked in
                     }
                   />
                   <Text
@@ -342,16 +359,15 @@ const LiveFeedTab: React.FC<LiveFeedTabProps> = ({
                     {item.likes > 0 ? item.likes : ""}
                   </Text>
                 </TouchableOpacity>
-
                 {/* Only show delete button if the user is the post owner*/}
-                {/* {item.firebase_id === firebaseUser?.uid && ( */}
-                <TouchableOpacity
-                  style={feedStyles.deleteIconButton}
-                  onPress={() => handleDeletePost(item.id)}
-                >
-                  <Ionicons name="trash-outline" size={20} color="#aaa" />
-                </TouchableOpacity>
-                {/* )} */}
+                {item.user_id === currentUserId && (
+                  <TouchableOpacity
+                    style={feedStyles.deleteIconButton}
+                    onPress={() => handleDeletePost(item.id)}
+                  >
+                    <Ionicons name="trash-outline" size={20} color="#a388f6" />
+                  </TouchableOpacity>
+                )}
               </View>
             </View>
           )}
