@@ -33,10 +33,17 @@ export const feedStyles = StyleSheet.create({
     fontWeight: "bold",
   },
   postCard: {
-    backgroundColor: "#2a2d31",
+    backgroundColor: Colors.primary,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
+    borderColor: Colors.secondary,
+    borderWidth: 0.2,
+    shadowColor: Colors.secondary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 6,
+    elevation: 4, // for Android glow effect
   },
   userTimeRow: {
     flexDirection: "row",
@@ -47,7 +54,8 @@ export const feedStyles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: "#555",
+    borderColor: Colors.secondaryLight,
+    borderWidth: 2,
     marginRight: 8,
   },
   usernameText: {
@@ -56,7 +64,7 @@ export const feedStyles = StyleSheet.create({
     fontWeight: "600",
   },
   postTime: {
-    color: "#aaa",
+    color: Colors.secondaryLight,
     fontSize: 12,
   },
   postContent: {
@@ -96,13 +104,11 @@ export const feedStyles = StyleSheet.create({
     fontWeight: "600",
   },
   postFormContainer: {
-    backgroundColor: "#2a2d31",
     borderRadius: 12,
-    padding: 12,
     marginBottom: 16,
   },
   postInput: {
-    backgroundColor: "#1f2227",
+    backgroundColor: Colors.primary,
     color: "#fff",
     borderRadius: 8,
     padding: 12,
@@ -110,9 +116,16 @@ export const feedStyles = StyleSheet.create({
     textAlignVertical: "top",
     fontSize: 15,
     marginBottom: 10,
+    borderColor: Colors.secondary,
+    borderWidth: 0.2,
+    shadowColor: Colors.secondary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 6,
+    elevation: 4, // for Android glow effect
   },
   postButton: {
-    backgroundColor: "#6b3fd1ff",
+    backgroundColor: Colors.secondary,
     paddingVertical: 12,
     borderRadius: 10,
     alignItems: "center",
@@ -123,7 +136,7 @@ export const feedStyles = StyleSheet.create({
     fontWeight: "600",
   },
   noPostsText: {
-    color: "#aaa",
+    color: Colors.secondaryLight,
     textAlign: "center",
     marginTop: 20,
   },

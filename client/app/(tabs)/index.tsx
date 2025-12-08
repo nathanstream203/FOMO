@@ -134,7 +134,7 @@ export default function HomeScreen() {
           onPress={() => setModalVisible(true)}
         >
           <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-            <Ionicons name="menu-outline" size={28} color="white" />
+            <Ionicons name="add-outline" size={28} color="#a388f6" />
           </View>
         </TouchableOpacity>
       </View>
@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
   },
   fab: {
     overflow: "visible",
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: Colors.primary,
     paddingVertical: 10,
     paddingHorizontal: 10,
     borderRadius: 12,
@@ -218,8 +218,8 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.5)",
   },
   modalContent: {
-    height: "80%",
-    backgroundColor: Colors.primary,
+    height: "90%",
+    backgroundColor: Colors.darkPrimary,
     padding: 20,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,

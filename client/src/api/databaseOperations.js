@@ -220,6 +220,29 @@ export const getEventsByBarId = async (bar_id, JWT_token) => {
 };
 
 
+// Delete a post by ID
+export const deletePost = async (postId, userId, JWT_token) => {
+  const response = await fetch(`${BASE_URL}/post/${postId}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${JWT_token}`,
+    },
+    body: JSON.stringify({ user_id: userId }),
+  });
+
+  if (!response.ok) {
+    let msg = `Server returned ${response.status}`;
+    try {
+      const data = await response.json();
+      if (data?.error) msg = data.error;
+    } catch {}
+    throw new Error(msg);
+  }
+
+  return true;
+};
+
 /**
  * --------------------------
  * USERS
