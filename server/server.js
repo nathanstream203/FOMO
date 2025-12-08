@@ -6,7 +6,6 @@ import postRouter from './routes/post.js';
 import userRouter from './routes/user.js';
 import pointsRouter from './routes/points.js';
 import friendsRouter from './routes/friends.js';
-import pointsRouter from './routes/points.js'
 import authRouter from './routes/auth.js'
 import eventRouter from './routes/events.js';
 
