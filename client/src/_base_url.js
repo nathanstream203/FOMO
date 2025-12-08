@@ -4,7 +4,6 @@ import Constants from "expo-constants";
 let BASE_URL;
 
 //BASE_URL = process.env.EXPO_PUBLIC_DIGITALOCEAN || "http://localhost:2500";
-//console.warn("BASE_URL set to:", BASE_URL);
 
 try {
   // Try to extract host from any possible field
@@ -15,8 +14,7 @@ try {
 
   if (debuggerHost) {
     const host = debuggerHost.split(":").shift();
-    BASE_URL = `http://${host}:5000`; // your backend port
-    console.warn("BASE_URL set to:", BASE_URL);
+    BASE_URL = `http://${host}:5000`; 
   } else {
     // Fallback if still undefined
     BASE_URL = process.env.EXPO_PUBLIC_BASE_URL || "http://localhost:3500";
@@ -25,4 +23,6 @@ try {
   BASE_URL = process.env.EXPO_PUBLIC_BASE_URL || "http://localhost:4000";
 }
 
+
+console.warn("BASE_URL set to:", BASE_URL);
 export default BASE_URL;
