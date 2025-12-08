@@ -80,49 +80,61 @@ export const getAllPosts = async (JWT_token) => {
         Authorization: `Bearer ${JWT_token}`,
       },
     });
-    if (!response.ok)
-      throw new Error(`Failed to fetch users: ${response.status}`);
-    return await response.json();
+
+    if (!response.ok) {
+      throw new Error(`Server returned ${response.status}`);
+    }
+
+    const posts = await response.json();
+    return posts;
   } catch (error) {
-    console.error("Error fetching users:", error);
+    console.error("Error fetching posts:", error);
     throw error;
   }
 };
 
 // Get posts for a specific bar
-export const getPostsByBarId = async (bar_id, JWT_token) => {
+export const getPostsByBarId = async (barId, JWT_token) => {
   try {
-    const response = await fetch(`${BASE_URL}/post/${bar_id}`, {
+    const response = await fetch(`${BASE_URL}/post`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${JWT_token}`,
       },
     });
-    console.log(`${BASE_URL}/post/${bar_id}`);
 
-    return await response.json();
+    if (!response.ok) {
+      throw new Error(`Server returned ${response.status}`);
+    }
+
+    const posts = await response.json();
+    return posts.filter((p) => p.bar_id === barId);
   } catch (error) {
-    console.error(`Error fetching posts for bar ${bar_id}:`, error);
+    console.error("Error fetching posts by bar ID:", error);
     throw error;
   }
 };
 
 // Get posts for a specific party
-export const getPostsByPartyId = async (party_id, JWT_token) => {
+export const getPostsByPartyId = async (partyId, JWT_token) => {
   try {
-    const response = await fetch(`${BASE_URL}/post/${party_id}`, {
+    const response = await fetch(`${BASE_URL}/post`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${JWT_token}`,
       },
     });
-    console.log(`${BASE_URL}/post/${party_id}`);
 
-    return await response.json();
+    if (!response.ok) {
+      throw new Error(`Server returned ${response.status}`);
+    }
+
+    const posts = await response.json();
+    return posts.filter((p) => p.party_id === partyId);
   } catch (error) {
-    console.error(`Error fetching posts for party ${party_id}:`, error);
+    console.error("Error fetching posts by party ID:", error);
     throw error;
   }
 };

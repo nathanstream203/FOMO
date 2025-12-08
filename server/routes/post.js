@@ -8,34 +8,24 @@ router.get("/", async (req, res) => {
   res.json(posts);
 });
 
+// Get posts by bar
 router.get("/:bar_id", async (req, res) => {
-  try {
-    const posts = await prisma.post.findMany({
-      where: {
-        bar_id: Number(req.params.bar_id),
-        party_id: null, // ← SUPER IMPORTANT
-      },
-      orderBy: { timestamp: "desc" },
-    });
-    res.json(posts);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  const barPost = await prisma.post.findUnique({
+    where: {
+      bar_id: Number(req.params.bar_id),
+    },
+  });
+  res.json(barPost);
 });
 
+// Get posts by party
 router.get("/:party_id", async (req, res) => {
-  try {
-    const posts = await prisma.post.findMany({
-      where: {
-        party_id: Number(req.params.party_id),
-        bar_id: null, // exclude bar posts
-      },
-      orderBy: { timestamp: "desc" },
-    });
-    res.json(posts);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  const partyPost = await prisma.post.findUnique({
+    where: {
+      bar_id: Number(req.params.party_id),
+    },
+  });
+  res.json(partyPost);
 });
 
 router.post("/", async (req, res) => {
