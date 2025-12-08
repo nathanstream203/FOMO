@@ -269,7 +269,7 @@ const LiveFeedTab: React.FC<LiveFeedTabProps> = ({
               <TextInput
                 style={feedStyles.postInput}
                 placeholder="What's happening?"
-                placeholderTextColor="#aaa"
+                placeholderTextColor="#a388f6"
                 value={newPost}
                 onChangeText={setNewPost}
                 multiline

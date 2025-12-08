@@ -4,8 +4,6 @@ import { Colors } from "./colors";
 export const feedStyles = StyleSheet.create({
   feedContainer: {
     flex: 1,
-    paddingHorizontal: 16,
-    paddingTop: 10,
   },
   liveIndicator: {
     flexDirection: "row",
