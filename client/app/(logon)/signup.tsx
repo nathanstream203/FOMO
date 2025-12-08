@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
     justifyContent: "center",
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.darkPrimary,
     paddingVertical: 40,
   },
   container: {
