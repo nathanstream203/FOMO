@@ -12,14 +12,19 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ error: "Token required" });
     }
 
+    console.warn("Decoding Firebase Token"); // DEBUG
     const decoded = await verifyFirebaseToken(firebase_token);
+    console.log("Decoded Firebase Token:", decoded); // DEBUG
 
-    // 1. Try to find user in local DB
+    console.warn("Finding user in DB"); // DEBUG
     const user = await prisma.user.findUnique({
       where: { firebase_id: decoded.uid },
     });
+    console.log("User found in DB:", user); // DEBUG
 
+    console.warn("Creating JWT Token"); // DEBUG
     const token = createToken(user.firebase_id);
+    console.log("Created JWT Token:", token); // DEBUG
 
     return res.json({
       message: "Login successful",
