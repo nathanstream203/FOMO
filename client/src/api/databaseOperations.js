@@ -138,6 +138,87 @@ export const getPostsByPartyId = async (partyId, JWT_token) => {
     throw error;
   }
 };
+/**
+ * --------------------------
+ * Events
+ * --------------------------
+ */
+
+// create new event for bar
+export const postNewEvent = async (
+  name,
+  date,
+  start_time,
+  end_time,
+  bar_id,
+  JWT_token
+) => {
+  try {
+    const response = await fetch ('${BASE_URL}/event', {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: 'Bearer ${JWT_token}',
+      },
+      body: JSON.stringify({
+        name,
+        date,
+        start_time,
+        end_time,
+        bar_id,
+      }),
+    });
+
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.Error || "Failed to create event");
+    return data;
+  } catch (error) {
+    console.error("Error posting new event:", error);
+    throw error;
+  }
+};
+
+// get all events in database
+export const getAllEvents = async (JWT_token) => {
+  try {
+    const response = await fetch ('${BASE_URL}/event',{
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: 'Bearer ${JWT_token}',
+      },
+    });
+
+    if (!response.ok)
+      throw new Error('Failed to fetch events: ${response.status}');
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching events:", error);
+    throw error;
+  }
+
+};
+
+// Get events for specific bar
+export const getEventsByBarId = async (bar_id, JWT_token) => {
+  try {
+    const response = await fetch ('${BASE_URL}/event', {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: 'Bearer ${JWT_token}',
+      },
+    });
+
+    const events = await response.json();
+    return events.filter((ev) => ev.bar_id === bar_id);
+  }catch (error) {
+    console.error('Error fetching events for bar ${bar_id}:', error);
+    throw error;
+  }
+};
+
 
 /**
  * --------------------------
