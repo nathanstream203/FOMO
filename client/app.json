@@ -1,12 +1,12 @@
 {
   "expo": {
-    "name": "fomo",
-    "slug": "fomo",
+    "name": "FOMO",
+    "slug": "FOMO",
     "originalFullName": "@fomo_25/fomo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "fomo",
+    "scheme": "FOMO",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
