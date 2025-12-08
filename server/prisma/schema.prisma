@@ -9,54 +9,54 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Status {
+enum status {
   CHECKED_IN
   CHECKED_OUT
 }
 
-enum Role {
+enum role {
   BASIC
   MANAGER
   ADMIN
 }
 
-enum Transaction {
+enum transaction {
   EARN
   SPEND
 }
 
-model User {
+model user {
   id Int @id @default(autoincrement())
   firebase_id String @unique // Unique ID retrieved from firebase
   first_name String 
   last_name String
   birth_date DateTime
   points Int @default(0)
-  role Role @default(BASIC)
-  post Post[]
-  party Party[]
-  attendance Attendance_log[]
+  role role @default(BASIC)
+  post post[]
+  party party[]
+  attendance attendance_log[]
 
-  friends_sent Friends[] @relation("sent")
-  friends_recieved Friends[] @relation("recieved")
+  friends_sent friends[] @relation("sent")
+  friends_recieved friends[] @relation("recieved")
 }
 
-model Post {
+model post {
   id         Int      @id @default(autoincrement())
   user_id    Int
   bar_id     Int?
   party_id   Int?     
 
-  user       User     @relation(fields: [user_id], references: [id])
-  bar        Bar?     @relation(fields: [bar_id], references: [id])
-  party      Party?   @relation(fields: [party_id], references: [id])
+  user       user     @relation(fields: [user_id], references: [id])
+  bar        bar?     @relation(fields: [bar_id], references: [id])
+  party      party?   @relation(fields: [party_id], references: [id])
 
   content    String
   timestamp  DateTime @default(now())
 }
 
 // Stores locations as latitude and longitude coordinates
-model Party {
+model party {
   id Int @id @default(autoincrement())
   user_id Int
   name String
@@ -67,23 +67,23 @@ model Party {
   longitude Decimal
   latitude Decimal
 
-  posts Post[]
-  user User @relation(fields: [user_id], references: [id])
+  posts post[]
+  user user @relation(fields: [user_id], references: [id])
 }
 
 // Stores locations as latitude and longitude coordinates
-model Bar {
+model bar {
   id Int @id @default(autoincrement())
   name String @unique
   address String
   longitude Decimal
   latitude Decimal
-  events Event[]
-  posts Post[]
-  attendance Attendance_log[]
+  events event[]
+  posts post[]
+  attendance attendance_log[]
 }
 
-model Event {
+model event {
   id Int @id @default(autoincrement())
   bar_id Int
   title String
@@ -91,41 +91,41 @@ model Event {
   event_date String
   start_time DateTime @default(now())
   end_time DateTime
-  bar Bar @relation(fields: [bar_id], references: [id])
+  bar bar @relation(fields: [bar_id], references: [id])
 }
 
-model Attendance_log {
+model attendance_log {
   id Int @id @default(autoincrement())
   user_id Int
   bar_id Int
-  status Status
+  status status
   timestamp DateTime @default(now()) 
-  user User @relation(fields: [user_id], references: [id])
-  bar Bar @relation(fields: [bar_id], references: [id])
+  user user @relation(fields: [user_id], references: [id])
+  bar bar @relation(fields: [bar_id], references: [id])
 }
 
-model Points_log {
+model points_log {
   id Int @id @default(autoincrement())
   user_id Int
-  transaction_type Transaction
+  transaction_type transaction
   points_change Int
   source String?
   timestamp DateTime @default(now())
 }
 
-enum Friend_Status {
+enum friend_status {
   ACCEPTED
   PENDING
 }
 
-model Friends {
+model friends {
   id Int @id @default(autoincrement())
   requestor_id Int
-  requestor User @relation("sent", fields: [requestor_id], references: [id])
+  requestor user @relation("sent", fields: [requestor_id], references: [id])
   reciever_id Int
-  reciever User @relation("recieved", fields: [reciever_id], references: [id])
+  reciever user @relation("recieved", fields: [reciever_id], references: [id])
 
-  status Friend_Status @default(PENDING)
+  status friend_status @default(PENDING)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
