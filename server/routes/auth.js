@@ -14,7 +14,6 @@ router.post("/login", async (req, res) => {
 
     const decoded = await verifyFirebaseToken(firebase_token);
 
-    // 1. Try to find user in local DB
     const user = await prisma.user.findUnique({
       where: { firebase_id: decoded.uid },
     });

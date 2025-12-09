@@ -1,8 +1,13 @@
-import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView, } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView, ActivityIndicator,} from "react-native";
 import { feedStyles } from "../styles/feedStyles";
 import { eventStyles } from "../styles/eventStyles";
 
+import {getAToken } from "../../src/tokenStorage";
+import {
+    getEventsByBarId,
+    postNewEvent,
+} from "../../src/api/databaseOperations";
 
 interface EventItem {
     id: number;
@@ -12,7 +17,11 @@ interface EventItem {
     endTime: string;
 }
 
-export default function BarEventsTab(){
+interface BarEventsTabProps {
+    barId: number;
+}
+
+export default function BarEventsTab({ barId }: BarEventsTabProps){
     const [showCreateBox, setShowCreateBox] = useState(false);
 
     const [eventName, setEventName] = useState("");
@@ -21,12 +30,42 @@ export default function BarEventsTab(){
     const [endTime, setEndTime] = useState("");
 
     const [events, setEvents] = useState<EventItem[]>([]);
+    const [loading, setLoading] = useState(false);
+
+    const fetchEvents = async () => {
+        if (!barId) return;
+
+        setLoading(true);
+        try{
+            const token = await getAToken();
+            const dbEvents = await getEventsByBarId(barId, token);
+
+            const formatted = dbEvents.map((ev: any) => ({
+                id: ev.id,
+                name: ev.name,
+                date: ev.date,
+                start_time: ev.start_time,
+                end_time: ev.end_time,
+            }));
+
+            setEvents(formatted);
+        } catch (err) {
+            console.error("Error fetching events:", err);
+            Alert.alert("Error", "Failed to load events.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchEvents();
+    }, [barId]);
 
     const handleCreatePress = () => {
         setShowCreateBox(!showCreateBox);
     };
 
-    const handleCreateEvent = () => {
+    const handleCreateEvent = async () => {
         if (!eventName.trim()) {
             Alert.alert("Missing Name" , "Please enter an event name.");
             return;
@@ -40,23 +79,31 @@ export default function BarEventsTab(){
             return;
         }
 
-        const newEvent: EventItem = {
-            id: Date.now(),
-            name: eventName.trim(),
-            date: eventDate.trim(),
-            startTime: startTime.trim(),
-            endTime: endTime.trim(),
-        };
+        try {
+            const token = await getAToken();
 
-        setEvents([newEvent, ...events]);
+            await postNewEvent(
+                eventName.trim(),
+                eventDate.trim(),
+                startTime.trim(),
+                endTime.trim(),
+                barId,
+                token
+            );
 
-        setEventName("");
-        setEventDate("");
-        setStartTime("");
-        setEndTime("");
+            setEventName("");
+            setEventDate("");
+            setStartTime("");
+            setEndTime("");
+            setShowCreateBox(false);
 
-        setShowCreateBox(false);
+            await fetchEvents();
+        } catch (err) {
+            console.error("Create event failed:", err);
+            Alert.alert("Error", "Failed to create event.");
+        }
     };
+
 
     return (
         <ScrollView 
@@ -126,6 +173,15 @@ export default function BarEventsTab(){
                         <Text style={feedStyles.postButtonText}>Create Event</Text>
                     </TouchableOpacity>
                 </View>
+            )}
+
+            {/* Loading */}
+            {loading && (
+                <ActivityIndicator
+                size="large"
+                color="#a388f6"
+                style={{ marginVertical: 20 }}
+                />
             )}
 
             {/* event list */}

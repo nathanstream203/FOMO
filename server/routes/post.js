@@ -8,34 +8,14 @@ router.get("/", async (req, res) => {
   res.json(posts);
 });
 
-router.get("/:bar_id", async (req, res) => {
-  try {
-    const posts = await prisma.post.findMany({
-      where: {
-        bar_id: Number(req.params.bar_id),
-        party_id: null, // ← SUPER IMPORTANT
-      },
-      orderBy: { timestamp: "desc" },
-    });
-    res.json(posts);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-router.get("/:party_id", async (req, res) => {
-  try {
-    const posts = await prisma.post.findMany({
-      where: {
-        party_id: Number(req.params.party_id),
-        bar_id: null, // exclude bar posts
-      },
-      orderBy: { timestamp: "desc" },
-    });
-    res.json(posts);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+// Get posts by bar
+router.get("/:id", async (req, res) => {
+  const barPost = await prisma.post.findUnique({
+    where: {
+      bar_id: Number(req.params.bar_id),
+    },
+  });
+  res.json(barPost);
 });
 
 router.post("/", async (req, res) => {
@@ -61,6 +41,28 @@ router.post("/", async (req, res) => {
   } catch (error) {
     console.error("Failed to create post:", error);
     res.status(500).json({ error: "Failed to create post" });
+  }
+});
+
+router.delete("/:id", async (req, res) => {
+  try {
+    const postId = Number(req.params.id);
+    if (isNaN(postId))
+      return res.status(400).json({ error: "Invalid post ID" });
+
+    const { user_id } = req.body;
+    if (!user_id) return res.status(400).json({ error: "Missing user_id" });
+
+    const post = await prisma.post.findUnique({ where: { id: postId } });
+    if (!post) return res.status(404).json({ error: "Post not found" });
+    if (post.user_id !== user_id)
+      return res.status(403).json({ error: "Not authorized" });
+
+    await prisma.post.delete({ where: { id: postId } });
+    res.json({ success: true, message: "Post deleted successfully" });
+  } catch (err) {
+    console.error("Error deleting post:", err);
+    res.status(500).json({ error: "Failed to delete post" });
   }
 });
 

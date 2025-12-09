@@ -420,7 +420,7 @@ export default function CreatePartyForm({ onClose, onSubmit }: Props) {
           </Pressable>
 
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <Ionicons name="close" size={20} color="#FFF" />
+            <Ionicons name="close" size={24} color="#a388f6" />
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -438,7 +438,6 @@ const styles = StyleSheet.create({
   container: {
     alignItems: "center",
     paddingHorizontal: 12,
-    backgroundColor: Colors.primary,
   },
   closeButton: {
     position: "absolute",

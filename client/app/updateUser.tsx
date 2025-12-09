@@ -13,6 +13,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../src/firebaseConfig";
 import { getUserByFirebaseId, updateUser } from "../src/api/databaseOperations";
 import { getAToken } from "../src/tokenStorage";
+import { Colors } from "../src/styles/colors";
 
 // Update user profile in database through API
 export default function UpdateUserTab() {
@@ -33,7 +34,9 @@ export default function UpdateUserTab() {
 
         setFirstName(dbUser.first_name || "");
         setLastName(dbUser.last_name || "");
-        setBirthDate(dbUser.birth_date || "");
+        const date = new Date(dbUser.birth_date);
+        const formatted = date.toISOString().split("T")[0]; // "YYYY-MM-DD"
+        setBirthDate(formatted);
       } catch (err) {
         console.error("Error loading user data:", err);
         Alert.alert("Error", "Unable to load your account data.");
@@ -141,7 +144,8 @@ export default function UpdateUserTab() {
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-    backgroundColor: "#1b1d1f",
+    paddingTop: 50,
+    backgroundColor: Colors.darkPrimary,
     flexGrow: 1,
   },
   title: {
@@ -152,18 +156,28 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   label: {
-    color: "#aaa",
-    marginBottom: 6,
-    marginTop: 12,
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#FFF",
+    marginBottom: 5,
+    marginLeft: 2,
   },
   input: {
-    backgroundColor: "#2a2d31",
-    padding: 12,
+    backgroundColor: Colors.primary,
+    color: Colors.white,
+    borderWidth: 0.2,
+    borderColor: Colors.secondary,
     borderRadius: 10,
-    color: "white",
+    paddingHorizontal: 12,
+    marginBottom: 16,
+    shadowColor: Colors.secondary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 6,
+    elevation: 8, // for Android glow effect
   },
   saveButton: {
-    backgroundColor: "#4e9af1",
+    backgroundColor: Colors.secondary,
     padding: 14,
     borderRadius: 10,
     marginTop: 30,
@@ -174,13 +188,15 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   cancelButton: {
-    backgroundColor: "#444",
+    borderWidth: 1,
+    borderColor: Colors.bar,
     padding: 12,
     borderRadius: 10,
     marginTop: 15,
     alignItems: "center",
   },
   cancelButtonText: {
-    color: "#ddd",
+    color: Colors.bar,
+    fontWeight: "700",
   },
 });

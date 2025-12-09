@@ -1,6 +1,8 @@
-import express from 'express';
+import express from "express";
 import prisma from "../prisma_export.js";
-import { Friend_Status } from '@prisma/client';
+import pkg from "@prisma/client";
+const { Friend_Status } = pkg;
+// import { Friend_Status } from "@prisma/client";
 
 const router = express.Router();
 
@@ -57,6 +59,7 @@ router.get('/requests', async (req, res) => {
     }
 });
 
+
 // create a friend request 
 // EXPECTS: JSON body {requestor_id: number, reciever_id: number} -> req.body
 router.post('/new', async (req, res) => {
@@ -94,6 +97,47 @@ router.post('/new', async (req, res) => {
         }
         res.status(500).json({'Error': e.message || e});
     }
+
+    const updated = await prisma.friends.update({
+      where: { id: friendship.id },
+      data: { status: Friend_Status.ACCEPTED },
+    });
+
+    return res.status(200).json(updated);
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'Error accepting friend request' });
+  }
+});
+
+// remove a friend or decline a request
+router.delete("/remove", async (req, res) => {
+  try {
+    const { requestor_id, reciever_id } = req.body;
+
+    if (!requestor_id || !reciever_id) {
+      return res.status(400).json({ error: 'requestor_id and reciever_id are required' });
+    }
+
+    // delete either direction
+    const deleted = await prisma.friends.deleteMany({
+      where: {
+        OR: [
+          { requestor_id, reciever_id },
+          { reciever_id, requestor_id },
+        ],
+      },
+    });
+
+    if (deleted.count === 0) {
+      return res.status(404).json({ error: "No friendship found" });
+    }
+
+    return res.status(200).json({ message: "Friendship removed" });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: "Error removing friendship" });
+  }
 });
 
 export default router;
