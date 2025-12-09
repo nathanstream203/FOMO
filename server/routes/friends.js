@@ -1,8 +1,6 @@
 import express from "express";
 import prisma from "../prisma_export.js";
-import pkg from "@prisma/client";
-const { Friend_Status } = pkg;
-// import { Friend_Status } from "@prisma/client";
+import { friend_status } from "@prisma/client";
 
 const router = express.Router();
 
