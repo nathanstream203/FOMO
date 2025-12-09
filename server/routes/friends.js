@@ -1,8 +1,6 @@
 import express from "express";
 import prisma from "../prisma_export.js";
-import pkg from "@prisma/client";
-const { Friend_Status } = pkg;
-// import { Friend_Status } from "@prisma/client";
+import { friend_status } from "@prisma/client";
 
 const router = express.Router();
 
@@ -21,7 +19,7 @@ router.get('/', async (req, res) => {
 
         const friends = await prisma.friends.findMany({
             where: {
-                status: Friend_Status.ACCEPTED,
+                status: friend_status.ACCEPTED,
                 OR: [
                     {requestor_id: Number(userId)},
                     {reciever_id: Number(userId)}
@@ -48,7 +46,7 @@ router.get('/requests', async (req, res) => {
 
         const friendRequests = await prisma.friends.findMany({
             where: {
-                status: Friend_Status.PENDING,
+                status: friend_status.PENDING,
                 reciever_id: Number(userId)
             }
         });
@@ -101,7 +99,7 @@ router.post('/new', async (req, res) => {
     /*
     const updated = await prisma.friends.update({
       where: { id: friendship.id },
-      data: { status: Friend_Status.ACCEPTED },
+      data: { status: friend_status.ACCEPTED },
     });
 
     return res.status(200).json(updated);
