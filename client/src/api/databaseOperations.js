@@ -299,9 +299,11 @@ export const postNewUser = async (
   first_name,
   last_name,
   birth_date,
+  points = 0,
   role_id = "BASIC"
 ) => {
   try {
+    console.warn("Grabbing Backend reponse...");
     const response = await fetch(`${BASE_URL}/user`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -310,11 +312,13 @@ export const postNewUser = async (
         first_name,
         last_name,
         birth_date,
+        points,
         role_id,
       }),
     });
 
     const data = await response.json();
+    console.log("Response received:", response);
     if (!response.ok) throw new Error(data.Error || "Failed to create user");
     return data;
   } catch (error) {

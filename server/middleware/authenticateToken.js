@@ -6,6 +6,9 @@ export async function authenticateToken(req, res, next) {
         // Skips the login routes
         if(req.path === '/auth') {
             return next();
+        } 
+        if (req.method === "POST" && req.originalUrl === "/user") {
+            return next();
         }
 
         const header = req.headers.authorization;
