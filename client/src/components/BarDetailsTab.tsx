@@ -25,48 +25,53 @@ const BarDetailsTab: React.FC<BarDetailsTabProps> = ({
 
   return (
     <>
-      {/* Bar Image & Badges */}
-      <View style={styles.imageContainer}>
-        <Image
-          source={
-            barImages[activeMarker.name] ||
-            require("../../assets/images/background-image.jpg")
-          }
-          style={styles.image}
-        />
-        <View style={styles.badges}>
-          <View style={styles.activityBadge}>
-            <Ionicons name="people-circle-outline" size={12} color="#FFF" />
-            <Text style={styles.badgeText}>100</Text>
+      <View style={{ flex: 1, gap: 12 }}>
+        {/* Bar Image & Badges */}
+        <View style={styles.imageContainer}>
+          <Image
+            source={
+              barImages[activeMarker.name] ||
+              require("../../assets/images/background-image.jpg")
+            }
+            style={styles.image}
+          />
+          <View style={styles.badges}>
+            <View style={styles.activityBadge}>
+              <Ionicons name="people-circle-outline" size={12} color="#FFF" />
+              <Text style={styles.badgeText}>100</Text>
+            </View>
           </View>
         </View>
-      </View>
 
-      {/* Scrollable Details */}
-      <ScrollView style={styles.detailsContainer}>
-        <Text style={styles.barName}>{activeMarker.name}</Text>
-        <Text style={styles.location}>{activeMarker.address}</Text>
+        {/* Scrollable Details */}
+        <ScrollView
+          style={styles.detailsContainer}
+          contentContainerStyle={{ paddingBottom: 80 }}
+        >
+          <Text style={styles.barName}>{activeMarker.name}</Text>
+          <Text style={styles.location}>{activeMarker.address}</Text>
 
-        {/* Info Rows */}
-        <View style={styles.infoRow}>
-          <Ionicons name="location-outline" size={12} color="#7f54e2" />
-          <Text style={styles.infoText}>{activeMarker.address}</Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Ionicons name="time-outline" size={12} color="#7f54e2" />
-          <Text style={styles.infoText}>9pm-2am</Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Ionicons name="star" size={12} color="#7f54e2" />
-          <Text style={styles.infoText}>4.5/5</Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Ionicons name="people-circle-outline" size={12} color="#7f54e2" />
-          <Text style={styles.infoText}>100 checked in</Text>
-        </View>
+          {/* Info Rows */}
+          <View style={styles.infoRow}>
+            <Ionicons name="location-outline" size={12} color="#7f54e2" />
+            <Text style={styles.infoText}>{activeMarker.address}</Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Ionicons name="time-outline" size={12} color="#7f54e2" />
+            <Text style={styles.infoText}>9pm-2am</Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Ionicons name="star" size={12} color="#7f54e2" />
+            <Text style={styles.infoText}>4.5/5</Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Ionicons name="people-circle-outline" size={12} color="#7f54e2" />
+            <Text style={styles.infoText}>100 checked in</Text>
+          </View>
+        </ScrollView>
 
-        {/* Action Buttons */}
-        <View style={styles.actions}>
+        {/* Action Buttons at bottom */}
+        <View style={[styles.actions]}>
           <TouchableOpacity
             style={[
               styles.checkInButton,
@@ -86,10 +91,10 @@ const BarDetailsTab: React.FC<BarDetailsTabProps> = ({
                 styles.buttonText,
                 {
                   color: isCheckedIn
-                    ? styles.buttonTextCheckedIn.color // text on green button
+                    ? styles.buttonTextCheckedIn.color
                     : canCheckIn
-                    ? styles.buttonText.color // text on blue button
-                    : styles.buttonTextDisabled.color, // text on disabled button
+                    ? styles.buttonText.color
+                    : styles.buttonTextDisabled.color,
                 },
               ]}
             >
@@ -105,7 +110,7 @@ const BarDetailsTab: React.FC<BarDetailsTabProps> = ({
             <Text style={styles.buttonText}>Share</Text>
           </TouchableOpacity>
         </View>
-      </ScrollView>
+      </View>
     </>
   );
 };

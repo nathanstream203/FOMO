@@ -59,9 +59,6 @@ export const popupStyles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 8, // for Android glow effect
   },
-  liveFeedContainer: {
-    padding: 16,
-  },
 
   imageContainer: {
     flexDirection: "row",
@@ -102,15 +99,6 @@ export const popupStyles = StyleSheet.create({
     gap: 8,
     marginVertical: 2,
   },
-  vibeLabel: { color: "#aaa", marginTop: 12, marginBottom: 4 },
-  vibeContainer: { flexDirection: "row", flexWrap: "wrap", gap: 4 },
-  vibeBadge: {
-    backgroundColor: "#333",
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  vibeText: { fontSize: 12, color: "#fff" },
   buttonRow: { flexDirection: "row", gap: 8, marginTop: 12 },
   checkInButton: {
     flex: 1,
@@ -142,7 +130,6 @@ export const popupStyles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     gap: 10,
-    marginTop: 10,
   },
 
   buttonEnabled: {

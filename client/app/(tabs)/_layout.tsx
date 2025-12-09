@@ -5,9 +5,45 @@ import { Tabs } from "expo-router";
 import { Colors } from "../../src/styles/colors";
 import { useValidateToken } from "../../src/hooks/useValidateToken";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { getUserByFirebaseId } from "../../src/api/databaseOperations";
+import { auth } from "../../src/firebaseConfig";
+import { getAToken } from "../../src/tokenStorage";
+import React from "react";
 
-const HeaderPoints = () => {
-  const userPoints = 1234;
+interface DatabaseUser {
+  firebase_id: string;
+  first_name: string;
+  last_name: string;
+  birth_date: string;
+  role_id: number | string;
+  points: number;
+}
+export function HeaderPoints() {
+  const [dbUser, setDbUser] = React.useState<DatabaseUser | null>(null);
+  const [user, loading, error] = useAuthState(auth);
+  const [dbLoading, setDbLoading] = React.useState(false);
+
+  const fetchDatabaseUser = async (firebaseId: string) => {
+    setDbLoading(true);
+    try {
+      const token = await getAToken();
+      const userData = await getUserByFirebaseId(firebaseId, token);
+      setDbUser(userData);
+      console.log("DB User refreshed:", userData);
+    } catch (err) {
+      console.error("Error fetching user from DB:", err);
+    } finally {
+      setDbLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
+    if (!loading && user?.uid) {
+      fetchDatabaseUser(user.uid);
+    }
+  }, [loading, user]);
+
   return (
     <View style={styles.pointsBubble}>
       <MaterialCommunityIcons
@@ -16,10 +52,12 @@ const HeaderPoints = () => {
         color={Colors.secondaryLight}
         marginRight={4}
       />
-      <Text style={styles.pointsText}>{userPoints}</Text>
+      <Text style={styles.pointsText}>
+        {dbLoading ? "..." : dbUser?.points ?? 0}
+      </Text>
     </View>
   );
-};
+}
 
 export default function TabLayout() {
   useValidateToken();
@@ -102,7 +140,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.8,
     shadowRadius: 6,
-    elevation: 10,
+    elevation: 8,
   },
   pointsText: {
     color: Colors.white,
