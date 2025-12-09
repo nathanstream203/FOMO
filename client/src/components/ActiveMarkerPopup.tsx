@@ -24,7 +24,7 @@ export default function ActiveMarkerPopup({
         onPress={() => setActiveMarker(null)}
         style={popupStyles.closeButton}
       >
-        <Ionicons name="close" size={20} color="#FFF" />
+        <Ionicons name="close" size={24} color="#a388f6" />
       </TouchableOpacity>
 
       <View style={popupStyles.tabContainer}>
