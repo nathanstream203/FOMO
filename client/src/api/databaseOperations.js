@@ -442,3 +442,83 @@ export const getParties = async (JWT_token) => {
     throw error;
   }
 };
+
+/**
+ * --------------------------
+ * FRIENDS
+ * --------------------------
+ */
+
+// GET current friends of a user
+export const getFriendsList = async (userId, JWT_token) => {
+  try {
+    const response = await fetch(`${BASE_URL}/friends?id=${userId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${JWT_token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch friends list: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching friends list:", error);
+    throw error;
+  }
+};
+
+// GET pending requests the user has received
+export const getPendingRequests = async (userId, JWT_token) => {
+  try {
+    const response = await fetch(`${BASE_URL}/friends/requests?id=${userId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${JWT_token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch pending requests: ${response.status}`);
+    }
+
+    // Requests list will contain the *friendship* object, not the user object directly.
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching pending requests:", error);
+    throw error;
+  }
+};
+
+// POST create a friend request
+export const sendFriendRequest = async (
+  requestorId,
+  recieverId,
+  JWT_token
+) => {
+  const data = {
+    requestor_id: requestorId,
+    reciever_id: recieverId,
+  };
+
+  const response = await fetch(`${BASE_URL}/friends/new`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${JWT_token}`,
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    // Check if it's a 409 Conflict (e.g., request already exists)
+    const errorBody = await response.json();
+    throw new Error(errorBody.Error || "Failed to send friend request");
+  }
+
+  return response.json();
+};

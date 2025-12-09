@@ -6,111 +6,96 @@ const { Friend_Status } = pkg;
 
 const router = express.Router();
 
-// GET current friends of a user by id
+// GET current friends of a user
+// EXPECTS: Query parameter {id: (user id)} -> req.query.id
+
+
 router.get('/', async (req, res) => {
-  try {
-    const userId = Number(req.body.id);
+    try{
+        // CHANGE: Get 'id' from req.query instead of req.body
+        const userId = req.query.id; 
+        
+        if (!userId) {
+            return res.status(400).json({ 'Error': 'User ID is required' });
+        }
 
-    const friends = await prisma.friends.findMany({
-      where: {
-        status: Friend_Status.ACCEPTED,
-        OR: [
-          { requestor_id: userId },
-          { reciever_id: userId }
-        ]
-      },
-      include: {
-        requestor: true,
-        reciever: true,
-      },
-    });
-
-    return res.status(200).json(friends);
-  } catch (e) {
-    console.error(e);
-    return res.status(500).json({ Error: e });
-  }
+        const friends = await prisma.friends.findMany({
+            where: {
+                status: Friend_Status.ACCEPTED,
+                OR: [
+                    {requestor_id: Number(userId)},
+                    {reciever_id: Number(userId)}
+                ]
+            }
+        });
+        res.status(200).json(friends);
+    }catch(e){
+        console.error("Error fetching friends list:", e);
+        res.status(500).json({'Error': e.message || e});
+    }
 });
 
-// GET pending requests the user has received
+// GET pending requests the user has recieved
+// EXPECTS: Query parameter {id: (user id)} -> req.query.id
 router.get('/requests', async (req, res) => {
-  try {
-    const userId = Number(req.body.id);
+    try{
+        //CHANGE: Get 'id' from req.query instead of req.body
+        const userId = req.query.id;
 
-    const friendRequests = await prisma.friends.findMany({
-      where: {
-        status: Friend_Status.PENDING,
-        reciever_id: userId,
-      },
-      include: {
-        requestor: true,
-        reciever: true,
-      },
-    });
+        if (!userId) {
+            return res.status(400).json({ 'Error': 'User ID is required' });
+        }
 
-    return res.status(200).json(friendRequests);
-  } catch (e) {
-    console.error(e);
-    return res.status(500).json({ Error: e });
-  }
+        const friendRequests = await prisma.friends.findMany({
+            where: {
+                status: Friend_Status.PENDING,
+                reciever_id: Number(userId)
+            }
+        });
+        res.status(200).json(friendRequests);
+    }catch(e){
+        console.error("Error fetching friend requests:", e);
+        res.status(500).json({'Error': e.message || e});
+    }
 });
 
 
 // create a friend request 
+// EXPECTS: JSON body {requestor_id: number, reciever_id: number} -> req.body
 router.post('/new', async (req, res) => {
-  try {
-    const { requestor_id, reciever_id } = req.body;
+    try {
+        const data = req.body;
+        // Basic check for existing/pending request
+        const existing = await prisma.friends.findFirst({
+             where: {
+                OR: [
+                    { requestor_id: data.requestor_id, reciever_id: data.reciever_id },
+                    { requestor_id: data.reciever_id, reciever_id: data.requestor_id }
+                ]
+            }
+        });
 
-    //validation
-    if (!requestor_id || !reciever_id) {
-      return res
-        .status(400)
-        .json({ error: "requestor_id and reciever_id required" });
-    }
+        if (existing) {
+             // Added check for existing relationship/request
+             return res.status(409).json({'Error': 'Friend request already exists or users are already friends.'});
+        }
 
-    // check for self-request
-    if (requestor_id === reciever_id) {
-      return res.status(400).json({ error: "Friend request is made to self" });
-    }
 
-    const newFriendRequest = await prisma.friends.create({
-      data: { requestor_id, reciever_id },
-    });
-    return res.status(201).json(newFriendRequest);
-  } catch (e) {
-    // detect duplicates
-    if (e.code === "P2002") {
-      //this can be changes based on prisma error codes
-      return res.status(409).json({ error: "Friend request already exists" });
-    }
-
-    console.error(e);
-    return res.status(500).json({ error: "Route error." });
-  }
-});
-
-// accept a friend request
-router.post('/accept', async (req, res) => {
-  try {
-    const { requestor_id, reciever_id } = req.body;
-
-    if (!requestor_id || !reciever_id) {
-      return res.status(400).json({ error: 'requestor_id and reciever_id are required' });
-    }
-
-    // find the friendship in req/res or res/req direction
-    const friendship = await prisma.friends.findFirst({
-      where: {
-        status: Friend_Status.PENDING,
-        OR: [
-          { requestor_id, reciever_id },
-          { reciever_id, requestor_id },
-        ],
-      },
-    });
-
-    if (!friendship) {
-      return res.status(404).json({ error: "Friend request does not exist" });
+        const newFriendRequest = await prisma.friends.create({
+            data: {
+                requestor_id: Number(data.requestor_id),
+                reciever_id: Number(data.reciever_id)
+            }
+        });
+        res.status(200).json(newFriendRequest);
+    }catch(e){
+        // Log the error for debugging
+        console.error("Error creating friend request:", e); 
+        // Better error handling for database issues (like foreign key constraint violations)
+        if (e.code === 'P2003') { // Prisma Foreign Key Constraint error code
+            return res.status(404).json({'Error': 'One of the user IDs does not exist.'});
+        }
+        res.status(500).json({'Error': e.message || e});
     }
 
     const updated = await prisma.friends.update({

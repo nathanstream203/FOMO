@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+// friends.tsx
+import React, { useState, useEffect, useCallback } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import {
   StyleSheet,
@@ -7,136 +8,42 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
+  ActivityIndicator,
+  Alert,
+  Modal,
 } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Colors } from "../../src/styles/colors";
 import { auth } from "../../src/firebaseConfig";
 import NotVerified from "../notverified";
+import { useCurrentUserId } from "../../src/hooks/useCurrentUserInfo";
+import { getAToken } from "../../src/tokenStorage";
+import {
+  getFriendsList,
+  getPendingRequests,
+} from "../../src/api/databaseOperations";
 
-type TabType = "All Friends" | "Active Now" | "Suggestions";
+type TabType = "All Friends" | "Active Now" | "Requests";
 
 /**
  * Interface defining the expected data structure for a User/Friend
- * once fetched from the database.
  */
 interface Friend {
-  id: string;
+  id: number;
   name: string;
-  username: string;
   points: number;
   statusText: string;
-  action: "View" | "Join" | "Add"; // Determines button text and logic
+  action: "View" | "Join" | "Pending";
   isOnline: boolean;
-  avatarPlaceholder: string; // Used for a simple avatar display
+  avatarPlaceholder: string;
+  friendshipId?: number; // Used mainly for request management
 }
 
-// Mock Data Definition
-const MOCK_FRIENDS_DATA: Record<TabType, Friend[]> = {
-  "All Friends": [
-    {
-      id: "1",
-      name: "Sarah Wilson",
-      username: "@sarahw",
-      points: 3421,
-      statusText: "At The Arena",
-      action: "View",
-      isOnline: true,
-      avatarPlaceholder: "SC",
-    },
-    {
-      id: "2",
-      name: "Mike Torres",
-      username: "@miket",
-      points: 2847,
-      statusText: "At The Arena",
-      action: "View",
-      isOnline: true,
-      avatarPlaceholder: "MT",
-    },
-    {
-      id: "3",
-      name: "Emma Rodriguez",
-      username: "@emmar",
-      points: 4102,
-      statusText: "2h ago",
-      action: "View",
-      isOnline: false,
-      avatarPlaceholder: "ER",
-    },
-    {
-      id: "4",
-      name: "Liam O'Connell",
-      username: "@liamo",
-      points: 1560,
-      statusText: "Yesterday",
-      action: "View",
-      isOnline: false,
-      avatarPlaceholder: "LO",
-    },
-    {
-      id: "5",
-      name: "Chloe Dupont",
-      username: "@chloed",
-      points: 520,
-      statusText: "3d ago",
-      action: "View",
-      isOnline: false,
-      avatarPlaceholder: "CD",
-    },
-  ],
-  "Active Now": [
-    {
-      id: "1",
-      name: "Sarah Wilson",
-      username: "@sarahw",
-      points: 3421,
-      statusText: "At Silver Dollar",
-      action: "Join",
-      isOnline: true,
-      avatarPlaceholder: "SC",
-    },
-    {
-      id: "2",
-      name: "Mike Torres",
-      username: "@miket",
-      points: 2847,
-      statusText: "At The Market",
-      action: "Join",
-      isOnline: true,
-      avatarPlaceholder: "MT",
-    },
-  ],
-  Suggestions: [
-    {
-      id: "7",
-      name: "Alex Kim",
-      username: "@alexk",
-      points: 2134,
-      statusText: "5 mutual friends",
-      action: "Add",
-      isOnline: false,
-      avatarPlaceholder: "AK",
-    },
-    {
-      id: "8",
-      name: "Jordan Lee",
-      username: "@jordanl",
-      points: 1876,
-      statusText: "3 mutual friends",
-      action: "Add",
-      isOnline: false,
-      avatarPlaceholder: "JL",
-    },
-  ],
-};
-
-// Update data references
-const friendsData = MOCK_FRIENDS_DATA;
-
-const TAB_COUNTS: Record<TabType, number> = {
-  "All Friends": friendsData["All Friends"].length, // Should be 5
-  "Active Now": friendsData["Active Now"].length, // Should be 2
-  Suggestions: friendsData["Suggestions"].length, // Should be 2
+// Mock Data (For initial structure while loading)
+const INITIAL_FRIENDS_DATA: Record<TabType, Friend[]> = {
+  "All Friends": [],
+  "Active Now": [],
+  Requests: [],
 };
 
 const AvatarPlaceholder = ({ letter }: { letter: string }) => (
@@ -145,23 +52,24 @@ const AvatarPlaceholder = ({ letter }: { letter: string }) => (
   </View>
 );
 
-const FriendCard: React.FC<{ friend: Friend }> = ({ friend }) => {
-  const isSuggestion = friend.action === "Add";
+const FriendCard: React.FC<{
+  friend: Friend;
+  onActionPress: (friend: Friend) => void;
+}> = ({ friend, onActionPress }) => {
+  const isPendingButton = friend.action === "Pending";
   const isJoinButton = friend.action === "Join";
 
   return (
     <View style={componentStyles.cardContainer}>
       <View style={componentStyles.avatarWrapper}>
         <AvatarPlaceholder letter={friend.avatarPlaceholder} />
-        {/* Only show online dot if isOnline is true AND action is not 'Add' (suggestions are usually not 'online') */}
-        {friend.isOnline && !isSuggestion && (
+        {friend.isOnline && !isPendingButton && (
           <View style={componentStyles.onlineDot} />
         )}
       </View>
       <View style={componentStyles.cardContent}>
         <View style={componentStyles.nameRow}>
           <Text style={componentStyles.friendName}>{friend.name}</Text>
-          {/* Fire Icon for points/activity */}
           <View
             style={{
               flexDirection: "row",
@@ -180,19 +88,17 @@ const FriendCard: React.FC<{ friend: Friend }> = ({ friend }) => {
             <Text style={componentStyles.points}>{friend.points}</Text>
           </View>
         </View>
-        <Text style={componentStyles.friendUsername}>{friend.username}</Text>
         <View style={componentStyles.statusRow}>
-          {isSuggestion ? (
-            // Mutual Friends Icon for suggestions
-            <MaterialCommunityIcons
-              name="account-multiple"
+          {/* Mail Icon for Requests */}
+          {isPendingButton ? (
+            <Ionicons
+              name="mail-outline"
               size={12}
               color={Colors.secondary}
               style={{ marginRight: 4 }}
             />
           ) : (
-            // Location Icon for status (Only for View/Join, not for time status)
-            // Check if statusText is a location (starts with 'At' or 'Near')
+            // Location Icon for status
             (friend.statusText.startsWith("At") ||
               friend.statusText.startsWith("Near")) && (
               <Ionicons
@@ -206,19 +112,20 @@ const FriendCard: React.FC<{ friend: Friend }> = ({ friend }) => {
           <Text style={componentStyles.statusText}>{friend.statusText}</Text>
         </View>
       </View>
+      {/* Button: If Pending, display text; otherwise, display action button */}
       <TouchableOpacity
-        style={[componentStyles.actionButton]}
-        onPress={() => console.log(`${friend.action} ${friend.name}`)}
+        style={[
+          componentStyles.actionButton,
+          isPendingButton && componentStyles.pendingButton,
+          isJoinButton && { backgroundColor: Colors.secondary },
+        ]}
+        onPress={isPendingButton ? undefined : () => onActionPress(friend)}
       >
-        {isSuggestion && ( // Add Person Icon for Suggestions
-          <Ionicons
-            name="person-add-outline"
-            size={16}
-            color={Colors.white}
-            style={{ marginRight: 4 }}
-          />
+        {isPendingButton ? (
+          <Text style={componentStyles.pendingButtonText}>Review</Text>
+        ) : (
+          <Text style={componentStyles.actionButtonText}>{friend.action}</Text>
         )}
-        <Text style={componentStyles.actionButtonText}>{friend.action}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -228,8 +135,9 @@ const TabButton: React.FC<{
   tab: TabType;
   isActive: boolean;
   onPress: (tab: TabType) => void;
-}> = ({ tab, isActive, onPress }) => {
-  const text = `${tab} (${TAB_COUNTS[tab]})`;
+  count: number;
+}> = ({ tab, isActive, onPress, count }) => {
+  const text = `${tab} (${count})`;
   return (
     <TouchableOpacity
       style={[componentStyles.tabButton, isActive && componentStyles.tabActive]}
@@ -247,25 +155,186 @@ const TabButton: React.FC<{
   );
 };
 
+const mapToFriendInterface = (
+  rawFriendships: any[],
+  tab: TabType,
+  currentUserId: number
+): Friend[] => {
+  if (tab === "Requests") {
+    // For requests, we display the REQUESTOR's details
+    return rawFriendships.map((req) => {
+      const requestor = req.requestor || {
+        id: req.requestor_id,
+        first_name: `User`,
+        last_name: `${req.requestor_id}`,
+        points: 0,
+        is_online: false,
+        current_location: "Wants to connect",
+      };
+
+      return {
+        id: requestor.id,
+        name: `${requestor.first_name} ${requestor.last_name}`,
+        points: requestor.points || 0,
+        statusText: requestor.current_location || "Wants to connect",
+        action: "Pending",
+        isOnline: requestor.is_online || false,
+        avatarPlaceholder:
+          (requestor.first_name || "?").substring(0, 1) +
+          (requestor.last_name || "?").substring(0, 1),
+        friendshipId: req.id, // ID of the friendship entry
+      } as Friend;
+    });
+  }
+
+  // For 'All Friends' and 'Active Now'
+  return rawFriendships.map((friendship: any) => {
+    // Determine which user ID is the *friend* (not the current user)
+    const friendUserId =
+      friendship.requestor_id === currentUserId
+        ? friendship.reciever_id
+        : friendship.requestor_id;
+    const friendUser = friendship.friendUser || {
+      id: friendUserId,
+      first_name: `Friend`,
+      last_name: `${friendUserId}`,
+      points: Math.floor(Math.random() * 1000), // Mock data
+      is_online: Math.random() < 0.3, // Mock data
+      current_location:
+        Math.random() < 0.5 ? "At Downtown Bar" : "Last seen 2h ago",
+    };
+
+    return {
+      id: friendUser.id,
+      name: `${friendUser.first_name} ${friendUser.last_name}`,
+      points: friendUser.points,
+      statusText:
+        friendUser.current_location ||
+        (friendUser.is_online ? "Online" : "Last seen 2h ago"),
+      action: tab === "Active Now" && friendUser.is_online ? "Join" : "View",
+      isOnline: friendUser.is_online || false,
+      avatarPlaceholder:
+        friendUser.first_name.substring(0, 1) +
+        friendUser.last_name.substring(0, 1),
+    };
+  });
+};
+
 // --- Main Screen Component ---
 
 export default function FriendsScreen() {
   const [activeTab, setActiveTab] = useState<TabType>("All Friends");
-
-  const [user] = useAuthState(auth);
-
-  const [searchText, setSearchText] = useState("");
+  const [user, loadingAuth] = useAuthState(auth);
+  const { currentUserId, isUserIdLoading } = useCurrentUserId();
+  const [friendData, setFriendData] =
+    useState<Record<TabType, Friend[]>>(INITIAL_FRIENDS_DATA);
+  const [isLoading, setIsLoading] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
-  const [friendCodeInput, setFriendCodeInput] = useState("");
+
+  const appIsLoading = loadingAuth || isUserIdLoading || isLoading;
+
+  const fetchData = useCallback(async () => {
+    // Check if we have the database ID before proceeding
+    if (!currentUserId || !user?.emailVerified) return;
+
+    setIsLoading(true);
+    try {
+      // 1. Get Token
+      const JWT_token = await getAToken();
+
+      // 2. Fetch ACCEPTED Friends (Friendship records)
+      const friendsList = await getFriendsList(currentUserId, JWT_token);
+
+      // 3. Map Friendships to Friend Interface
+      const mappedFriends = mapToFriendInterface(
+        friendsList,
+        "All Friends",
+        currentUserId
+      );
+
+      // Update All Friends & Active Now (Simplified filter)
+      setFriendData((prev) => ({
+        ...prev,
+        "All Friends": mappedFriends,
+        "Active Now": mappedFriends.filter((f) => f.isOnline),
+      }));
+
+      // 4. Fetch PENDING Requests (Friendship records where we are the reciever)
+      const requestsList = await getPendingRequests(currentUserId, JWT_token);
+      const mappedRequests = mapToFriendInterface(
+        requestsList,
+        "Requests",
+        currentUserId
+      );
+
+      setFriendData((prev) => ({ ...prev, Requests: mappedRequests }));
+    } catch (error) {
+      console.error("Failed to fetch friends data:", error);
+      Alert.alert("Error", "Could not load friends data. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [currentUserId, user?.emailVerified]); // Depend on currentUserId and verification status
+
+  // Effect to load data on mount and when the user's DB ID is finally resolved
+  useEffect(() => {
+    if (currentUserId && user?.emailVerified) {
+      fetchData();
+    }
+  }, [currentUserId, fetchData, user?.emailVerified]);
+
+  const handleActionPress = (friend: Friend) => {
+    if (friend.action === "Join") {
+      Alert.alert(
+        "Action",
+        `Navigating to join ${friend.name} at their location.`
+      );
+    } else if (friend.action === "View") {
+      Alert.alert("Action", `Viewing profile for ${friend.name}.`);
+    } else if (friend.action === "Pending") {
+      // This is hit if the button wasn't disabled for 'Pending' status, but should be handled by the 'Review' text
+      Alert.alert("Action", `Reviewing pending request from ${friend.name}.`);
+    }
+  };
+
+  // --- Render Logic ---
+
+  // Check for firebase auth loading OR custom hook loading
+  if (appIsLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={Colors.secondary} />
+        <Text style={{ color: Colors.white, marginTop: 10 }}>
+          Loading User Data...
+        </Text>
+      </View>
+    );
+  }
 
   if (!user?.emailVerified) {
     return <NotVerified />;
   }
 
-  const currentFriendsData = MOCK_FRIENDS_DATA[activeTab];
+  // Fallback if the user is logged in but has no database ID
+  if (!currentUserId) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={{ color: Colors.white }}>
+          Authentication Error: Database ID not found.
+        </Text>
+      </View>
+    );
+  }
+
+  // The rest of the component uses the loaded data
+  const currentFriendsData = friendData[activeTab];
+  const tabCounts: Record<TabType, number> = {
+    "All Friends": friendData["All Friends"].length,
+    "Active Now": friendData["Active Now"].length,
+    Requests: friendData.Requests.length,
+  };
 
   const renderActiveContent = (dataLength: number) => {
-    // Banner only shows up if there are active friends
     if (activeTab === "Active Now" && dataLength > 0) {
       return (
         <View style={styles.banner}>
@@ -292,81 +361,61 @@ export default function FriendsScreen() {
           </Text>
         </View>
       );
-    } // Header for Suggestions tab
-
-    if (activeTab === "Suggestions") {
+    }
+    if (activeTab === "Requests") {
       return (
         <Text style={styles.suggestionHeader}>
-          People you might know based on mutual friends and activity
+          Pending requests sent to you.
         </Text>
       );
     }
-
     return null;
   };
 
+  // Updated FriendsModal component to match "Scan Friend Code" layout
   const FriendsModal = () => (
     <View style={componentStyles.modalOverlay}>
-      <View style={componentStyles.modalContent}>
-        <Text style={componentStyles.modalTitle}>Add Friend</Text>
-        <Text style={componentStyles.modalSubtitle}>
-          Scan or enter their unique friend code to send a friend request.
+      <View
+        style={[componentStyles.modalContent, componentStyles.scanModalContent]}
+      >
+        <View style={componentStyles.modalHeader}>
+          <Text style={componentStyles.modalTitle}>Scan Friend Code</Text>
+          <TouchableOpacity
+            style={componentStyles.modalCloseButton}
+            onPress={() => setModalVisible(false)}
+          >
+            <Ionicons name="close" size={24} color={Colors.lightWhite} />
+          </TouchableOpacity>
+        </View>
+
+        {/* Camera View Area */}
+        <View style={componentStyles.cameraContainer}>
+          <Ionicons name="camera-outline" size={48} color={Colors.secondary} />
+          <Text style={componentStyles.cameraText}>Camera would open here</Text>
+        </View>
+
+        <Text style={componentStyles.modalScanPrompt}>
+          Point your camera at a friend's QR code to connect
         </Text>
-        {/* Option 1: Scan Code */}
-        <TouchableOpacity
-          style={[componentStyles.modalButton, { marginBottom: 15 }]}
-          onPress={() => {
-            console.log("Opening Camera for scanning...");
-            setModalVisible(false);
-          }}
-        >
-          <Ionicons
-            name="camera-outline"
-            size={20}
-            color={Colors.white}
-            style={{ marginRight: 8 }}
-          />
-          <Text style={componentStyles.actionButtonText}>Scan QR Code</Text>
-        </TouchableOpacity>
-        <Text
-          style={[
-            componentStyles.modalSubtitle,
-            { marginBottom: 15, color: Colors.white, fontWeight: "600" },
-          ]}
-        >
-          OR
-        </Text>
-        {/* Option 2: Input Option (Typing) */}
-        <TextInput
-          style={componentStyles.modalInput}
-          placeholder="@ABCD1234"
-          placeholderTextColor={Colors.lightWhite}
-          value={friendCodeInput}
-          onChangeText={setFriendCodeInput}
-        />
-        <TouchableOpacity
-          style={componentStyles.modalButton}
-          onPress={() => {
-            console.log(`Searching for: ${friendCodeInput}`);
-            setModalVisible(false);
-            setFriendCodeInput("");
-          }}
-        >
-          <Text style={componentStyles.actionButtonText}>Send Request</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={componentStyles.modalCloseButton}
-          onPress={() => setModalVisible(false)}
-        >
-          <Text style={componentStyles.modalCloseText}>Cancel</Text>
-        </TouchableOpacity>
+
+        {/* Removed: Initiate Scan button */}
       </View>
     </View>
   );
 
+  const filteredData = currentFriendsData; // No search bar, so use unfiltered data
+
   return (
     <View style={styles.safeArea}>
-      {/* Header (Title + Scan Button) */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={isModalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <FriendsModal />
+      </Modal>
+
       <View style={styles.header}>
         <View>
           <Text style={styles.heading}>Friends</Text>
@@ -376,67 +425,59 @@ export default function FriendsScreen() {
         </View>
         <TouchableOpacity
           style={styles.scanButton}
-          onPress={() => setModalVisible(true)} // Opens modal with both scan/type options
+          onPress={() => setModalVisible(true)}
         >
           <Ionicons name="person-add-outline" size={15} color={Colors.white} />
-          {}
-          <Text style={styles.scanButtonText}>Add Friend</Text>
+          <Text style={styles.scanButtonText}> Add Friend</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Tab Navigation */}
       <View style={styles.tabBar}>
-        {Object.keys(MOCK_FRIENDS_DATA).map((tabKey) => {
-          const tab = tabKey as TabType;
-          return (
-            <TabButton
-              key={tab}
-              tab={tab}
-              isActive={activeTab === tab}
-              onPress={setActiveTab}
-            />
-          );
-        })}
-      </View>
-      {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <Ionicons
-          name="search-outline"
-          size={20}
-          color={Colors.secondaryLight}
-        />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search friends..."
-          placeholderTextColor={Colors.secondaryLight}
-          value={searchText}
-          onChangeText={setSearchText}
-        />
-      </View>
-
-      <ScrollView style={{ flex: 1 }}>
-        {/* Conditional Content (Banner / Suggestions Header) */}
-        {renderActiveContent(currentFriendsData.length)}
-        {/* Friend List */}
-        {currentFriendsData.map((friend) => (
-          <FriendCard key={friend.id} friend={friend} />
+        {(["All Friends", "Active Now", "Requests"] as TabType[]).map((tab) => (
+          <TabButton
+            key={tab}
+            tab={tab}
+            count={tabCounts[tab]}
+            isActive={activeTab === tab}
+            onPress={setActiveTab}
+          />
         ))}
-        {/* Display Message when the list is empty (Shouldn't happen with mock data) */}
-        {currentFriendsData.length === 0 && (
-          <Text style={styles.emptyText}>
-            No friends in this list yet. Try adding a friend using the Scan
-            button above!
-          </Text>
+      </View>
+      <ScrollView style={{ flex: 1 }}>
+        {isLoading && filteredData.length === 0 ? (
+          <ActivityIndicator
+            style={{ marginTop: 50 }}
+            size="large"
+            color={Colors.secondary}
+          />
+        ) : (
+          <>
+            {renderActiveContent(filteredData.length)}
+            {filteredData.map((friend) => (
+              <FriendCard
+                // Using ID + Action ensures unique keys
+                key={friend.id + friend.action}
+                friend={friend}
+                onActionPress={handleActionPress}
+              />
+            ))}
+            {filteredData.length === 0 && (
+              <Text style={styles.emptyText}>
+                {activeTab === "Requests"
+                  ? "No pending friend requests."
+                  : activeTab === "Active Now"
+                  ? "No friends are out right now."
+                  : "No friends found. Use the 'Add Friend' button to connect."}
+              </Text>
+            )}
+          </>
         )}
       </ScrollView>
-      {/* Add Friend Modal (Only appears if isModalVisible is true) */}
-      {isModalVisible && <FriendsModal />}
     </View>
   );
 }
 
-// --- Component Styles ---
-
+// --- Component Styles  ---
 const componentStyles = StyleSheet.create({
   cardContainer: {
     flexDirection: "row",
@@ -452,7 +493,7 @@ const componentStyles = StyleSheet.create({
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.8,
     shadowRadius: 6,
-    elevation: 6, // for Android glow effect
+    elevation: 6,
   },
   avatarWrapper: {
     marginRight: 12,
@@ -499,12 +540,6 @@ const componentStyles = StyleSheet.create({
     marginLeft: 4,
   },
 
-  friendUsername: {
-    color: Colors.secondaryLight,
-    fontSize: 12,
-    marginTop: 2,
-  },
-
   statusRow: { flexDirection: "row", alignItems: "center", marginTop: 4 },
 
   statusText: { color: Colors.secondary, fontSize: 12, fontWeight: "500" },
@@ -516,13 +551,24 @@ const componentStyles = StyleSheet.create({
     backgroundColor: Colors.secondary,
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
     shadowColor: Colors.secondary,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.8,
     shadowRadius: 6,
-    elevation: 6, // for Android glow effect
+    elevation: 6,
   },
-
+  pendingButton: {
+    backgroundColor: Colors.primaryLight,
+    shadowOpacity: 0.3,
+    borderColor: Colors.secondaryLight,
+    borderWidth: 1,
+  },
+  pendingButtonText: {
+    color: Colors.secondaryLight,
+    fontSize: 14,
+    fontWeight: "bold",
+  },
   actionButtonText: {
     color: Colors.white,
     fontSize: 14,
@@ -570,48 +616,62 @@ const componentStyles = StyleSheet.create({
     borderWidth: 2,
     borderColor: Colors.primary,
   },
+  scanModalContent: {
+    padding: 0,
+    overflow: "hidden",
+    borderColor: Colors.secondary,
+  },
+  modalHeader: {
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 15,
+  },
   modalTitle: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: "bold",
     color: Colors.white,
-    marginBottom: 8,
   },
-  modalSubtitle: {
+  modalScanPrompt: {
     fontSize: 14,
     color: Colors.lightWhite,
     textAlign: "center",
-    marginBottom: 8,
+    marginTop: 15,
+    marginBottom: 20,
+    paddingHorizontal: 15,
   },
-  modalInput: {
-    width: "100%",
-    backgroundColor: Colors.primary,
-    color: Colors.white,
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 15,
-    borderWidth: 0.2,
+  cameraContainer: {
+    width: "90%",
+    aspectRatio: 1,
+    backgroundColor: Colors.darkPrimary,
+    borderWidth: 2,
     borderColor: Colors.secondary,
-    shadowColor: Colors.secondaryLight,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.6,
-    shadowRadius: 12,
-    elevation: 8, // for Android glow effect
+    borderRadius: 12,
+    borderStyle: "dashed",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 10,
+  },
+  cameraText: {
+    color: Colors.secondary,
+    marginTop: 10,
   },
   modalButton: {
-    width: "100%",
+    width: "90%",
     padding: 12,
     borderRadius: 12,
     backgroundColor: Colors.secondary,
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "center",
+    marginBottom: 20,
   },
-  modalCloseButton: { marginTop: 10, padding: 10 },
+  modalCloseButton: { padding: 5 },
   modalCloseText: { color: Colors.secondaryLight, fontSize: 16 },
 });
 
 // --- Main Screen Styles ---
-
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -645,28 +705,6 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontWeight: "600",
   },
-  searchContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: Colors.primary,
-    borderWidth: 0.2,
-    borderColor: Colors.secondaryLight,
-    marginHorizontal: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 12,
-    marginBottom: 12,
-    shadowColor: Colors.secondaryLight,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.6,
-    shadowRadius: 12,
-    elevation: 8, // for Android glow effect
-  },
-  searchInput: {
-    marginLeft: 8,
-    flex: 1,
-    color: Colors.white,
-  },
   tabBar: {
     flexDirection: "row",
     marginHorizontal: 16,
@@ -680,7 +718,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.6,
     shadowRadius: 12,
-    elevation: 8, // for Android glow effect
+    elevation: 8,
   },
   banner: {
     backgroundColor: Colors.primaryLight,
@@ -694,7 +732,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.8,
     shadowRadius: 6,
-    elevation: 10, // for Android glow effect
+    elevation: 10,
   },
   bannerText: {
     color: Colors.white,
@@ -714,5 +752,11 @@ const styles = StyleSheet.create({
     color: Colors.lightWhite,
     textAlign: "center",
     marginTop: 40,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: Colors.darkPrimary,
   },
 });
