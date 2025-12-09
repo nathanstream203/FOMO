@@ -1,6 +1,8 @@
-import express from 'express';
+import express from "express";
 import prisma from "../prisma_export.js";
-import { Friend_Status } from '@prisma/client';
+import pkg from "@prisma/client";
+const { Friend_Status } = pkg;
+// import { Friend_Status } from "@prisma/client";
 
 const router = express.Router();
 
@@ -61,27 +63,29 @@ router.post('/new', async (req, res) => {
 
     //validation
     if (!requestor_id || !reciever_id) {
-      return res.status(400).json({ error: 'requestor_id and reciever_id required' });
+      return res
+        .status(400)
+        .json({ error: "requestor_id and reciever_id required" });
     }
 
     // check for self-request
     if (requestor_id === reciever_id) {
-      return res.status(400).json({ error: 'Friend request is made to self' });
+      return res.status(400).json({ error: "Friend request is made to self" });
     }
 
     const newFriendRequest = await prisma.friends.create({
-      data: { requestor_id, reciever_id,},
+      data: { requestor_id, reciever_id },
     });
     return res.status(201).json(newFriendRequest);
-
   } catch (e) {
     // detect duplicates
-    if (e.code === 'P2002') { //this can be changes based on prisma error codes
-      return res.status(409).json({ error: 'Friend request already exists' });
+    if (e.code === "P2002") {
+      //this can be changes based on prisma error codes
+      return res.status(409).json({ error: "Friend request already exists" });
     }
 
     console.error(e);
-    return res.status(500).json({ error: 'Route error.' });
+    return res.status(500).json({ error: "Route error." });
   }
 });
 
@@ -98,17 +102,20 @@ router.post('/accept', async (req, res) => {
     const friendship = await prisma.friends.findFirst({
       where: {
         status: Friend_Status.PENDING,
-        OR: [{ requestor_id, reciever_id}, { reciever_id, requestor_id }]
-      }
+        OR: [
+          { requestor_id, reciever_id },
+          { reciever_id, requestor_id },
+        ],
+      },
     });
 
     if (!friendship) {
-      return res.status(404).json({ error: 'Friend request does not exist' });
+      return res.status(404).json({ error: "Friend request does not exist" });
     }
 
     const updated = await prisma.friends.update({
       where: { id: friendship.id },
-      data: { status: Friend_Status.ACCEPTED }
+      data: { status: Friend_Status.ACCEPTED },
     });
 
     return res.status(200).json(updated);
@@ -118,9 +125,8 @@ router.post('/accept', async (req, res) => {
   }
 });
 
-
 // remove a friend or decline a request
-router.delete('/remove', async (req, res) => {
+router.delete("/remove", async (req, res) => {
   try {
     const { requestor_id, reciever_id } = req.body;
 
@@ -131,18 +137,21 @@ router.delete('/remove', async (req, res) => {
     // delete either direction
     const deleted = await prisma.friends.deleteMany({
       where: {
-        OR: [{ requestor_id, reciever_id }, { reciever_id, requestor_id }]
-      }
+        OR: [
+          { requestor_id, reciever_id },
+          { reciever_id, requestor_id },
+        ],
+      },
     });
 
     if (deleted.count === 0) {
-      return res.status(404).json({ error: 'No friendship found' });
+      return res.status(404).json({ error: "No friendship found" });
     }
 
-    return res.status(200).json({ message: 'Friendship removed' });
+    return res.status(200).json({ message: "Friendship removed" });
   } catch (e) {
     console.error(e);
-    return res.status(500).json({ error: 'Error removing friendship' });
+    return res.status(500).json({ error: "Error removing friendship" });
   }
 });
 

@@ -26,7 +26,8 @@
         "ACCESS_BACKGROUND_LOCATION"
       ],
       "predictiveBackGestureEnabled": false,
-      "config": {}
+      "config": {},
+      "package": "com.gsahlin.FOMO"
     },
     "web": {
       "output": "static",

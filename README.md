@@ -109,3 +109,13 @@ Go back to the install file, click install<br>
 App scan recommended : Install without Scanning<br>
 
 Once installed, you can choose to open the app directly. Additionally, the FOMO app will now be seen as a mobile app on the device!
+
+### Miscellaneous
+
+To remove (and reinstall) package-lock.json and node_modules, run
+```bash
+Remove-Item -Recurse -Force node_modules, package-lock.json
+```
+```
+npm install
+```

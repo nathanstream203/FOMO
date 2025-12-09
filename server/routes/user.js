@@ -20,15 +20,16 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', async (req, res) => {
     try {
-        const { firebase_id, first_name, last_name, birth_date, role } = req.body;
-        if(!firebase_id || !first_name || !last_name || !birth_date || !role) {
-            res.json({'Error': 'Bad request'}).status(401);
+        const { firebase_id, first_name, last_name, birth_date, points, role } = req.body;
+        console.log("Received data:", { firebase_id, first_name, last_name, birth_date, points, role });
+        if(!firebase_id || !first_name || !last_name || !birth_date) {
+            res.status(401).json({'Error': 'Bad request. Missing required fields.'});
             return;
         }
-        const user = await prisma.user.create({ data: { firebase_id, first_name, last_name, birth_date, role } });
-        res.json(user).status(201);
+        const user = await prisma.user.create({ data: { firebase_id, first_name, last_name, birth_date, points, role } });
+        res.status(201).json(user);
     } catch (error) {
-        res.json({'Error': `${error}`});
+        res.status(500).json({'Error': `${error}`});
     }
 });
 
