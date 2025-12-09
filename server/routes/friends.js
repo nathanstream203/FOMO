@@ -6,40 +6,53 @@ const router = express.Router();
 
 // GET current friends of a user by id
 router.get('/', async (req, res) => {
-    try{
-        const user = req.body;
-        const friends = await prisma.friends.findMany({
-            where: {
-                status: Friend_Status.ACCEPTED,
-                OR: [
-                    {requestor_id: Number(user.id)},
-                    {reciever_id: Number(user.id)}
-                ]
-            }
-        });
-        res.status(200).json(friends);
-    }catch(e){
-        res.status(500).json({'Error': e});
-    }
+  try {
+    const userId = Number(req.body.id);
+
+    const friends = await prisma.friends.findMany({
+      where: {
+        status: Friend_Status.ACCEPTED,
+        OR: [
+          { requestor_id: userId },
+          { reciever_id: userId }
+        ]
+      },
+      include: {
+        requestor: true,
+        reciever: true,
+      },
+    });
+
+    return res.status(200).json(friends);
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ Error: e });
+  }
 });
 
-// GET pending requests the user has recieved
-// Expects:
-// {id: (user id)}
+// GET pending requests the user has received
 router.get('/requests', async (req, res) => {
-    try{
-        const user = req.body;
-        const friendRequests = await prisma.friends.findMany({
-            where: {
-                status: Friend_Status.PENDING,
-                reciever_id: Number(user.id)
-            }
-        });
-        res.json(friendRequests).status(200);
-    }catch(e){
-        res.json({'Error': e}).status(500);
-    }
+  try {
+    const userId = Number(req.body.id);
+
+    const friendRequests = await prisma.friends.findMany({
+      where: {
+        status: Friend_Status.PENDING,
+        reciever_id: userId,
+      },
+      include: {
+        requestor: true,
+        reciever: true,
+      },
+    });
+
+    return res.status(200).json(friendRequests);
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ Error: e });
+  }
 });
+
 
 // create a friend request 
 router.post('/new', async (req, res) => {
@@ -73,13 +86,12 @@ router.post('/new', async (req, res) => {
 });
 
 // accept a friend request
-// ACCEPT a friend request using two user IDs
 router.post('/accept', async (req, res) => {
   try {
     const { requestor_id, reciever_id } = req.body;
 
     if (!requestor_id || !reciever_id) {
-      return res.status(400).json({ error: 'requestor_id and reciever_id are required.' });
+      return res.status(400).json({ error: 'requestor_id and reciever_id are required' });
     }
 
     // find the friendship in req/res or res/req direction
@@ -102,7 +114,7 @@ router.post('/accept', async (req, res) => {
     return res.status(200).json(updated);
   } catch (e) {
     console.error(e);
-    return res.status(500).json({ error: 'Error accepting friend request.' });
+    return res.status(500).json({ error: 'Error accepting friend request' });
   }
 });
 
@@ -113,10 +125,10 @@ router.delete('/remove', async (req, res) => {
     const { requestor_id, reciever_id } = req.body;
 
     if (!requestor_id || !reciever_id) {
-      return res.status(400).json({ error: 'requestor_id and reciever_id are required.' });
+      return res.status(400).json({ error: 'requestor_id and reciever_id are required' });
     }
 
-    // delete regardless of direction
+    // delete either direction
     const deleted = await prisma.friends.deleteMany({
       where: {
         OR: [{ requestor_id, reciever_id }, { reciever_id, requestor_id }]
