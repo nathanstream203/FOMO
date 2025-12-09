@@ -98,6 +98,7 @@ router.post('/new', async (req, res) => {
         res.status(500).json({'Error': e.message || e});
     }
 
+    /*
     const updated = await prisma.friends.update({
       where: { id: friendship.id },
       data: { status: Friend_Status.ACCEPTED },
@@ -108,6 +109,7 @@ router.post('/new', async (req, res) => {
     console.error(e);
     return res.status(500).json({ error: 'Error accepting friend request' });
   }
+    */
 });
 
 // remove a friend or decline a request
