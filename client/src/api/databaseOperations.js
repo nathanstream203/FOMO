@@ -146,26 +146,28 @@ export const getPostsByPartyId = async (partyId, JWT_token) => {
 
 // create new event for bar
 export const postNewEvent = async (
-  name,
-  date,
+  title,
+  event_date,
   start_time,
   end_time,
-  bar_id,
-  JWT_token
+  bar_id = 2,
+  JWT_token,
+  description = "",
 ) => {
   try {
-    const response = await fetch ('${BASE_URL}/event', {
+    const response = await fetch (`${BASE_URL}/event`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: 'Bearer ${JWT_token}',
+        Authorization: `Bearer ${JWT_token}`,
       },
       body: JSON.stringify({
-        name,
-        date,
+        bar_id,
+        title,
+        description,
+        event_date,
         start_time,
         end_time,
-        bar_id,
       }),
     });
 
@@ -181,16 +183,16 @@ export const postNewEvent = async (
 // get all events in database
 export const getAllEvents = async (JWT_token) => {
   try {
-    const response = await fetch ('${BASE_URL}/event',{
+    const response = await fetch (`${BASE_URL}/event`,{
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: 'Bearer ${JWT_token}',
+        Authorization: `Bearer ${JWT_token}`,
       },
     });
 
     if (!response.ok)
-      throw new Error('Failed to fetch events: ${response.status}');
+      throw new Error(`Failed to fetch events: ${response.status}`);
 
     return await response.json();
   } catch (error) {
@@ -203,18 +205,26 @@ export const getAllEvents = async (JWT_token) => {
 // Get events for specific bar
 export const getEventsByBarId = async (bar_id, JWT_token) => {
   try {
-    const response = await fetch ('${BASE_URL}/event', {
+    const response = await fetch (`${BASE_URL}/event/${bar_id}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: 'Bearer ${JWT_token}',
+        Authorization: `Bearer ${JWT_token}`,
       },
     });
 
+    /*
     const events = await response.json();
     return events.filter((ev) => ev.bar_id === bar_id);
   }catch (error) {
     console.error('Error fetching events for bar ${bar_id}:', error);
+    throw error;
+  }
+};
+*/ 
+return await response.json();
+  } catch (error) {
+    console.error(`Error fetching events for bar ${bar_id}:`, error);
     throw error;
   }
 };

@@ -3,9 +3,9 @@ import Constants from "expo-constants";
 /** @type {string} */
 let BASE_URL;
 
-// BASE_URL = process.env.EXPO_PUBLIC_DIGITALOCEAN || "http://localhost:2500";
+BASE_URL = process.env.EXPO_PUBLIC_DIGITALOCEAN || "http://localhost:2500";
 
-
+/*
 try {
   // Try to extract host from any possible field
   const debuggerHost =
@@ -23,6 +23,7 @@ try {
 } catch (e) {
   BASE_URL = process.env.EXPO_PUBLIC_BASE_URL || "http://localhost:4000";
 }
+  */
 
 
 
