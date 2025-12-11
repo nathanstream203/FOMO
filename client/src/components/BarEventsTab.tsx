@@ -43,11 +43,12 @@ export default function BarEventsTab({ barId }: BarEventsTabProps){
             
             const formatted = dbEvents.map((ev: any) => ({
                 id: ev.id,
-                name: ev.name,
-                date: ev.date,
-                start_time: ev.start_time,
-                end_time: ev.end_time,
+                name: ev.title,              // correct
+                date: ev.event_date,         // correct
+                startTime: ev.start_time,    // frontend uses camelCase
+                endTime: ev.end_time,
             }));
+
 
             setEvents(formatted);
         } catch (err) {
