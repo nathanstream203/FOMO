@@ -115,6 +115,14 @@ const LiveFeedTab: React.FC<LiveFeedTabProps> = ({
     }
   };
 
+  const reloadPosts = async () => {
+    if (partyId) {
+      await fetchPosts("party", partyId);
+    } else if (barId) {
+      await fetchPosts("bar", barId);
+    }
+  };
+
   // 1. Initial Data Fetch (on barId change)
   useEffect(() => {
     if (partyId) {
@@ -297,6 +305,16 @@ const LiveFeedTab: React.FC<LiveFeedTabProps> = ({
           </View>
         </View>
       )}
+
+      <View style={[feedStyles.reloadButton]}>
+        <TouchableOpacity
+          onPress={async () => {
+            await reloadPosts(); // Reload Firebase user
+          }}
+        >
+          <Ionicons name="refresh-outline" size={20} color="#8b5cf6" />
+        </TouchableOpacity>
+      </View>
 
       {/* Loading Indicator */}
       {loading && (
