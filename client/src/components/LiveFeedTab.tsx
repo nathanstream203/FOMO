@@ -115,6 +115,14 @@ const LiveFeedTab: React.FC<LiveFeedTabProps> = ({
     }
   };
 
+  const reloadPosts = async () => {
+    if (partyId) {
+      await fetchPosts("party", partyId);
+    } else if (barId) {
+      await fetchPosts("bar", barId);
+    }
+  };
+
   // 1. Initial Data Fetch (on barId change)
   useEffect(() => {
     if (partyId) {
@@ -286,17 +294,35 @@ const LiveFeedTab: React.FC<LiveFeedTabProps> = ({
       )}
 
       {/* Live Indicator */}
-      {posts.length > 0 && (
-        <View style={feedStyles.liveIndicator}>
-          <Ionicons name="flame" size={20} color="#e63946" />
-          <Text style={feedStyles.liveIndicatorText}>
-            {posts.length} post{posts.length > 1 ? "s" : ""} live
-          </Text>
-          <View style={feedStyles.liveBadge}>
-            <Text style={feedStyles.liveBadgeText}>Live</Text>
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        {posts.length > 0 && (
+          <View style={feedStyles.liveIndicator}>
+            <Ionicons name="flame" size={20} color="#e63946" />
+            <Text style={feedStyles.liveIndicatorText}>
+              {posts.length} post{posts.length > 1 ? "s" : ""} live
+            </Text>
+            <View style={feedStyles.liveBadge}>
+              <Text style={feedStyles.liveBadgeText}>Live</Text>
+            </View>
           </View>
+        )}
+
+        <View style={[feedStyles.reloadButton]}>
+          <TouchableOpacity
+            onPress={async () => {
+              await reloadPosts(); // Reload Firebase user
+            }}
+          >
+            <Ionicons name="refresh-outline" size={20} color="#8b5cf6" />
+          </TouchableOpacity>
         </View>
-      )}
+      </View>
 
       {/* Loading Indicator */}
       {loading && (

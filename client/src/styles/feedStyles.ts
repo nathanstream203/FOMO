@@ -138,4 +138,5 @@ export const feedStyles = StyleSheet.create({
     textAlign: "center",
     marginTop: 20,
   },
+  reloadButton: {},
 });
