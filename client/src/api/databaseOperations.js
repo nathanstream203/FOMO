@@ -203,7 +203,7 @@ export const getAllEvents = async (JWT_token) => {
 };
 
 // Get events for specific bar
-export const getEventsByBarId = async (bar_id, JWT_token) => {
+export const getEventsByBarId = async (bar_id = 2, JWT_token) => {
   try {
     const response = await fetch (`${BASE_URL}/event/${bar_id}`, {
       method: "GET",
@@ -213,15 +213,6 @@ export const getEventsByBarId = async (bar_id, JWT_token) => {
       },
     });
 
-    /*
-    const events = await response.json();
-    return events.filter((ev) => ev.bar_id === bar_id);
-  }catch (error) {
-    console.error('Error fetching events for bar ${bar_id}:', error);
-    throw error;
-  }
-};
-*/ 
 return await response.json();
   } catch (error) {
     console.error(`Error fetching events for bar ${bar_id}:`, error);

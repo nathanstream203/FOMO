@@ -28,14 +28,6 @@ router.post('/', async (req, res) => {
             return res.status(400).json({ Error: "Missing required fields" })
         }
 
-        /*
-        console.log("Creating event with data: ");
-        const newEvent = await prisma.event.create({
-            data: { bar_id, title, description, event_date, start_time, end_time }
-        });
-        console.log("Event created: ", newEvent);
-        */
-
         console.log("Creating event with data:", {
             bar_id,
             title,
@@ -45,21 +37,6 @@ router.post('/', async (req, res) => {
             end_time
         });
 
-        /*
-        prisma tabele schema:
-
-        model event {
-  id Int @id @default(autoincrement())
-  bar_id Int
-  title String
-  description String?
-  event_date String
-  start_time DateTime @default(now())
-  end_time DateTime
-  bar bar @relation(fields: [bar_id], references: [id])
-}
-  
-        */
         const newEvent = await prisma.event.create({
             data: {
                 bar_id,
