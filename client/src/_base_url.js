@@ -23,7 +23,8 @@ try {
 } catch (e) {
   BASE_URL = process.env.EXPO_PUBLIC_BASE_URL || "http://localhost:4000";
 }
-*/
+  */
+
 
 
 console.warn("BASE_URL set to:", BASE_URL);

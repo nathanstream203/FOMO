@@ -40,6 +40,7 @@ export default function BarEventsTab({ barId }: BarEventsTabProps){
             const token = await getAToken();
             const dbEvents = await getEventsByBarId(barId, token);
 
+            
             const formatted = dbEvents.map((ev: any) => ({
                 id: ev.id,
                 name: ev.name,

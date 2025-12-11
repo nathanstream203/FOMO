@@ -146,26 +146,28 @@ export const getPostsByPartyId = async (partyId, JWT_token) => {
 
 // create new event for bar
 export const postNewEvent = async (
-  name,
-  date,
+  title,
+  event_date,
   start_time,
   end_time,
-  bar_id,
-  JWT_token
+  bar_id = 2,
+  JWT_token,
+  description = "",
 ) => {
   try {
-    const response = await fetch ('${BASE_URL}/event', {
+    const response = await fetch (`${BASE_URL}/event`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: 'Bearer ${JWT_token}',
+        Authorization: `Bearer ${JWT_token}`,
       },
       body: JSON.stringify({
-        name,
-        date,
+        bar_id,
+        title,
+        description,
+        event_date,
         start_time,
         end_time,
-        bar_id,
       }),
     });
 
@@ -181,16 +183,16 @@ export const postNewEvent = async (
 // get all events in database
 export const getAllEvents = async (JWT_token) => {
   try {
-    const response = await fetch ('${BASE_URL}/event',{
+    const response = await fetch (`${BASE_URL}/event`,{
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: 'Bearer ${JWT_token}',
+        Authorization: `Bearer ${JWT_token}`,
       },
     });
 
     if (!response.ok)
-      throw new Error('Failed to fetch events: ${response.status}');
+      throw new Error(`Failed to fetch events: ${response.status}`);
 
     return await response.json();
   } catch (error) {
@@ -203,18 +205,26 @@ export const getAllEvents = async (JWT_token) => {
 // Get events for specific bar
 export const getEventsByBarId = async (bar_id, JWT_token) => {
   try {
-    const response = await fetch ('${BASE_URL}/event', {
+    const response = await fetch (`${BASE_URL}/event/${bar_id}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: 'Bearer ${JWT_token}',
+        Authorization: `Bearer ${JWT_token}`,
       },
     });
 
+    /*
     const events = await response.json();
     return events.filter((ev) => ev.bar_id === bar_id);
   }catch (error) {
     console.error('Error fetching events for bar ${bar_id}:', error);
+    throw error;
+  }
+};
+*/ 
+return await response.json();
+  } catch (error) {
+    console.error(`Error fetching events for bar ${bar_id}:`, error);
     throw error;
   }
 };
@@ -441,4 +451,84 @@ export const getParties = async (JWT_token) => {
     console.error("Error fetching parties", error);
     throw error;
   }
+};
+
+/**
+ * --------------------------
+ * FRIENDS
+ * --------------------------
+ */
+
+// GET current friends of a user
+export const getFriendsList = async (userId, JWT_token) => {
+  try {
+    const response = await fetch(`${BASE_URL}/friends?id=${userId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${JWT_token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch friends list: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching friends list:", error);
+    throw error;
+  }
+};
+
+// GET pending requests the user has received
+export const getPendingRequests = async (userId, JWT_token) => {
+  try {
+    const response = await fetch(`${BASE_URL}/friends/requests?id=${userId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${JWT_token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch pending requests: ${response.status}`);
+    }
+
+    // Requests list will contain the *friendship* object, not the user object directly.
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching pending requests:", error);
+    throw error;
+  }
+};
+
+// POST create a friend request
+export const sendFriendRequest = async (
+  requestorId,
+  recieverId,
+  JWT_token
+) => {
+  const data = {
+    requestor_id: requestorId,
+    reciever_id: recieverId,
+  };
+
+  const response = await fetch(`${BASE_URL}/friends/new`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${JWT_token}`,
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    // Check if it's a 409 Conflict (e.g., request already exists)
+    const errorBody = await response.json();
+    throw new Error(errorBody.Error || "Failed to send friend request");
+  }
+
+  return response.json();
 };

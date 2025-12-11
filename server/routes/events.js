@@ -3,7 +3,7 @@ import prisma from "../prisma_export.js";
 
 const router = express.Router();
 
-router.get('/', async (requestAnimationFrame, res) => {
+router.get('/', async (req, res) => {
     const events = await prisma.event.findMany();
     res.json(events);
 });
@@ -24,16 +24,61 @@ router.post('/', async (req, res) => {
         const {bar_id, title, description, event_date, start_time, end_time } = req.body;
 
         if (!bar_id || !title || !event_date || !start_time ||!end_time){
+            console.log("Missing required fields : ", req.body);
             return res.status(400).json({ Error: "Missing required fields" })
         }
 
+        /*
+        console.log("Creating event with data: ");
         const newEvent = await prisma.event.create({
             data: { bar_id, title, description, event_date, start_time, end_time }
         });
+        console.log("Event created: ", newEvent);
+        */
 
-        res.status(201).json(newEvent);
+        console.log("Creating event with data:", {
+            bar_id,
+            title,
+            description,
+            event_date,
+            start_time,
+            end_time
+        });
+
+        /*
+        prisma tabele schema:
+
+        model event {
+  id Int @id @default(autoincrement())
+  bar_id Int
+  title String
+  description String?
+  event_date String
+  start_time DateTime @default(now())
+  end_time DateTime
+  bar bar @relation(fields: [bar_id], references: [id])
+}
+  
+        */
+        const newEvent = await prisma.event.create({
+            data: {
+                bar_id,
+                title,
+                description,
+                event_date,
+                start_time: new Date(),
+                end_time: new Date(),
+            }
+        });
+
+        console.log("Event created:", newEvent);
+
+        return res.status(201).json(newEvent);
+
     } catch (error) {
-        res.json({ Error: '${errlr}' });
+        console.error("Prisma error:", error);
+        return res.status(500).json({ error: error.message });
+
     }
 });
 
