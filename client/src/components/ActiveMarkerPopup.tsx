@@ -79,7 +79,11 @@ export default function ActiveMarkerPopup({
           isCheckedIn={isCheckedIn}
         />
       ) : (
-        <BarEventsTab />
+        <BarEventsTab
+          barId={
+            activeMarker.type === "bar" ? activeMarker.numericId : undefined
+          }
+        />
       )}
     </View>
   );
