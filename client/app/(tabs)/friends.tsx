@@ -17,11 +17,13 @@ import { Colors } from "../../src/styles/colors";
 import { auth } from "../../src/firebaseConfig";
 import NotVerified from "../notverified";
 import { useCurrentUserId } from "../../src/hooks/useCurrentUserInfo";
-import { getAToken } from "../../src/tokenStorage";
+// import { getAToken } from "../../src/tokenStorage";
+/*
 import {
   getFriendsList,
   getPendingRequests,
 } from "../../src/api/databaseOperations";
+*/
 
 type TabType = "All Friends" | "Active Now" | "Requests";
 
@@ -39,12 +41,78 @@ interface Friend {
   friendshipId?: number; // Used mainly for request management
 }
 
-// Mock Data (For initial structure while loading)
+// --- MOCK DATA DEFINITION ---
+
+const MOCK_FRIENDS: Friend[] = [
+  {
+    id: 101,
+    name: "Alex Johnson",
+    points: 1250,
+    statusText: "At The Corner Bistro",
+    action: "Join",
+    isOnline: true,
+    avatarPlaceholder: "AJ",
+  },
+  {
+    id: 102,
+    name: "Ben Smith",
+    points: 450,
+    statusText: "Last seen 30m ago",
+    action: "View",
+    isOnline: false,
+    avatarPlaceholder: "BS",
+  },
+  {
+    id: 103,
+    name: "Chloe Davis",
+    points: 890,
+    statusText: "Near Downtown Bar",
+    action: "Join",
+    isOnline: true,
+    avatarPlaceholder: "CD",
+  },
+  {
+    id: 104,
+    name: "Ethan White",
+    points: 320,
+    statusText: "Last seen 2d ago",
+    action: "View",
+    isOnline: false,
+    avatarPlaceholder: "EW",
+  },
+];
+
+const MOCK_REQUESTS: Friend[] = [
+  {
+    id: 201,
+    name: "Frank Miller",
+    points: 700,
+    statusText: "Wants to connect",
+    action: "Pending",
+    isOnline: false,
+    avatarPlaceholder: "FM",
+    friendshipId: 501, // Mock friendship ID for acceptance
+  },
+  {
+    id: 202,
+    name: "Grace Lee",
+    points: 200,
+    statusText: "Wants to connect",
+    action: "Pending",
+    isOnline: false,
+    avatarPlaceholder: "GL",
+    friendshipId: 502,
+  },
+];
+
+// Combine mock data into the expected state structure
 const INITIAL_FRIENDS_DATA: Record<TabType, Friend[]> = {
-  "All Friends": [],
-  "Active Now": [],
-  Requests: [],
+  "All Friends": MOCK_FRIENDS,
+  "Active Now": MOCK_FRIENDS.filter((f) => f.isOnline),
+  Requests: MOCK_REQUESTS,
 };
+
+// --- Helper Components (Unchanged) ---
 
 const AvatarPlaceholder = ({ letter }: { letter: string }) => (
   <View style={componentStyles.avatar}>
@@ -119,7 +187,7 @@ const FriendCard: React.FC<{
           isPendingButton && componentStyles.pendingButton,
           isJoinButton && { backgroundColor: Colors.secondary },
         ]}
-        onPress={isPendingButton ? undefined : () => onActionPress(friend)}
+        onPress={() => onActionPress(friend)}
       >
         {isPendingButton ? (
           <Text style={componentStyles.pendingButtonText}>Review</Text>
@@ -155,149 +223,73 @@ const TabButton: React.FC<{
   );
 };
 
-const mapToFriendInterface = (
-  rawFriendships: any[],
-  tab: TabType,
-  currentUserId: number
-): Friend[] => {
-  if (tab === "Requests") {
-    // For requests, we display the REQUESTOR's details
-    return rawFriendships.map((req) => {
-      const requestor = req.requestor || {
-        id: req.requestor_id,
-        first_name: `User`,
-        last_name: `${req.requestor_id}`,
-        points: 0,
-        is_online: false,
-        current_location: "Wants to connect",
-      };
-
-      return {
-        id: requestor.id,
-        name: `${requestor.first_name} ${requestor.last_name}`,
-        points: requestor.points || 0,
-        statusText: requestor.current_location || "Wants to connect",
-        action: "Pending",
-        isOnline: requestor.is_online || false,
-        avatarPlaceholder:
-          (requestor.first_name || "?").substring(0, 1) +
-          (requestor.last_name || "?").substring(0, 1),
-        friendshipId: req.id, // ID of the friendship entry
-      } as Friend;
-    });
-  }
-
-  // For 'All Friends' and 'Active Now'
-  return rawFriendships.map((friendship: any) => {
-    // Determine which user ID is the *friend* (not the current user)
-    const friendUserId =
-      friendship.requestor_id === currentUserId
-        ? friendship.reciever_id
-        : friendship.requestor_id;
-    const friendUser = friendship.friendUser || {
-      id: friendUserId,
-      first_name: `Friend`,
-      last_name: `${friendUserId}`,
-      points: Math.floor(Math.random() * 1000), // Mock data
-      is_online: Math.random() < 0.3, // Mock data
-      current_location:
-        Math.random() < 0.5 ? "At Downtown Bar" : "Last seen 2h ago",
-    };
-
-    return {
-      id: friendUser.id,
-      name: `${friendUser.first_name} ${friendUser.last_name}`,
-      points: friendUser.points,
-      statusText:
-        friendUser.current_location ||
-        (friendUser.is_online ? "Online" : "Last seen 2h ago"),
-      action: tab === "Active Now" && friendUser.is_online ? "Join" : "View",
-      isOnline: friendUser.is_online || false,
-      avatarPlaceholder:
-        friendUser.first_name.substring(0, 1) +
-        friendUser.last_name.substring(0, 1),
-    };
-  });
-};
-
 // --- Main Screen Component ---
 
 export default function FriendsScreen() {
   const [activeTab, setActiveTab] = useState<TabType>("All Friends");
   const [user, loadingAuth] = useAuthState(auth);
+  // Keep useCurrentUserId for standard auth checks, but we won't use currentUserId for fetching
   const { currentUserId, isUserIdLoading } = useCurrentUserId();
   const [friendData, setFriendData] =
     useState<Record<TabType, Friend[]>>(INITIAL_FRIENDS_DATA);
   const [isLoading, setIsLoading] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
 
+  // We are keeping the loading state check here for a nice UI loading simulation
   const appIsLoading = loadingAuth || isUserIdLoading || isLoading;
 
+  // --- REPLACED: MOCK DATA FETCH FUNCTION ---
   const fetchData = useCallback(async () => {
-    // Check if we have the database ID before proceeding
-    if (!currentUserId || !user?.emailVerified) return;
+    // Only proceed if user is verified (standard requirement)
+    if (!user?.emailVerified) return;
 
     setIsLoading(true);
-    try {
-      // 1. Get Token
-      const JWT_token = await getAToken();
+    // Simulate API delay for a nice loading effect
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // 2. Fetch ACCEPTED Friends (Friendship records)
-      const friendsList = await getFriendsList(currentUserId, JWT_token);
+    // DIRECTLY use the pre-defined mock data to ensure UI displays correctly
+    const friends = MOCK_FRIENDS;
+    const requests = MOCK_REQUESTS;
 
-      // 3. Map Friendships to Friend Interface
-      const mappedFriends = mapToFriendInterface(
-        friendsList,
-        "All Friends",
-        currentUserId
-      );
+    setFriendData({
+      "All Friends": friends,
+      "Active Now": friends.filter((f) => f.isOnline),
+      Requests: requests,
+    });
 
-      // Update All Friends & Active Now (Simplified filter)
-      setFriendData((prev) => ({
-        ...prev,
-        "All Friends": mappedFriends,
-        "Active Now": mappedFriends.filter((f) => f.isOnline),
-      }));
+    setIsLoading(false);
+  }, [user?.emailVerified]); // Depend only on verification status
 
-      // 4. Fetch PENDING Requests (Friendship records where we are the reciever)
-      const requestsList = await getPendingRequests(currentUserId, JWT_token);
-      const mappedRequests = mapToFriendInterface(
-        requestsList,
-        "Requests",
-        currentUserId
-      );
-
-      setFriendData((prev) => ({ ...prev, Requests: mappedRequests }));
-    } catch (error) {
-      console.error("Failed to fetch friends data:", error);
-      Alert.alert("Error", "Could not load friends data. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [currentUserId, user?.emailVerified]); // Depend on currentUserId and verification status
-
-  // Effect to load data on mount and when the user's DB ID is finally resolved
+  // Effect to load data on mount and when the user is verified
   useEffect(() => {
-    if (currentUserId && user?.emailVerified) {
+    if (user?.emailVerified) {
+      // Set isLoading to true initially to show spinner before mock data loads
+      setIsLoading(true);
       fetchData();
     }
-  }, [currentUserId, fetchData, user?.emailVerified]);
+  }, [fetchData, user?.emailVerified]);
 
   const handleActionPress = (friend: Friend) => {
     if (friend.action === "Join") {
       Alert.alert(
-        "Action",
-        `Navigating to join ${friend.name} at their location.`
+        "Action (MOCK)",
+        `[MOCK] Navigating to join ${friend.name} at their location.`
       );
     } else if (friend.action === "View") {
-      Alert.alert("Action", `Viewing profile for ${friend.name}.`);
+      Alert.alert(
+        "Action (MOCK)",
+        `[MOCK] Viewing profile for ${friend.name}.`
+      );
     } else if (friend.action === "Pending") {
-      // This is hit if the button wasn't disabled for 'Pending' status, but should be handled by the 'Review' text
-      Alert.alert("Action", `Reviewing pending request from ${friend.name}.`);
+      // Simulate the 'Review' action
+      Alert.alert(
+        "Action (MOCK)",
+        `[MOCK] You are reviewing the request from ${friend.name}. Acceptance logic would go here.`
+      );
     }
   };
 
-  // --- Render Logic ---
+  // --- Render Logic (Unchanged) ---
 
   // Check for firebase auth loading OR custom hook loading
   if (appIsLoading) {
@@ -313,17 +305,6 @@ export default function FriendsScreen() {
 
   if (!user?.emailVerified) {
     return <NotVerified />;
-  }
-
-  // Fallback if the user is logged in but has no database ID
-  if (!currentUserId) {
-    return (
-      <View style={styles.loadingContainer}>
-        <Text style={{ color: Colors.white }}>
-          Authentication Error: Database ID not found.
-        </Text>
-      </View>
-    );
   }
 
   // The rest of the component uses the loaded data
@@ -397,13 +378,11 @@ export default function FriendsScreen() {
         <Text style={componentStyles.modalScanPrompt}>
           Point your camera at a friend's QR code to connect
         </Text>
-
-        {/* Removed: Initiate Scan button */}
       </View>
     </View>
   );
 
-  const filteredData = currentFriendsData; // No search bar, so use unfiltered data
+  const filteredData = currentFriendsData;
 
   return (
     <View style={styles.safeArea}>
@@ -477,7 +456,7 @@ export default function FriendsScreen() {
   );
 }
 
-// --- Component Styles  ---
+// --- Component Styles (Kept unchanged) ---
 const componentStyles = StyleSheet.create({
   cardContainer: {
     flexDirection: "row",
@@ -671,7 +650,7 @@ const componentStyles = StyleSheet.create({
   modalCloseText: { color: Colors.secondaryLight, fontSize: 16 },
 });
 
-// --- Main Screen Styles ---
+// --- Main Screen Styles (Kept unchanged) ---
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
